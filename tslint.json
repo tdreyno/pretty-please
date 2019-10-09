@@ -1,0 +1,7 @@
+{
+  "extends": [
+    "tslint:recommended",
+    "tslint-immutable",
+    "tslint-config-prettier"
+  ]
+}
