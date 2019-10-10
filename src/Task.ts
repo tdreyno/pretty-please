@@ -72,11 +72,14 @@ export class Task<E, S> {
 
 /**
  * Creates a Task which has already successfully completed with `result`.
+ * @alias of
  * @param result The value to place into the successful Task.
  */
 export function succeed<S, E = never>(result: S): Task<E, S> {
   return new Task((_, resolve) => resolve(result));
 }
+
+export const of = succeed;
 
 /**
  * Creates a Task which automatically succeeds at some time in the future with `result`.
@@ -228,7 +231,7 @@ export function onlyOnce<E, S>(task: Task<E, S>): Task<E, S> {
  * Given a promise, create a Task which relies on it.
  * @param promise The promise we will gather the success from.
  */
-export function fromPromise<S, E = any>(promise: Promise<S>): Task<E, S> {
+export function fromPromise<S, E = unknown>(promise: Promise<S>): Task<E, S> {
   return new Task((reject, resolve) => promise.then(resolve, reject));
 }
 

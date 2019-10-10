@@ -1,6 +1,6 @@
 import mockAxios, { AxiosResponse } from "axios";
 import { get, toJSON } from "../HTTP";
-import { fromPromise, succeed, Task } from "../Task";
+import { fromPromise, of, Task } from "../Task";
 
 function slugify(..._args: any[]): string {
   return "slug";
@@ -113,7 +113,7 @@ export function loadData(req: Request): Task<Error, PageContent> {
     )
     .map(response => response.results[0].data as PageContent);
 
-  return succeed(mergeJobsIntoContent)
+  return of(mergeJobsIntoContent)
     .ap(pageContentTask)
     .ap(jobsTask);
 }
