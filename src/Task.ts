@@ -17,6 +17,14 @@ export class Task<E, S> {
     return andThen(fn, this);
   }
 
+  public succeedIf(fn: () => S | undefined): Task<E, S> {
+    return succeedIf(fn, this);
+  }
+
+  public onlyOnce(): Task<E, S> {
+    return onlyOnce(this);
+  }
+
   public toPromise(): Promise<S> {
     return toPromise(this);
   }
@@ -127,6 +135,91 @@ export function andThen<E, S, S2>(
   return new Task((reject, resolve) =>
     fork(reject, b => fork(reject, resolve, fn(b)), task)
   );
+}
+
+/**
+ * When forked, run a function which can check whether the task has already succeeded.
+ * @param fn The function which either returns a success value or undefined.
+ * @param task The task to run if the check fails (returns undefined).
+ */
+export function succeedIf<E, S>(
+  fn: () => S | undefined,
+  task: Task<E, S>
+): Task<E, S> {
+  return new Task((reject, resolve) => {
+    const result = fn();
+
+    if (result) {
+      resolve(result);
+      return;
+    }
+
+    fork(reject, resolve, task);
+  });
+}
+
+/**
+ * A task which only runs once. Caches the success or failure. Be careful.
+ * @param task The task to cache results.
+ */
+export function onlyOnce<E, S>(task: Task<E, S>): Task<E, S> {
+  let state: "initialized" | "pending" | "success" | "failure" = "initialized";
+  let cachedResult: S;
+  let cachedError: E;
+
+  let callbackId = 0;
+  const callbacks: {
+    [id: string]: { reject: Reject<E>; resolve: Resolve<S> };
+  } = {};
+
+  function notify(reject: Reject<E>, resolve: Resolve<S>) {
+    const id = callbackId++;
+
+    callbacks[id] = { reject, resolve };
+  }
+
+  function triggerReject(error: E) {
+    state = "failure";
+    cachedError = error;
+
+    Object.keys(callbacks).forEach(id => {
+      callbacks[id].reject(error);
+      delete callbacks[id];
+    });
+  }
+
+  function triggerResolve(result: S) {
+    state = "success";
+    cachedResult = result;
+
+    Object.keys(callbacks).forEach(id => {
+      callbacks[id].resolve(result);
+      delete callbacks[id];
+    });
+  }
+
+  return new Task((reject, resolve) => {
+    switch (state) {
+      case "success":
+        resolve(cachedResult!);
+        break;
+
+      case "failure":
+        reject(cachedError!);
+        break;
+
+      case "pending":
+        notify(reject, resolve);
+        break;
+
+      case "initialized":
+        state = "pending";
+
+        notify(reject, resolve);
+
+        fork(triggerReject, triggerResolve, task);
+    }
+  });
 }
 
 /**

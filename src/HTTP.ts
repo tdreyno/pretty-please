@@ -1,49 +1,49 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { fail, fromPromise, succeed, Task } from "./Task";
 
-export function get<T = any, R = AxiosResponse<T>>(
+export function get<T = any>(
   url: string,
   config?: AxiosRequestConfig
-): Task<Error, R> {
-  return fromPromise<R, Error>(axios.get(url, config));
+): Task<Error, AxiosResponse<T>> {
+  return fromPromise<AxiosResponse<T>, Error>(axios.get(url, config));
 }
 
-export function delete_<T = any, R = AxiosResponse<T>>(
+export function delete_<T = any>(
   url: string,
   config?: AxiosRequestConfig
-): Task<Error, R> {
-  return fromPromise<R, Error>(axios.delete(url, config));
+): Task<Error, AxiosResponse<T>> {
+  return fromPromise<AxiosResponse<T>, Error>(axios.delete(url, config));
 }
 
-export function head<T = any, R = AxiosResponse<T>>(
+export function head<T = any>(
   url: string,
   config?: AxiosRequestConfig
-): Task<Error, R> {
-  return fromPromise<R, Error>(axios.head(url, config));
+): Task<Error, AxiosResponse<T>> {
+  return fromPromise<AxiosResponse<T>, Error>(axios.head(url, config));
 }
 
-export function post<T = any, R = AxiosResponse<T>>(
+export function post<T = any>(
   url: string,
   data?: any,
   config?: AxiosRequestConfig
-): Task<Error, R> {
-  return fromPromise<R, Error>(axios.post(url, data, config));
+): Task<Error, AxiosResponse<T>> {
+  return fromPromise<AxiosResponse<T>, Error>(axios.post(url, data, config));
 }
 
-export function put<T = any, R = AxiosResponse<T>>(
+export function put<T = any>(
   url: string,
   data?: any,
   config?: AxiosRequestConfig
-): Task<Error, R> {
-  return fromPromise<R, Error>(axios.put(url, data, config));
+): Task<Error, AxiosResponse<T>> {
+  return fromPromise<AxiosResponse<T>, Error>(axios.put(url, data, config));
 }
 
-export function patch<T = any, R = AxiosResponse<T>>(
+export function patch<T = any>(
   url: string,
   data?: any,
   config?: AxiosRequestConfig
-): Task<Error, R> {
-  return fromPromise<R, Error>(axios.patch(url, data, config));
+): Task<Error, AxiosResponse<T>> {
+  return fromPromise<AxiosResponse<T>, Error>(axios.patch(url, data, config));
 }
 
 export function toJSON<S, T>(resp: AxiosResponse<T>): Task<Error, S> {
