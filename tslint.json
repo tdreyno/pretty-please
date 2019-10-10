@@ -3,5 +3,9 @@
     "tslint:recommended",
     "tslint-immutable",
     "tslint-config-prettier"
-  ]
+  ],
+  "rules": {
+    "interface-name": false,
+    "object-literal-sort-keys": false
+  }
 }

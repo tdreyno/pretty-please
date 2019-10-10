@@ -1,6 +1,6 @@
-type Reject<E> = (error: E) => void;
-type Resolve<S> = (result: S) => void;
-type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void;
+export type Reject<E> = (error: E) => void;
+export type Resolve<S> = (result: S) => void;
+export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void;
 
 export interface Task<E, S> {
   readonly fork: Fork<E, S>;
@@ -20,16 +20,34 @@ export function Task<E, S>(computation: Fork<E, S>): Task<E, S> {
  * Creates a Task which has already successfully completed with `result`.
  * @param result The value to place into the successful Task.
  */
-export function of<T, E = never>(result: T): Task<E, T> {
+export function succeed<T, E = never>(result: T): Task<E, T> {
   return Task((_, resolve) => resolve(result));
+}
+
+/**
+ * Creates a Task which automatically succeeds at some time in the future with `result`.
+ * @param ms How many milliseconds until it succeeds.
+ * @param result The value to place into the successful Task.
+ */
+export function succeedIn<T, E = never>(ms: number, result: T): Task<E, T> {
+  return Task((_, resolve) => setTimeout(() => resolve(result), ms));
 }
 
 /**
  * Creates a Task which has already failed with `error`.
  * @param error The error to place into the failed Task.
  */
-export function failed<T>(error: T): Task<T, never> {
+export function fail<T>(error: T): Task<T, never> {
   return Task((reject, _) => reject(error));
+}
+
+/**
+ * Creates a Task which automatically fails at some time in the future with `error`.
+ *  @param ms How many milliseconds until it succeeds.
+ * @param error The error to place into the failed Task.
+ */
+export function failIn<T>(ms: number, error: T): Task<T, never> {
+  return Task((reject, _) => setTimeout(() => reject(error), ms));
 }
 
 /**
@@ -129,6 +147,8 @@ export function firstSuccess<E, S>(...tasks: Array<Task<E, S>>): Task<E[], S> {
     return tasks.map(task =>
       fork(
         (error: E) => {
+          /* Should be impossible. */
+          /* istanbul ignore next */
           if (isDone) {
             return;
           }
@@ -142,6 +162,8 @@ export function firstSuccess<E, S>(...tasks: Array<Task<E, S>>): Task<E[], S> {
           }
         },
         (result: S) => {
+          /* Should be impossible. */
+          /* istanbul ignore next */
           if (isDone) {
             return;
           }
@@ -167,9 +189,11 @@ export function all<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
 
     const results: S[] = [];
 
-    return tasks.map(task =>
+    return tasks.map((task, i) =>
       fork(
         (error: E) => {
+          /* Should be impossible. */
+          /* istanbul ignore next */
           if (isDone) {
             return;
           }
@@ -179,13 +203,15 @@ export function all<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
           reject(error);
         },
         (result: S) => {
+          /* Should be impossible. */
+          /* istanbul ignore next */
           if (isDone) {
             return;
           }
 
           runningTasks -= 1;
 
-          results.push(result);
+          results[i] = result;
 
           if (runningTasks === 0) {
             resolve(results);
@@ -206,7 +232,7 @@ export function sequence<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
     return chain(list => {
       return map(result => [...list, result], task);
     }, sum);
-  }, of([] as S[]));
+  }, succeed([] as S[]));
 }
 
 /**
@@ -300,8 +326,8 @@ export function orElse<E, S>(
  * @param task The task who will return a map function as the success result.
  */
 export function apply<E, S, S2>(
-  appliedTask: Task<E, S>,
-  task: Task<E, (result: S) => S2>
+  task: Task<E, (result: S) => S2>,
+  appliedTask: Task<E, S>
 ): Task<E, S2> {
   return Task((reject, resolve) => {
     let targetResult: S;
@@ -311,6 +337,8 @@ export function apply<E, S, S2>(
 
     const handleResolve = <T>(onResolve: (result: T) => void) => {
       return (x: T) => {
+        /* Should be impossible. */
+        /* istanbul ignore next */
         if (isRejected) {
           return;
         }
@@ -324,6 +352,8 @@ export function apply<E, S, S2>(
     };
 
     const handleReject = (x: E) => {
+      /* Should be impossible. */
+      /* istanbul ignore next */
       if (isRejected) {
         return;
       }
