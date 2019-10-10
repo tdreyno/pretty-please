@@ -1,5 +1,5 @@
 {
-  "name": "@druyan/remote-data",
+  "name": "task",
   "version": "1.0.0",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -7,7 +7,8 @@
     "lint": "tslint --project .",
     "build": "pika build && yarn compress",
     "compress": "terser pkg/dist-web/index.js -o pkg/dist-web/index.min.js --source-map",
-    "test": "jest"
+    "test": "jest",
+    "docs": "typedoc --out docs src"
   },
   "@pika/pack": {
     "pipeline": [
@@ -58,6 +59,7 @@
     "tslint-config-prettier": "^1.18.0",
     "tslint-immutable": "^6.0.1",
     "tslint-microsoft-contrib": "^6.1.0",
+    "typedoc": "^0.15.0",
     "typescript": "^3.2.2"
   }
 }
