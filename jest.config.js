@@ -62,8 +62,8 @@ module.exports = {
   // A set of global variables that need to be available in all test environments
   globals: {
     "ts-jest": {
-      diagnostics: false,
-    },
+      diagnostics: false
+    }
   },
 
   // An array of directory names to be searched recursively up from the requiring module's location
@@ -82,9 +82,7 @@ module.exports = {
   // ],
 
   // A map from regular expressions to module names that allow to stub out resources with a single module
-  moduleNameMapper: {
-    "@druyan/(.*)": "<rootDir>/../../$1/src",
-  },
+  // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -166,7 +164,7 @@ module.exports = {
   // testURL: "http://localhost",
 
   // Setting this value to "fake" allows the use of fake timers for functions such as "setTimeout"
-  timers: "fake",
+  timers: "fake"
 
   // A map from regular expressions to paths to transformers
   // transform: null,
