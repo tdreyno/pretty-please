@@ -115,6 +115,20 @@ export function never(): Task<never, never> {
 }
 
 /**
+ * Execute task computation and call handlers on completion.
+ * @param reject Function to call on failure.
+ * @param resolve Function to call on success.
+ * @param task The task to fork.
+ */
+export function fork<E, S>(
+  reject: Reject<E>,
+  resolve: Resolve<S>,
+  task: Task<E, S>
+): void {
+  return task.fork(reject, resolve);
+}
+
+/**
  * Chain a task to run after a previous task has succeeded.
  * @alias chain
  * @param fn Takes a successful result and returns a new task.
