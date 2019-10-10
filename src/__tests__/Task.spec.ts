@@ -3,6 +3,7 @@ import {
   fail,
   failIn,
   firstSuccess,
+  fork,
   fromPromise,
   never,
   race,
@@ -17,6 +18,18 @@ jest.useFakeTimers();
 describe("Task", () => {
   const SUCCESS_RESULT = "__SUCCESS__";
   const ERROR_RESULT = "__ERROR__";
+
+  describe("fork", () => {
+    test("should work the same as pipeline fork", () => {
+      const resolve = jest.fn();
+      const reject = jest.fn();
+
+      fork(reject, resolve, succeed(SUCCESS_RESULT));
+
+      expect(reject).not.toBeCalled();
+      expect(resolve).toBeCalledWith(SUCCESS_RESULT);
+    });
+  });
 
   describe("succeed", () => {
     test("should resolve immediately with passed value", () => {
