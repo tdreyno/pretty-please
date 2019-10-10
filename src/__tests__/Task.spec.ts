@@ -1,7 +1,7 @@
 import {
   all,
-  apply,
-  chain,
+  andThen,
+  ap,
   fail,
   failIn,
   firstSuccess,
@@ -22,10 +22,6 @@ import {
 } from "../Task";
 
 jest.useFakeTimers();
-
-// function succeedIn<S>(resolve: Resolve<S>, result: S, ms: number) {
-//   return setTimeout(() => resolve(result), ms);
-// }
 
 describe("Task", () => {
   const SUCCESS_RESULT = "__SUCCESS__";
@@ -123,12 +119,12 @@ describe("Task", () => {
     });
   });
 
-  describe("chain", () => {
+  describe("andThen", () => {
     test("should succeed when chaining on a successful task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, chain(r => succeed(r * 2), succeed(5)));
+      fork(reject, resolve, andThen(r => succeed(r * 2), succeed(5)));
 
       expect(resolve).toBeCalledWith(10);
       expect(reject).not.toBeCalled();
@@ -138,7 +134,7 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, chain(_ => succeed(true), fail(ERROR_RESULT)));
+      fork(reject, resolve, andThen(_ => succeed(true), fail(ERROR_RESULT)));
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);
@@ -484,7 +480,7 @@ describe("Task", () => {
 
       const doubler = (r: number) => r * 2;
 
-      fork(reject, resolve, apply(succeed(doubler), succeed(5)));
+      fork(reject, resolve, ap(succeed(doubler), succeed(5)));
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(10);
@@ -496,7 +492,7 @@ describe("Task", () => {
 
       const doubler = (r: number) => r * 2;
 
-      fork(reject, resolve, apply(succeed(doubler), fail(ERROR_RESULT)));
+      fork(reject, resolve, ap(succeed(doubler), fail(ERROR_RESULT)));
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);

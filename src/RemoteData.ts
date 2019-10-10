@@ -18,6 +18,18 @@ interface Success<S> {
 
 export type RemoteData<E, S> = Initialized | Pending | Failure<E> | Success<S>;
 
+export function initialized<E, S>(): RemoteData<E, S> {
+  return {
+    state: "Initialized"
+  };
+}
+
+export function pendind<E, S>(): RemoteData<E, S> {
+  return {
+    state: "Pending"
+  };
+}
+
 export function succeed<S, E = never>(result: S): RemoteData<E, S> {
   return {
     state: "Success",
