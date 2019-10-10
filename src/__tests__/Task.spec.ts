@@ -18,6 +18,7 @@ import {
   succeed,
   succeedIn,
   swap,
+  Task,
   toPromise
 } from "../Task";
 
@@ -117,6 +118,19 @@ describe("Task", () => {
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);
     });
+
+    test("should call computation on each fork", () => {
+      const onFork = jest.fn();
+
+      const task = new Task(() => {
+        onFork();
+      });
+
+      fork(() => void 0, () => void 0, task);
+      fork(() => void 0, () => void 0, task);
+
+      expect(onFork).toBeCalledTimes(2);
+    });
   });
 
   describe("andThen", () => {
@@ -138,6 +152,47 @@ describe("Task", () => {
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);
+    });
+
+    test("should call computation once per andThen", () => {
+      const onFork = jest.fn();
+
+      const task = new Task(() => {
+        onFork();
+      });
+
+      fork(
+        () => void 0,
+        () => void 0,
+        andThen(() => succeed(SUCCESS_RESULT), task)
+      );
+
+      fork(
+        () => void 0,
+        () => void 0,
+        andThen(() => succeed(SUCCESS_RESULT), task)
+      );
+
+      expect(onFork).toBeCalledTimes(2);
+    });
+
+    test("should call computation once when nesting", () => {
+      const onFork = jest.fn();
+
+      const task = new Task(() => {
+        onFork();
+      });
+
+      fork(
+        () => void 0,
+        () => void 0,
+        andThen(
+          () => succeed(SUCCESS_RESULT),
+          andThen(() => succeed(SUCCESS_RESULT), task)
+        )
+      );
+
+      expect(onFork).toBeCalledTimes(1);
     });
   });
 
@@ -382,6 +437,36 @@ describe("Task", () => {
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);
+    });
+
+    test("should call computation once per map", () => {
+      const onFork = jest.fn();
+
+      const task = new Task(() => {
+        onFork();
+      });
+
+      fork(() => void 0, () => void 0, map(() => SUCCESS_RESULT, task));
+
+      fork(() => void 0, () => void 0, map(() => SUCCESS_RESULT, task));
+
+      expect(onFork).toBeCalledTimes(2);
+    });
+
+    test("should call computation once when nesting", () => {
+      const onFork = jest.fn();
+
+      const task = new Task(() => {
+        onFork();
+      });
+
+      fork(
+        () => void 0,
+        () => void 0,
+        map(() => SUCCESS_RESULT, map(() => SUCCESS_RESULT, task))
+      );
+
+      expect(onFork).toBeCalledTimes(1);
     });
   });
 
