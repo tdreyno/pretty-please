@@ -1,5 +1,6 @@
+import mockAxios, { AxiosResponse } from "axios";
 import { get, toJSON } from "../HTTP";
-import { ap, fromPromise, Task } from "../Task";
+import { fromPromise, succeed, Task } from "../Task";
 
 function slugify(..._args: any[]): string {
   return "slug";
@@ -46,28 +47,24 @@ interface QueryResponse {
   results: any[];
 }
 
-function mergeJobsIntoContent(
-  pageContent: PageContent
-): (jobs: Job[]) => PageContent {
-  return jobs => {
-    pageContent.body.forEach(slice => {
-      if (slice.slice_type === "job_listing_categories") {
-        slice.items.forEach(category => {
-          jobs.forEach(job => {
-            if (category.greenhouse_category === job.category) {
-              if (category.jobs === undefined) {
-                category.jobs = [];
-              }
-              category.jobs.push(job);
+const mergeJobsIntoContent = (pageContent: PageContent) => (jobs: Job[]) => {
+  pageContent.body.forEach(slice => {
+    if (slice.slice_type === "job_listing_categories") {
+      slice.items.forEach(category => {
+        jobs.forEach(job => {
+          if (category.greenhouse_category === job.category) {
+            if (category.jobs === undefined) {
+              category.jobs = [];
             }
-          });
+            category.jobs.push(job);
+          }
         });
-      }
-    });
+      });
+    }
+  });
 
-    return pageContent;
-  };
-}
+  return pageContent;
+};
 
 interface PrismicAPI {
   query: (query: any, _options: any) => Promise<QueryResponse>;
@@ -76,7 +73,12 @@ interface PrismicAPI {
 const Prismic = {
   apiEndpoint: "/somewhere",
   getApi: (_endpoint: string, _options: any): Promise<PrismicAPI> =>
-    Promise.resolve({} as PrismicAPI),
+    Promise.resolve({
+      query: () =>
+        Promise.resolve({
+          results: [{ data: { body: [] } }]
+        })
+    } as PrismicAPI),
   Predicates: {
     at: (_a: string, _b: string): any => void 0
   }
@@ -93,7 +95,7 @@ function query(
   return (api: PrismicAPI) => fromPromise(api.query(where, options));
 }
 
-export function asyncData({ error, req }: Context): Promise<PageContent> {
+export function loadData(req: Request): Task<Error, PageContent> {
   const jobsTask = get(`https://api.greenhouse.io/v1/boards/instrument/jobs`)
     .andThen(toJSON)
     .map((json: any) => json.data.jobs as Job[])
@@ -111,11 +113,36 @@ export function asyncData({ error, req }: Context): Promise<PageContent> {
     )
     .map(response => response.results[0].data as PageContent);
 
-  return ap(pageContentTask.map(mergeJobsIntoContent), jobsTask)
+  return succeed(mergeJobsIntoContent)
+    .ap(pageContentTask)
+    .ap(jobsTask);
+}
+
+function asyncData({ error, req }: Context): Promise<PageContent> {
+  return loadData(req)
     .mapError(e => error({ statusCode: 500, message: e.toString() }))
     .toPromise();
 }
 
 describe("Instrument.com", () => {
-  pending("make it better");
+  test("loadData", async () => {
+    (mockAxios.get as any).mockImplementation(async () => {
+      return {
+        data: JSON.stringify({
+          data: {
+            jobs: []
+          }
+        }),
+        config: {
+          responseType: "text"
+        }
+      } as AxiosResponse<string>;
+    });
+
+    const onError = jest.fn();
+
+    const result = await asyncData({ error: onError, req: {} });
+
+    expect(result).toBeTruthy();
+  });
 });

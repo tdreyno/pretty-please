@@ -63,8 +63,10 @@ export class Task<E, S> {
     return orElse(fn, this);
   }
 
-  public ap<S2>(task: Task<E, (result: S) => S2>): Task<E, S2> {
-    return ap(task, this);
+  public ap<E2, S2, S3 = S extends (arg: S2) => any ? ReturnType<S> : never>(
+    task: Task<E | E2, S2>
+  ): Task<E | E2, S3> {
+    return ap((this as unknown) as Task<E, (result: S2) => S3>, task);
   }
 }
 
@@ -72,7 +74,7 @@ export class Task<E, S> {
  * Creates a Task which has already successfully completed with `result`.
  * @param result The value to place into the successful Task.
  */
-export function succeed<T, E = never>(result: T): Task<E, T> {
+export function succeed<S, E = never>(result: S): Task<E, S> {
   return new Task((_, resolve) => resolve(result));
 }
 
@@ -81,7 +83,7 @@ export function succeed<T, E = never>(result: T): Task<E, T> {
  * @param ms How many milliseconds until it succeeds.
  * @param result The value to place into the successful Task.
  */
-export function succeedIn<T, E = never>(ms: number, result: T): Task<E, T> {
+export function succeedIn<S, E = never>(ms: number, result: S): Task<E, S> {
   return new Task((_, resolve) => setTimeout(() => resolve(result), ms));
 }
 
@@ -89,7 +91,7 @@ export function succeedIn<T, E = never>(ms: number, result: T): Task<E, T> {
  * Creates a Task which has already failed with `error`.
  * @param error The error to place into the failed Task.
  */
-export function fail<T>(error: T): Task<T, never> {
+export function fail<E, S = never>(error: E): Task<E, S> {
   return new Task((reject, _) => reject(error));
 }
 
@@ -98,7 +100,7 @@ export function fail<T>(error: T): Task<T, never> {
  *  @param ms How many milliseconds until it succeeds.
  * @param error The error to place into the failed Task.
  */
-export function failIn<T>(ms: number, error: T): Task<T, never> {
+export function failIn<E, S = never>(ms: number, error: E): Task<E, S> {
   return new Task((reject, _) => setTimeout(() => reject(error), ms));
 }
 
