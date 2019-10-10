@@ -18,7 +18,6 @@ import {
   succeed,
   succeedIn,
   swap,
-  Task,
   toPromise
 } from "../Task";
 
