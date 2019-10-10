@@ -1,25 +1,15 @@
 import {
   all,
-  andThen,
-  ap,
   fail,
   failIn,
   firstSuccess,
-  fold,
-  fork,
   fromPromise,
-  map,
-  mapBoth,
-  mapError,
   never,
-  orElse,
   race,
   sequence,
   succeed,
   succeedIn,
-  swap,
-  Task,
-  toPromise
+  Task
 } from "../Task";
 
 jest.useFakeTimers();
@@ -103,7 +93,7 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, succeed(SUCCESS_RESULT));
+      succeed(SUCCESS_RESULT).fork(reject, resolve);
 
       expect(resolve).toBeCalledWith(SUCCESS_RESULT);
       expect(reject).not.toBeCalled();
@@ -113,7 +103,7 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, fail(ERROR_RESULT));
+      fail(ERROR_RESULT).fork(reject, resolve);
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);
@@ -126,8 +116,8 @@ describe("Task", () => {
         onFork();
       });
 
-      fork(() => void 0, () => void 0, task);
-      fork(() => void 0, () => void 0, task);
+      task.fork(() => void 0, () => void 0);
+      task.fork(() => void 0, () => void 0);
 
       expect(onFork).toBeCalledTimes(2);
     });
@@ -138,7 +128,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, andThen(r => succeed(r * 2), succeed(5)));
+      succeed(5)
+        .andThen(r => succeed(r * 2))
+        .fork(reject, resolve);
 
       expect(resolve).toBeCalledWith(10);
       expect(reject).not.toBeCalled();
@@ -148,7 +140,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, andThen(_ => succeed(true), fail(ERROR_RESULT)));
+      fail(ERROR_RESULT)
+        .andThen(_ => succeed(true))
+        .fork(reject, resolve);
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);
@@ -161,17 +155,13 @@ describe("Task", () => {
         onFork();
       });
 
-      fork(
-        () => void 0,
-        () => void 0,
-        andThen(() => succeed(SUCCESS_RESULT), task)
-      );
+      task
+        .andThen(() => succeed(SUCCESS_RESULT))
+        .fork(() => void 0, () => void 0);
 
-      fork(
-        () => void 0,
-        () => void 0,
-        andThen(() => succeed(SUCCESS_RESULT), task)
-      );
+      task
+        .andThen(() => succeed(SUCCESS_RESULT))
+        .fork(() => void 0, () => void 0);
 
       expect(onFork).toBeCalledTimes(2);
     });
@@ -183,14 +173,10 @@ describe("Task", () => {
         onFork();
       });
 
-      fork(
-        () => void 0,
-        () => void 0,
-        andThen(
-          () => succeed(SUCCESS_RESULT),
-          andThen(() => succeed(SUCCESS_RESULT), task)
-        )
-      );
+      task
+        .andThen(() => succeed(SUCCESS_RESULT))
+        .andThen(() => succeed(SUCCESS_RESULT))
+        .fork(() => void 0, () => void 0);
 
       expect(onFork).toBeCalledTimes(1);
     });
@@ -314,7 +300,7 @@ describe("Task", () => {
 
       const promise = Promise.resolve(SUCCESS_RESULT);
 
-      fork(reject, resolve, fromPromise(promise));
+      fromPromise(promise).fork(reject, resolve);
 
       await promise.catch(() => void 0);
 
@@ -328,7 +314,7 @@ describe("Task", () => {
 
       const promise = Promise.reject(ERROR_RESULT);
 
-      fork(reject, resolve, fromPromise(promise));
+      fromPromise(promise).fork(reject, resolve);
 
       await promise.catch(() => void 0);
 
@@ -343,9 +329,9 @@ describe("Task", () => {
       const reject = jest.fn();
 
       const task = succeed(SUCCESS_RESULT);
-      const promise = toPromise(task).then(resolve, reject);
+      const promise = task.toPromise().then(resolve, reject);
 
-      fork(() => void 0, () => void 0, task);
+      task.fork(() => void 0, () => void 0);
 
       await promise.catch(() => void 0);
 
@@ -358,9 +344,9 @@ describe("Task", () => {
       const reject = jest.fn();
 
       const task = fail(ERROR_RESULT);
-      const promise = toPromise(task).then(resolve, reject);
+      const promise = task.toPromise().then(resolve, reject);
 
-      fork(() => void 0, () => void 0, task);
+      task.fork(() => void 0, () => void 0);
 
       await promise.catch(() => void 0);
 
@@ -374,10 +360,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(
+      race(succeedIn(100, SUCCESS_RESULT), failIn(200, ERROR_RESULT)).fork(
         reject,
-        resolve,
-        race(succeedIn(100, SUCCESS_RESULT), failIn(200, ERROR_RESULT))
+        resolve
       );
 
       jest.advanceTimersByTime(150);
@@ -390,10 +375,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(
+      race(succeedIn(200, SUCCESS_RESULT), failIn(100, ERROR_RESULT)).fork(
         reject,
-        resolve,
-        race(succeedIn(200, SUCCESS_RESULT), failIn(100, ERROR_RESULT))
+        resolve
       );
 
       jest.advanceTimersByTime(150);
@@ -408,11 +392,10 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(
-        reject,
-        resolve,
-        firstSuccess(succeedIn(200, SUCCESS_RESULT), failIn(100, ERROR_RESULT))
-      );
+      firstSuccess(
+        succeedIn(200, SUCCESS_RESULT),
+        failIn(100, ERROR_RESULT)
+      ).fork(reject, resolve);
 
       jest.advanceTimersByTime(250);
 
@@ -424,10 +407,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(
+      firstSuccess(failIn(200, ERROR_RESULT), failIn(100, ERROR_RESULT)).fork(
         reject,
-        resolve,
-        firstSuccess(failIn(200, ERROR_RESULT), failIn(100, ERROR_RESULT))
+        resolve
       );
 
       jest.advanceTimersByTime(250);
@@ -442,7 +424,7 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, all(succeedIn(200, "A"), succeedIn(100, "B")));
+      all(succeedIn(200, "A"), succeedIn(100, "B")).fork(reject, resolve);
 
       jest.advanceTimersByTime(250);
 
@@ -454,11 +436,7 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(
-        reject,
-        resolve,
-        all(failIn(200, ERROR_RESULT), succeedIn(100, "B"))
-      );
+      all(failIn(200, ERROR_RESULT), succeedIn(100, "B")).fork(reject, resolve);
 
       jest.advanceTimersByTime(250);
 
@@ -472,7 +450,7 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, sequence(succeedIn(100, "A"), succeedIn(100, "B")));
+      sequence(succeedIn(100, "A"), succeedIn(100, "B")).fork(reject, resolve);
 
       jest.advanceTimersByTime(100);
 
@@ -489,10 +467,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(
+      sequence(succeedIn(100, "B"), failIn(100, ERROR_RESULT)).fork(
         reject,
-        resolve,
-        sequence(succeedIn(100, "B"), failIn(100, ERROR_RESULT))
+        resolve
       );
 
       jest.advanceTimersByTime(100);
@@ -512,7 +489,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, swap(succeed(ERROR_RESULT)));
+      succeed(ERROR_RESULT)
+        .swap()
+        .fork(reject, resolve);
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);
@@ -522,7 +501,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, swap(fail(SUCCESS_RESULT)));
+      fail(SUCCESS_RESULT)
+        .swap()
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(SUCCESS_RESULT);
@@ -534,7 +515,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, map(r => r * 2, succeed(5)));
+      succeed(5)
+        .map(r => r * 2)
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(10);
@@ -544,7 +527,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, map(r => r * 2, fail(ERROR_RESULT)));
+      fail(ERROR_RESULT)
+        .map(r => r * 2)
+        .fork(reject, resolve);
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);
@@ -557,9 +542,8 @@ describe("Task", () => {
         onFork();
       });
 
-      fork(() => void 0, () => void 0, map(() => SUCCESS_RESULT, task));
-
-      fork(() => void 0, () => void 0, map(() => SUCCESS_RESULT, task));
+      task.map(() => SUCCESS_RESULT).fork(() => void 0, () => void 0);
+      task.map(() => SUCCESS_RESULT).fork(() => void 0, () => void 0);
 
       expect(onFork).toBeCalledTimes(2);
     });
@@ -571,13 +555,40 @@ describe("Task", () => {
         onFork();
       });
 
-      fork(
-        () => void 0,
-        () => void 0,
-        map(() => SUCCESS_RESULT, map(() => SUCCESS_RESULT, task))
-      );
+      task
+        .map(() => SUCCESS_RESULT)
+        .map(() => SUCCESS_RESULT)
+        .fork(() => void 0, () => void 0);
 
       expect(onFork).toBeCalledTimes(1);
+    });
+  });
+
+  describe("tap", () => {
+    test("should call callback when given a success", () => {
+      const resolve = jest.fn();
+      const reject = jest.fn();
+      const effect = jest.fn();
+
+      succeed(5)
+        .tap(effect)
+        .fork(reject, resolve);
+
+      expect(effect).toBeCalledWith(5);
+      expect(resolve).toBeCalledWith(5);
+    });
+
+    test("should call not callback when given a failure", () => {
+      const resolve = jest.fn();
+      const reject = jest.fn();
+      const effect = jest.fn();
+
+      fail(ERROR_RESULT)
+        .tap(effect)
+        .fork(reject, resolve);
+
+      expect(effect).not.toBeCalled();
+      expect(reject).toBeCalledWith(ERROR_RESULT);
     });
   });
 
@@ -586,7 +597,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, mapError(r => r * 2, fail(5)));
+      fail(5)
+        .mapError(r => r * 2)
+        .fork(reject, resolve);
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(10);
@@ -596,7 +609,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, mapError(r => r * 2, succeed(SUCCESS_RESULT)));
+      succeed(SUCCESS_RESULT)
+        .mapError(r => r * 2)
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(SUCCESS_RESULT);
@@ -608,7 +623,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, mapBoth(r => r ** 2, r => r * 2, succeed(5)));
+      succeed(5)
+        .mapBoth(r => r ** 2, r => r * 2)
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(10);
@@ -618,7 +635,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, mapBoth(r => r ** 2, r => r * 2, fail(5)));
+      fail(5)
+        .mapBoth(r => r ** 2, r => r * 2)
+        .fork(reject, resolve);
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(25);
@@ -630,7 +649,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, fold(r => r ** 2, r => r * 2, succeed(5)));
+      succeed(5)
+        .fold(r => r ** 2, r => r * 2)
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(10);
@@ -640,7 +661,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, fold(r => r ** 2, r => r * 2, fail(5)));
+      fail(5)
+        .fold(r => r ** 2, r => r * 2)
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(25);
@@ -652,7 +675,9 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, orElse(r => succeed(r ** 2), succeed(5)));
+      succeed(5)
+        .orElse(r => succeed(r ** 2))
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(5);
@@ -662,21 +687,25 @@ describe("Task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
-      fork(reject, resolve, orElse(r => succeed(r ** 2), fail(5)));
+      fail(5)
+        .orElse(r => succeed(r ** 2))
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(25);
     });
   });
 
-  describe("apply", () => {
+  describe("ap", () => {
     test("should apply converter function result to finished task", () => {
       const resolve = jest.fn();
       const reject = jest.fn();
 
       const doubler = (r: number) => r * 2;
 
-      fork(reject, resolve, ap(succeed(doubler), succeed(5)));
+      succeed(doubler)
+        .ap(succeed(5))
+        .fork(reject, resolve);
 
       expect(reject).not.toBeCalled();
       expect(resolve).toBeCalledWith(10);
@@ -688,7 +717,9 @@ describe("Task", () => {
 
       const doubler = (r: number) => r * 2;
 
-      fork(reject, resolve, ap(succeed(doubler), fail(ERROR_RESULT)));
+      succeed(doubler)
+        .ap(fail(ERROR_RESULT))
+        .fork(reject, resolve);
 
       expect(resolve).not.toBeCalled();
       expect(reject).toBeCalledWith(ERROR_RESULT);

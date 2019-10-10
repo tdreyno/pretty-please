@@ -59,7 +59,7 @@ export class Task<E, S> {
     return fold(handleError, handleSuccess, this);
   }
 
-  public orElse(fn: (error: E) => Task<E, S>): Task<E, S> {
+  public orElse<S2>(fn: (error: E) => Task<E, S | S2>): Task<E, S | S2> {
     return orElse(fn, this);
   }
 
@@ -115,21 +115,8 @@ export function never(): Task<never, never> {
 }
 
 /**
- * Execute task computation and call handlers on completion.
- * @param reject Function to call on failure.
- * @param resolve Function to call on success.
- * @param task The task to fork.
- */
-export function fork<E, S>(
-  reject: Reject<E>,
-  resolve: Resolve<S>,
-  task: Task<E, S>
-): void {
-  return task.fork(reject, resolve);
-}
-
-/**
  * Chain a task to run after a previous task has succeeded.
+ * @alias chain
  * @param fn Takes a successful result and returns a new task.
  * @param task The task which will chain to the next one on success.
  */
@@ -138,9 +125,11 @@ export function andThen<E, S, S2>(
   task: Task<E, S>
 ): Task<E, S2> {
   return new Task((reject, resolve) =>
-    fork(reject, b => fork(reject, resolve, fn(b)), task)
+    task.fork(reject, b => fn(b).fork(reject, resolve))
   );
 }
+
+export const chain = andThen;
 
 /**
  * When forked, run a function which can check whether the task has already succeeded.
@@ -159,12 +148,13 @@ export function succeedIf<E, S>(
       return;
     }
 
-    fork(reject, resolve, task);
+    task.fork(reject, resolve);
   });
 }
 
 /**
  * A task which only runs once. Caches the success or failure. Be careful.
+ * @alias share
  * @param task The task to cache results.
  */
 export function onlyOnce<E, S>(task: Task<E, S>): Task<E, S> {
@@ -222,10 +212,12 @@ export function onlyOnce<E, S>(task: Task<E, S>): Task<E, S> {
 
         notify(reject, resolve);
 
-        fork(triggerReject, triggerResolve, task);
+        task.fork(triggerReject, triggerResolve);
     }
   });
 }
+
+export const share = onlyOnce;
 
 /**
  * Given a promise, create a Task which relies on it.
@@ -240,7 +232,7 @@ export function fromPromise<S, E = unknown>(promise: Promise<S>): Task<E, S> {
  * @param task The task we will convert to a promise.
  */
 export function toPromise<E, S>(task: Task<E, S>): Promise<S> {
-  return new Promise((resolve, reject) => fork(reject, resolve, task));
+  return new Promise((resolve, reject) => task.fork(reject, resolve));
 }
 
 /**
@@ -252,7 +244,7 @@ export function race<E, S>(...tasks: Array<Task<E, S>>): Task<E, S> {
     let done = false;
 
     return tasks.map(task =>
-      fork(
+      task.fork(
         (error: E) => {
           if (done) {
             return;
@@ -268,8 +260,7 @@ export function race<E, S>(...tasks: Array<Task<E, S>>): Task<E, S> {
 
           done = true;
           resolve(result);
-        },
-        task
+        }
       )
     );
   });
@@ -287,7 +278,7 @@ export function firstSuccess<E, S>(...tasks: Array<Task<E, S>>): Task<E[], S> {
     const errors: E[] = [];
 
     return tasks.map(task =>
-      fork(
+      task.fork(
         (error: E) => {
           /* Should be impossible. */
           /* istanbul ignore next */
@@ -313,8 +304,7 @@ export function firstSuccess<E, S>(...tasks: Array<Task<E, S>>): Task<E[], S> {
           isDone = true;
 
           resolve(result);
-        },
-        task
+        }
       )
     );
   });
@@ -332,7 +322,7 @@ export function all<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
     const results: S[] = [];
 
     return tasks.map((task, i) =>
-      fork(
+      task.fork(
         (error: E) => {
           /* Should be impossible. */
           /* istanbul ignore next */
@@ -358,8 +348,7 @@ export function all<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
           if (runningTasks === 0) {
             resolve(results);
           }
-        },
-        task
+        }
       )
     );
   });
@@ -382,7 +371,7 @@ export function sequence<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
  * @param task The task to swap the results of.
  */
 export function swap<E, S>(task: Task<E, S>): Task<S, E> {
-  return new Task<S, E>((reject, resolve) => fork(resolve, reject, task));
+  return new Task<S, E>((reject, resolve) => task.fork(resolve, reject));
 }
 
 /**
@@ -395,7 +384,7 @@ export function map<E, S, S2>(
   task: Task<E, S>
 ): Task<E, S2> {
   return new Task<E, S2>((reject, resolve) =>
-    fork(reject, result => resolve(fn(result)), task)
+    task.fork(reject, result => resolve(fn(result)))
   );
 }
 
@@ -425,7 +414,7 @@ export function mapError<E, S, E2>(
   task: Task<E, S>
 ): Task<E2, S> {
   return new Task<E2, S>((reject, resolve) =>
-    fork(error => reject(fn(error)), resolve, task)
+    task.fork(error => reject(fn(error)), resolve)
   );
 }
 
@@ -455,10 +444,9 @@ export function fold<E, S, R>(
   task: Task<E, S>
 ): Task<never, R> {
   return new Task<never, R>((_, resolve) =>
-    fork(
+    task.fork(
       error => resolve(handleError(error)),
-      result => resolve(handleSuccess(result)),
-      task
+      result => resolve(handleSuccess(result))
     )
   );
 }
@@ -473,7 +461,7 @@ export function orElse<E, S>(
   task: Task<E, S>
 ): Task<E, S> {
   return new Task<E, S>((reject, resolve) =>
-    fork(error => fork(reject, resolve, fn(error)), resolve, task)
+    task.fork(error => fn(error).fork(reject, resolve), resolve)
   );
 }
 
@@ -520,21 +508,19 @@ export function ap<E, S, S2>(
       reject(x);
     };
 
-    fork(
+    task.fork(
       handleReject,
       handleResolve((x: (result: S) => S2) => {
         applierFunction = x;
-      }),
-      task
+      })
     );
 
-    fork(
+    appliedTask.fork(
       handleReject,
       handleResolve<S>((x: S) => {
         hasResultLoaded = true;
         targetResult = x;
-      }),
-      appliedTask
+      })
     );
   });
 }
