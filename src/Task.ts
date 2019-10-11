@@ -1,3 +1,5 @@
+import { range } from "./util";
+
 export type Reject<E> = (error: E) => void;
 export type Resolve<S> = (result: S) => void;
 export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void;
@@ -75,6 +77,10 @@ export class Task<E, S> {
 
   public retryIn(ms: number): Task<E, S> {
     return retryIn(ms, this);
+  }
+
+  public retryWithExponentialBackoff(ms: number, times: number): Task<E, S> {
+    return retryWithExponentialBackoff(ms, times, this);
   }
 }
 
@@ -565,4 +571,18 @@ export function wait<E, S>(ms: number, task: Task<E, S>): Task<E, S> {
  */
 export function retryIn<E, S>(ms: number, task: Task<E, S>): Task<E, S> {
   return task.orElse(() => task.wait(ms));
+}
+
+/**
+ * If a task fails, retry it X times, with exponential backoff.
+ * @param ms How long to wait before trying the first time.
+ * @param times How many times to attempt, each waiting 2x the previous time.
+ * @param task Which task to retry.
+ */
+export function retryWithExponentialBackoff<E, S>(
+  ms: number,
+  times: number,
+  task: Task<E, S>
+): Task<E, S> {
+  return range(times).reduce((sum, i) => sum.retryIn(ms * 2 ** i), task);
 }
