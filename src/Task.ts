@@ -68,6 +68,14 @@ export class Task<E, S> {
   ): Task<E | E2, S3> {
     return ap((this as unknown) as Task<E, (result: S2) => S3>, task);
   }
+
+  public wait(ms: number): Task<E, S> {
+    return wait(ms, this);
+  }
+
+  public retryIn(ms: number): Task<E, S> {
+    return retryIn(ms, this);
+  }
 }
 
 /**
@@ -537,4 +545,24 @@ export function ap<E, S, S2>(
       })
     );
   });
+}
+
+/**
+ * Wait some number of seconds to continue after a successful task.
+ * @param ms How long to wait in milliseconds.
+ * @param task Which task to wait to succeed with.
+ */
+export function wait<E, S>(ms: number, task: Task<E, S>): Task<E, S> {
+  return new Task((reject, resolve) => {
+    setTimeout(() => task.fork(reject, resolve), ms);
+  });
+}
+
+/**
+ * If a task fails, retry it in the future.
+ * @param ms How long to wait before trying.
+ * @param task Which task to retry.
+ */
+export function retryIn<E, S>(ms: number, task: Task<E, S>): Task<E, S> {
+  return task.orElse(() => task.wait(ms));
 }
