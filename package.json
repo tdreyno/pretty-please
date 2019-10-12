@@ -1,5 +1,5 @@
 {
-  "name": "pretty-please",
+  "name": "@tdreyno/pretty-please",
   "version": "1.0.0-beta.1",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -8,7 +8,8 @@
     "build": "pika build && yarn compress",
     "compress": "terser pkg/dist-web/index.js -o pkg/dist-web/index.min.js --source-map",
     "test": "jest",
-    "docs": "typedoc --out docs src"
+    "docs": "typedoc --out docs src",
+    "version": "yarn run build"
   },
   "@pika/pack": {
     "pipeline": [
