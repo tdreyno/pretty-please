@@ -274,6 +274,8 @@ export function race<E, S>(...tasks: Array<Task<E, S>>): Task<E, S> {
     return tasks.map(task =>
       task.fork(
         (error: E) => {
+          /* Should be impossible. */
+          /* istanbul ignore next */
           if (done) {
             return;
           }
@@ -282,6 +284,8 @@ export function race<E, S>(...tasks: Array<Task<E, S>>): Task<E, S> {
           reject(error);
         },
         (result: S) => {
+          /* Should be impossible. */
+          /* istanbul ignore next */
           if (done) {
             return;
           }
