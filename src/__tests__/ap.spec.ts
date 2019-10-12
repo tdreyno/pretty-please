@@ -1,5 +1,5 @@
 import { fail, succeed } from "../Task";
-import { ERROR_RESULT, SUCCESS_RESULT } from "./util";
+import { ERROR_RESULT } from "./util";
 
 describe("ap", () => {
   test("should apply converter function result to finished task", () => {
