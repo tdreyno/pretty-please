@@ -2,8 +2,8 @@ import { AxiosResponse } from "axios";
 import { get } from "../../HTTP";
 import { fromTask, initialize } from "../RemoteData";
 
-describe.only("Remote Data", () => {
-  test("Test", () => {
+describe("Remote Data", () => {
+  test.skip("Test", () => {
     let remoteData = initialize<Error, AxiosResponse<any>>();
 
     expect(remoteData.type).toBe("Initialized");
