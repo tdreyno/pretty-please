@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { fail, fromPromise, succeed, Task } from "./Task";
+import { fail, fromPromise, succeed, Task } from "../Task";
 
 export function get<T = any>(
   url: string,

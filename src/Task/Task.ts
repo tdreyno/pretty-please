@@ -1,4 +1,4 @@
-import { range } from "./util";
+import { range } from "../util";
 
 export type Reject<E> = (error: E) => void;
 export type Resolve<S> = (result: S) => void;

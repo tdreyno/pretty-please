@@ -1,6 +1,6 @@
 import mockAxios, { AxiosResponse } from "axios";
+import { all, fail, succeed, Task } from "../../Task";
 import { get, toJSON } from "../HTTP";
-import { all, fail, succeed, Task } from "../Task";
 
 describe("HTTP", () => {
   test("Tests", async () => {
