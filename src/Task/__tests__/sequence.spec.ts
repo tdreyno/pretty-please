@@ -6,7 +6,7 @@ describe("sequence", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    sequence(succeedIn(100, "A"), succeedIn(100, "B")).fork(reject, resolve);
+    sequence([succeedIn(100, "A"), succeedIn(100, "B")]).fork(reject, resolve);
 
     jest.advanceTimersByTime(100);
 
@@ -23,7 +23,7 @@ describe("sequence", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    sequence(succeedIn(100, "B"), failIn(100, ERROR_RESULT)).fork(
+    sequence([succeedIn(100, "B"), failIn(100, ERROR_RESULT)]).fork(
       reject,
       resolve
     );

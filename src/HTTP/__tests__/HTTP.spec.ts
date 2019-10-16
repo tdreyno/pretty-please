@@ -51,7 +51,7 @@ describe("HTTP", () => {
       } as AxiosResponse<string>;
     });
 
-    const users = await all(
+    const users = await all([
       getUser("1"),
       getUser("1"),
       getUser("1"),
@@ -61,7 +61,7 @@ describe("HTTP", () => {
       getUser("3"),
       getUser("3"),
       getUser("3")
-    ).toPromise();
+    ]).toPromise();
 
     expect(load).toBeCalledTimes(3);
     expect(users[0]).toBe(users[1]);

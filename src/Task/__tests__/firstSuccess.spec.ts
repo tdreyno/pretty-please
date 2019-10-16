@@ -6,10 +6,10 @@ describe("firstSuccess", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    firstSuccess(
+    firstSuccess([
       succeedIn(200, SUCCESS_RESULT),
       failIn(100, ERROR_RESULT)
-    ).fork(reject, resolve);
+    ]).fork(reject, resolve);
 
     jest.advanceTimersByTime(250);
 
@@ -21,7 +21,7 @@ describe("firstSuccess", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    firstSuccess(failIn(200, ERROR_RESULT), failIn(100, ERROR_RESULT)).fork(
+    firstSuccess([failIn(200, ERROR_RESULT), failIn(100, ERROR_RESULT)]).fork(
       reject,
       resolve
     );

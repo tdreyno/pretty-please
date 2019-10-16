@@ -57,7 +57,7 @@ export class Task<E, S> {
   public fold<R>(
     handleError: (error: E) => R,
     handleSuccess: (success: S) => R
-  ): Task<never, R> {
+  ): Task<unknown, R> {
     return fold(handleError, handleSuccess, this);
   }
 
@@ -89,7 +89,7 @@ export class Task<E, S> {
  * @alias of
  * @param result The value to place into the successful Task.
  */
-export function succeed<S, E = never>(result: S): Task<E, S> {
+export function succeed<S, E = any>(result: S): Task<E, S> {
   return new Task((_, resolve) => resolve(result));
 }
 
@@ -100,7 +100,7 @@ export const of = succeed;
  * @param ms How many milliseconds until it succeeds.
  * @param result The value to place into the successful Task.
  */
-export function succeedIn<S, E = never>(ms: number, result: S): Task<E, S> {
+export function succeedIn<S, E = any>(ms: number, result: S): Task<E, S> {
   return new Task((_, resolve) => setTimeout(() => resolve(result), ms));
 }
 
@@ -108,7 +108,7 @@ export function succeedIn<S, E = never>(ms: number, result: S): Task<E, S> {
  * Creates a Task which has already failed with `error`.
  * @param error The error to place into the failed Task.
  */
-export function fail<E, S = never>(error: E): Task<E, S> {
+export function fail<E, S = any>(error: E): Task<E, S> {
   return new Task((reject, _) => reject(error));
 }
 
@@ -117,7 +117,7 @@ export function fail<E, S = never>(error: E): Task<E, S> {
  *  @param ms How many milliseconds until it succeeds.
  * @param error The error to place into the failed Task.
  */
-export function failIn<E, S = never>(ms: number, error: E): Task<E, S> {
+export function failIn<E, S = any>(ms: number, error: E): Task<E, S> {
   return new Task((reject, _) => setTimeout(() => reject(error), ms));
 }
 
@@ -251,7 +251,7 @@ export const share = onlyOnce;
  * Given a promise, create a Task which relies on it.
  * @param promise The promise we will gather the success from.
  */
-export function fromPromise<S, E = unknown>(promise: Promise<S>): Task<E, S> {
+export function fromPromise<S, E = any>(promise: Promise<S>): Task<E, S> {
   return new Task((reject, resolve) => promise.then(resolve, reject));
 }
 
@@ -267,7 +267,7 @@ export function toPromise<E, S>(task: Task<E, S>): Promise<S> {
  * Given an array of tasks, return the one which finishes first.
  * @param tasks The tasks to run in parallel.
  */
-export function race<E, S>(...tasks: Array<Task<E, S>>): Task<E, S> {
+export function race<E, S>(tasks: Array<Task<E, S>>): Task<E, S> {
   return new Task<E, S>((reject, resolve) => {
     let done = false;
 
@@ -300,7 +300,7 @@ export function race<E, S>(...tasks: Array<Task<E, S>>): Task<E, S> {
  * Given an array of tasks, return the one which finishes successfully first.
  * @param tasks The tasks to run in parallel.
  */
-export function firstSuccess<E, S>(...tasks: Array<Task<E, S>>): Task<E[], S> {
+export function firstSuccess<E, S>(tasks: Array<Task<E, S>>): Task<E[], S> {
   return new Task<E[], S>((reject, resolve) => {
     let isDone = false;
     let runningTasks = tasks.length;
@@ -344,7 +344,7 @@ export function firstSuccess<E, S>(...tasks: Array<Task<E, S>>): Task<E[], S> {
  * Given an array of task which return a result, return a new task which results an array of results.
  * @param tasks The tasks to run in parallel.
  */
-export function all<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
+export function all<E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> {
   return new Task<E, S[]>((reject, resolve) => {
     let isDone = false;
     let runningTasks = tasks.length;
@@ -388,7 +388,7 @@ export function all<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
  * Given an array of task which return a result, return a new task which results an array of results.
  * @param tasks The tasks to run in sequence.
  */
-export function sequence<E, S>(...tasks: Array<Task<E, S>>): Task<E, S[]> {
+export function sequence<E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> {
   return tasks.reduce((sum, task) => {
     return andThen(list => {
       return map(result => [...list, result], task);
@@ -472,8 +472,8 @@ export function fold<E, S, R>(
   handleError: (error: E) => R,
   handleSuccess: (success: S) => R,
   task: Task<E, S>
-): Task<never, R> {
-  return new Task<never, R>((_, resolve) =>
+): Task<unknown, R> {
+  return new Task<unknown, R>((_, resolve) =>
     task.fork(
       error => resolve(handleError(error)),
       result => resolve(handleSuccess(result))

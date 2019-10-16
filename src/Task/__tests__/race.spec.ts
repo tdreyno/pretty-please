@@ -6,7 +6,7 @@ describe("race", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    race(succeedIn(100, SUCCESS_RESULT), failIn(200, ERROR_RESULT)).fork(
+    race([succeedIn(100, SUCCESS_RESULT), failIn(200, ERROR_RESULT)]).fork(
       reject,
       resolve
     );
@@ -21,7 +21,7 @@ describe("race", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    race(succeedIn(200, SUCCESS_RESULT), failIn(100, ERROR_RESULT)).fork(
+    race([succeedIn(200, SUCCESS_RESULT), failIn(100, ERROR_RESULT)]).fork(
       reject,
       resolve
     );

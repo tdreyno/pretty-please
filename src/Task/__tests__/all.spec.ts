@@ -6,7 +6,7 @@ describe("all", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    all(succeedIn(200, "A"), succeedIn(100, "B")).fork(reject, resolve);
+    all([succeedIn(200, "A"), succeedIn(100, "B")]).fork(reject, resolve);
 
     jest.advanceTimersByTime(250);
 
@@ -18,7 +18,7 @@ describe("all", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    all(failIn(200, ERROR_RESULT), succeedIn(100, "B")).fork(reject, resolve);
+    all([failIn(200, ERROR_RESULT), succeedIn(100, "B")]).fork(reject, resolve);
 
     jest.advanceTimersByTime(250);
 

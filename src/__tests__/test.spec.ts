@@ -32,11 +32,11 @@ interface Job {
 }
 
 function jsonToJobs(json: any): Job[] {
-  if (!json.data || !Array.isArray(json.data)) {
+  if (!json.data || !Array.isArray(json.data.jobs)) {
     throw new Error("Invalid data");
   }
 
-  return json.data.map(toJob);
+  return json.data.jobs.map(toJob);
 }
 
 function toJob(job: any): job is Job {
