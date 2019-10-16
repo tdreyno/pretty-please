@@ -31,10 +31,26 @@ interface Job {
   category: string;
 }
 
-function expandJob(job: Job): Job {
+function jsonToJobs(json: any): Job[] {
+  if (!json.data || !Array.isArray(json.data)) {
+    throw new Error("Invalid data");
+  }
+
+  return json.data.map(toJob);
+}
+
+function toJob(job: any): job is Job {
+  if (!job.title || !job.id || !job.metadata || !Array.isArray(job.metadata)) {
+    throw new Error("Invalid data");
+  }
+
   job.url = `${slugify(job.title, { lower: true })}-${job.id}}`;
 
-  job.metadata.forEach(meta => {
+  job.metadata.forEach((meta: any) => {
+    if (!meta.name) {
+      throw new Error("Invalid data");
+    }
+
     if (meta.name === `Discipline`) {
       job.category = meta.value;
     }
@@ -95,11 +111,14 @@ function query(
   return (api: PrismicAPI) => fromPromise(api.query(where, options));
 }
 
+function responseToPageContent(response: QueryResponse): PageContent {
+  return response.results[0].data;
+}
+
 export function loadData(req: Request): Task<Error, PageContent> {
   const jobsTask = get(`https://api.greenhouse.io/v1/boards/instrument/jobs`)
     .andThen(toJSON)
-    .map((json: any) => json.data.jobs as Job[])
-    .map(jobs => jobs.map(expandJob));
+    .map(jsonToJobs);
 
   const pageContentTask = prismicAPI(req)
     .andThen(
@@ -111,7 +130,7 @@ export function loadData(req: Request): Task<Error, PageContent> {
           }`
       })
     )
-    .map(response => response.results[0].data as PageContent);
+    .map(responseToPageContent);
 
   return of(mergeJobsIntoContent)
     .ap(pageContentTask)
