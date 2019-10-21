@@ -3,13 +3,15 @@
   "version": "1.0.0-beta.1",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
+  "repository": "git://github.com/tdreyno/pretty-please.git",
   "scripts": {
     "lint": "tslint --project .",
     "build": "pika build && yarn compress",
     "compress": "terser pkg/dist-web/index.js -o pkg/dist-web/index.min.js --source-map",
     "test": "jest",
     "docs": "typedoc --out docs src",
-    "version": "yarn run build"
+    "version": "yarn run build",
+    "coverage": "jest --coverage"
   },
   "@pika/pack": {
     "pipeline": [
@@ -43,6 +45,9 @@
   "volta": {
     "node": "10.16.3",
     "yarn": "1.19.1"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   },
   "devDependencies": {
     "@pika/pack": "^0.5.0",
