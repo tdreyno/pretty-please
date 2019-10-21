@@ -8,6 +8,7 @@ export function get<T = any>(
   return fromPromise<AxiosResponse<T>, Error>(axios.get(url, config));
 }
 
+/* istanbul ignore next */
 export function delete_<T = any>(
   url: string,
   config?: AxiosRequestConfig
@@ -15,6 +16,7 @@ export function delete_<T = any>(
   return fromPromise<AxiosResponse<T>, Error>(axios.delete(url, config));
 }
 
+/* istanbul ignore next */
 export function head<T = any>(
   url: string,
   config?: AxiosRequestConfig
@@ -22,6 +24,7 @@ export function head<T = any>(
   return fromPromise<AxiosResponse<T>, Error>(axios.head(url, config));
 }
 
+/* istanbul ignore next */
 export function post<T = any>(
   url: string,
   data?: any,
@@ -30,6 +33,7 @@ export function post<T = any>(
   return fromPromise<AxiosResponse<T>, Error>(axios.post(url, data, config));
 }
 
+/* istanbul ignore next */
 export function put<T = any>(
   url: string,
   data?: any,
@@ -38,6 +42,7 @@ export function put<T = any>(
   return fromPromise<AxiosResponse<T>, Error>(axios.put(url, data, config));
 }
 
+/* istanbul ignore next */
 export function patch<T = any>(
   url: string,
   data?: any,

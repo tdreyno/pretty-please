@@ -3,7 +3,7 @@ import { all, fail, succeed, Task } from "../../Task";
 import { get, toJSON } from "../HTTP";
 
 describe("HTTP", () => {
-  test("Tests", async () => {
+  test("Returns many JSON", async () => {
     interface User {
       id: string;
       name: string;
@@ -65,5 +65,51 @@ describe("HTTP", () => {
 
     expect(load).toBeCalledTimes(3);
     expect(users[0]).toBe(users[1]);
+  });
+});
+
+describe("toJSON", () => {
+  test("valid text response should resolve with JSON", () => {
+    toJSON({
+      data: JSON.stringify({ name: "Test" }),
+      config: {
+        responseType: "text"
+      }
+    } as AxiosResponse<string>).fork(jest.fn(), result => {
+      expect((result as any).name).toBe("Test");
+    });
+  });
+
+  test("invalid text response should resolve with JSON", () => {
+    toJSON({
+      data: "Not JSON",
+      config: {
+        responseType: "text"
+      }
+    } as AxiosResponse<string>).fork(err => {
+      expect(err).toBeInstanceOf(SyntaxError);
+    }, jest.fn());
+  });
+
+  test("json response should resolve with JSON", () => {
+    toJSON({
+      data: { name: "Test" },
+      config: {
+        responseType: "json"
+      }
+    } as AxiosResponse<any>).fork(jest.fn(), result => {
+      expect((result as any).name).toBe("Test");
+    });
+  });
+
+  test("invalid response should resolve with error", () => {
+    toJSON({
+      data: 0b0001,
+      config: {
+        responseType: "blob"
+      }
+    } as AxiosResponse<any>).fork(err => {
+      expect(err.message).toBe("Invalid data");
+    }, jest.fn());
   });
 });
