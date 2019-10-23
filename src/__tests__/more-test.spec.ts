@@ -1,4 +1,4 @@
-import { all, of, Task } from "../Task";
+import { all, of, Task } from "../Task/Task";
 
 const editors = ["1", "2", "3"];
 

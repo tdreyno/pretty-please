@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { get } from "../../HTTP";
+import { get } from "../../HTTP/HTTP";
 import { fromTask, initialize } from "../RemoteData";
 
 describe("Remote Data", () => {

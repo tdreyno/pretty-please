@@ -1,4 +1,4 @@
-import { all, of, Task } from "../Task";
+import { all, of, Task } from "../Task/Task";
 import { range, to } from "../util";
 
 describe("range", () => {

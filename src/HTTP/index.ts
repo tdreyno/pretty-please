@@ -1,1 +1,3 @@
-export * from "./HTTP";
+import * as HTTP from "./HTTP";
+
+export default HTTP;

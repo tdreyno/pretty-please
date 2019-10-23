@@ -1,5 +1,5 @@
 import "../extend";
-import { all, of } from "../Task";
+import { all, of } from "../Task/Task";
 
 describe("to", () => {
   test("should work with reduce to wrap a value", () => {

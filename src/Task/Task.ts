@@ -9,6 +9,17 @@ export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void;
  * @param computation A function which will be run when the task starts.
  */
 export class Task<E, S> {
+  public static fail = fail;
+  public static succeed = succeed;
+  public static failIn = failIn;
+  public static succeedIn = succeedIn;
+  public static of = succeed;
+  public static all = all;
+  public static sequence = sequence;
+  public static firstSuccess = firstSuccess;
+  public static never = never;
+  public static fromPromise = fromPromise;
+
   public fork: Fork<E, S>;
 
   constructor(computation: Fork<E, S>) {

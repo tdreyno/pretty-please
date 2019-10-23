@@ -1,6 +1,6 @@
 import mockAxios, { AxiosResponse } from "axios";
-import { get, toJSON } from "../HTTP";
-import { fromPromise, of, Task } from "../Task";
+import { get, toJSON } from "../HTTP/HTTP";
+import { fromPromise, of, Task } from "../Task/Task";
 
 function slugify(..._args: any[]): string {
   return "slug";

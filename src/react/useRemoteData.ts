@@ -1,13 +1,12 @@
 import { useCallback, useState } from "react";
 import {
-  fail,
   fold,
   initialize,
   pending,
   RemoteData,
   succeed
-} from "../RemoteData";
-import { Task } from "../Task";
+} from "../RemoteData/RemoteData";
+import { Task } from "../Task/Task";
 
 export function useRemoteData<E, S>(task: () => Task<E, S>) {
   const [state, setState] = useState<RemoteData<E, S>>(initialize<E, S>());
