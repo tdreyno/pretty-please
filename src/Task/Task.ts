@@ -11,6 +11,7 @@ export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void;
 export class Task<E, S> {
   public static fail = fail;
   public static succeed = succeed;
+  public static empty = empty;
   public static failIn = failIn;
   public static succeedIn = succeedIn;
   public static of = succeed;
@@ -19,6 +20,7 @@ export class Task<E, S> {
   public static firstSuccess = firstSuccess;
   public static never = never;
   public static fromPromise = fromPromise;
+  public static race = race;
 
   public fork: Fork<E, S>;
 
@@ -105,6 +107,13 @@ export function succeed<S, E = any>(result: S): Task<E, S> {
 }
 
 export const of = succeed;
+
+/**
+ * Creates a Task has an empty result.
+ */
+export function empty<E = any>(): Task<E, void> {
+  return of(void 0);
+}
 
 /**
  * Creates a Task which automatically succeeds at some time in the future with `result`.
