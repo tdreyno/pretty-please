@@ -29,4 +29,14 @@ describe("fromPromise", () => {
     expect(reject).toBeCalledWith(ERROR_RESULT);
     expect(resolve).not.toBeCalled();
   });
+
+  test("should succeed immediately when not recieving a promise", async () => {
+    const resolve = jest.fn();
+    const reject = jest.fn();
+
+    fromPromise(SUCCESS_RESULT).fork(reject, resolve);
+
+    expect(resolve).toBeCalledWith(SUCCESS_RESULT);
+    expect(reject).not.toBeCalled();
+  });
 });

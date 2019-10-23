@@ -262,8 +262,14 @@ export const share = onlyOnce;
  * Given a promise, create a Task which relies on it.
  * @param promise The promise we will gather the success from.
  */
-export function fromPromise<S, E = any>(promise: Promise<S>): Task<E, S> {
-  return new Task((reject, resolve) => promise.then(resolve, reject));
+export function fromPromise<S, E = any>(
+  maybePromise: S | Promise<S>
+): Task<E, S> {
+  if (maybePromise instanceof Promise) {
+    return new Task((reject, resolve) => maybePromise.then(resolve, reject));
+  }
+
+  return of(maybePromise);
 }
 
 /**
