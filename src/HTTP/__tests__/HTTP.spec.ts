@@ -70,6 +70,8 @@ describe("HTTP", () => {
 
 describe("toJSON", () => {
   test("valid text response should resolve with JSON", () => {
+    expect.hasAssertions();
+
     toJSON({
       data: JSON.stringify({ name: "Test" }),
       config: {
@@ -81,6 +83,8 @@ describe("toJSON", () => {
   });
 
   test("invalid text response should resolve with JSON", () => {
+    expect.hasAssertions();
+
     toJSON({
       data: "Not JSON",
       config: {
@@ -92,6 +96,8 @@ describe("toJSON", () => {
   });
 
   test("json response should resolve with JSON", () => {
+    expect.hasAssertions();
+
     toJSON({
       data: { name: "Test" },
       config: {
@@ -103,6 +109,8 @@ describe("toJSON", () => {
   });
 
   test("invalid response should resolve with error", () => {
+    expect.hasAssertions();
+
     toJSON({
       data: 0b0001,
       config: {

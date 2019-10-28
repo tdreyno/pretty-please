@@ -23,6 +23,7 @@ export class Task<E, S> {
   public static fromPromise = fromPromise;
   public static race = race;
   public static external = external;
+  public static emitter = emitter;
 
   public fork: Fork<E, S>;
 
@@ -149,6 +150,23 @@ export class ExternalTask<E, S> extends Task<E, S> {
  */
 export function external<E, S>(): ExternalTask<E, S> {
   return new ExternalTask();
+}
+
+export function emitter<Args extends any[], R>(
+  fn: (...args: Args) => R
+): [ExternalTask<any, R>, (...args: Args) => void] {
+  const task = external<any, R>();
+
+  return [
+    task,
+    (...args: Args) => {
+      try {
+        task.resolve(fn(...args));
+      } catch (e) {
+        task.reject(e);
+      }
+    }
+  ];
 }
 
 /**

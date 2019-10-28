@@ -1,14 +1,20 @@
-import { external } from "../Task";
-import { ERROR_RESULT, SUCCESS_RESULT } from "./util";
+import { emitter } from "../Task";
+import { ERROR_RESULT } from "./util";
 
-describe("external", () => {
+describe("emitter", () => {
   test("should fail when external control has failed", () => {
     jest.useFakeTimers();
 
-    const task = external();
+    const [task, emit] = emitter((a: number) => {
+      if (a % 2 !== 0) {
+        throw ERROR_RESULT;
+      }
+
+      return a * 2;
+    });
 
     setTimeout(() => {
-      task.reject(ERROR_RESULT);
+      emit(1);
     }, 100);
 
     expect.hasAssertions();
@@ -22,26 +28,39 @@ describe("external", () => {
   test("should succeed when external control has succeeded", () => {
     jest.useFakeTimers();
 
-    const task = external();
+    const [task, emit] = emitter((a: number) => {
+      if (a % 2 !== 0) {
+        throw ERROR_RESULT;
+      }
+
+      return a * 2;
+    });
 
     setTimeout(() => {
-      task.resolve(SUCCESS_RESULT);
+      emit(2);
     }, 100);
 
     expect.hasAssertions();
     task.fork(jest.fn(), result => {
-      expect(result).toBe(SUCCESS_RESULT);
+      expect(result).toBe(4);
     });
 
     jest.runAllTimers();
   });
 
   test("should wait when until something happens", () => {
-    const task = external();
+    const [task] = emitter((a: number) => {
+      if (a % 2 !== 0) {
+        throw ERROR_RESULT;
+      }
+
+      return a * 2;
+    });
 
     const reject = jest.fn();
     const resolve = jest.fn();
 
+    expect.hasAssertions();
     task.fork(reject, resolve);
 
     expect(reject).not.toBeCalled();
@@ -51,14 +70,20 @@ describe("external", () => {
   test("should provide a stream of results", () => {
     jest.useFakeTimers();
 
-    const task = external();
+    const [task, emit] = emitter((a: number) => {
+      if (a % 2 !== 0) {
+        throw ERROR_RESULT;
+      }
+
+      return a * 2;
+    });
 
     setTimeout(() => {
-      task.resolve(SUCCESS_RESULT);
+      emit(2);
     }, 100);
 
     setTimeout(() => {
-      task.reject(ERROR_RESULT);
+      emit(1);
     }, 200);
 
     const reject = jest.fn();
@@ -72,7 +97,7 @@ describe("external", () => {
       },
       result => {
         resolve(result);
-        expect(result).toBe(SUCCESS_RESULT);
+        expect(result).toBe(4);
       }
     );
 
@@ -82,7 +107,7 @@ describe("external", () => {
     jest.advanceTimersByTime(100);
 
     expect(reject).not.toHaveBeenCalled();
-    expect(resolve).toHaveBeenCalledWith(SUCCESS_RESULT);
+    expect(resolve).toHaveBeenCalledWith(4);
 
     jest.advanceTimersByTime(100);
 
