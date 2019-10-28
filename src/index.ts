@@ -1,7 +1,7 @@
 import "./extend";
 import HTTP from "./HTTP/index";
 import RemoteData from "./RemoteData/index";
-import Task from "./Task/index";
+import Task, { EndOfSequence } from "./Task/index";
 
 export * from "./util";
-export { HTTP, RemoteData, Task };
+export { HTTP, RemoteData, Task, EndOfSequence };
