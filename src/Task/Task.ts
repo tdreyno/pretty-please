@@ -1,3 +1,4 @@
+// tslint:disable: max-classes-per-file
 import { range } from "../util";
 
 export type Reject<E> = (error: E) => void;
@@ -21,6 +22,7 @@ export class Task<E, S> {
   public static never = never;
   public static fromPromise = fromPromise;
   public static race = race;
+  public static external = external;
 
   public fork: Fork<E, S>;
 
@@ -95,6 +97,58 @@ export class Task<E, S> {
   public retryWithExponentialBackoff(ms: number, times: number): Task<E, S> {
     return retryWithExponentialBackoff(ms, times, this);
   }
+}
+
+/**
+ * A special form of Task which can be resolved/rejected externally.
+ */
+export class ExternalTask<E, S> extends Task<E, S> {
+  private computationReject?: (error: E) => void;
+  private computationResolve?: (result: S) => void;
+  private alreadyError?: E;
+  private alreadyResult?: S;
+  private lastState: "pending" | "error" | "success" = "pending";
+
+  constructor() {
+    super((reject, resolve) => {
+      switch (this.lastState) {
+        case "error":
+          reject(this.alreadyError!);
+
+        case "success":
+          resolve(this.alreadyResult!);
+
+        case "pending":
+          this.computationReject = reject;
+          this.computationResolve = resolve;
+      }
+    });
+  }
+
+  public reject(error: E): void {
+    this.alreadyError = error;
+    this.lastState = "error";
+
+    if (this.computationReject) {
+      this.computationReject(error);
+    }
+  }
+
+  public resolve(result: S): void {
+    this.alreadyResult = result;
+    this.lastState = "success";
+
+    if (this.computationResolve) {
+      this.computationResolve(result);
+    }
+  }
+}
+
+/**
+ * Creates a Task which can be resolved/rejected externally.
+ */
+export function external<E, S>(): ExternalTask<E, S> {
+  return new ExternalTask();
 }
 
 /**
