@@ -402,7 +402,7 @@ export class EndOfSequence extends Error {
 }
 
 export function trySequence<E, S>(
-  shouldContinue: (error: E) => boolean,
+  onError: (error: E) => boolean | Task<E, S>,
   tasks: Array<Task<E, S>>
 ): Task<E | EndOfSequence, S> {
   const [head, ...tail] = tasks;
@@ -412,11 +412,17 @@ export function trySequence<E, S>(
   }
 
   return head.orElse(e => {
-    if (!shouldContinue(e)) {
+    const shouldContinue = onError(e);
+
+    if (shouldContinue === false) {
       return fail(e);
     }
 
-    return trySequence(shouldContinue, tail) as Task<E, S>;
+    if (shouldContinue === true) {
+      return trySequence(onError, tail) as Task<E, S>;
+    }
+
+    return shouldContinue;
   });
 }
 
