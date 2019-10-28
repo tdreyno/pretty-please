@@ -24,6 +24,7 @@ export class Task<E, S> {
   public static race = race;
   public static external = external;
   public static emitter = emitter;
+  public static trySequence = trySequence;
 
   public fork: Fork<E, S>;
 
@@ -391,6 +392,31 @@ export function race<E, S>(tasks: Array<Task<E, S>>): Task<E, S> {
         }
       )
     );
+  });
+}
+
+export class EndOfSequence extends Error {
+  constructor() {
+    super("End of sequence");
+  }
+}
+
+export function trySequence<E, S>(
+  shouldContinue: (error: E) => boolean,
+  tasks: Array<Task<E, S>>
+): Task<E | EndOfSequence, S> {
+  const [head, ...tail] = tasks;
+
+  if (!head) {
+    return fail(new EndOfSequence());
+  }
+
+  return head.orElse(e => {
+    if (!shouldContinue(e)) {
+      return fail(e);
+    }
+
+    return trySequence(shouldContinue, tail) as Task<E, S>;
   });
 }
 
