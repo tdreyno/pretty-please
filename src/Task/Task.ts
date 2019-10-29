@@ -28,6 +28,7 @@ export class Task<E, S> {
   public static emitter = emitter;
   public static trySequence = trySequence;
   public static none = none;
+  public static succeedBy = succeedBy;
 
   public fork: Fork<E, S>;
 
@@ -183,6 +184,20 @@ export function succeed<S, E = any>(result: S): Task<E, S> {
 }
 
 export const of = succeed;
+
+/**
+ * Creates a Task which succeeds when forked.
+ * @param result The function which will produce the result.
+ */
+export function succeedBy<S, E = any>(result: () => S): Task<E, S> {
+  return new Task((reject, resolve) => {
+    try {
+      resolve(result());
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
 
 /**
  * Creates a Task has an empty result.
