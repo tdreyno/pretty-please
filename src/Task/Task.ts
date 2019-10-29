@@ -5,6 +5,8 @@ export type Reject<E> = (error: E) => void;
 export type Resolve<S> = (result: S) => void;
 export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void;
 
+export const none = void 0;
+
 /**
  * Create a new task.
  * @param computation A function which will be run when the task starts.
@@ -25,6 +27,7 @@ export class Task<E, S> {
   public static external = external;
   public static emitter = emitter;
   public static trySequence = trySequence;
+  public static none = none;
 
   public fork: Fork<E, S>;
 
