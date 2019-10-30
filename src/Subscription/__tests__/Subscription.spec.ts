@@ -32,4 +32,18 @@ describe("Subscription", () => {
     expect(subscriber1).not.toBeCalledWith("test");
     expect(subscriber2).not.toBeCalledWith("test");
   });
+
+  test("should still resolve with no subscribers", () => {
+    const sub = new Subscription<string>();
+
+    expect.hasAssertions();
+
+    const reject = jest.fn();
+    const resolve = jest.fn();
+
+    sub.emit("test").fork(reject, resolve);
+
+    expect(reject).not.toBeCalled();
+    expect(resolve).toBeCalledWith([]);
+  });
 });

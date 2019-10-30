@@ -449,6 +449,10 @@ export function trySequence<E, S>(
  * @param tasks The tasks to run in parallel.
  */
 export function firstSuccess<E, S>(tasks: Array<Task<E, S>>): Task<E[], S> {
+  if (tasks.length === 0) {
+    return fail([]);
+  }
+
   return new Task<E[], S>((reject, resolve) => {
     let isDone = false;
     let runningTasks = tasks.length;
@@ -493,6 +497,10 @@ export function firstSuccess<E, S>(tasks: Array<Task<E, S>>): Task<E[], S> {
  * @param tasks The tasks to run in parallel.
  */
 export function all<E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> {
+  if (tasks.length === 0) {
+    return of([]);
+  }
+
   return new Task<E, S[]>((reject, resolve) => {
     let isDone = false;
     let runningTasks = tasks.length;
@@ -537,6 +545,10 @@ export function all<E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> {
  * @param tasks The tasks to run in sequence.
  */
 export function sequence<E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> {
+  if (tasks.length === 0) {
+    return of([]);
+  }
+
   return tasks.reduce((sum, task) => {
     return andThen(list => {
       return map(result => [...list, result], task);
