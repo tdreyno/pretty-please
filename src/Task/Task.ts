@@ -29,6 +29,7 @@ export class Task<E, S> {
   public static trySequence = trySequence;
   public static none = none;
   public static succeedBy = succeedBy;
+  public static ap = ap;
 
   public fork: Fork<E, S>;
 
@@ -658,6 +659,7 @@ export function orElse<E, S>(
 /**
  * Given a task that succeeds with a map function as its result,
  * run that function over the result of a second successful Task.
+ * @alias mapN
  * @param appliedTask The task whose value will be passed to the map function.
  * @param task The task who will return a map function as the success result.
  */
@@ -714,6 +716,8 @@ export function ap<E, S, S2>(
     );
   });
 }
+
+export const mapN = ap;
 
 /**
  * Wait some number of seconds to continue after a successful task.
