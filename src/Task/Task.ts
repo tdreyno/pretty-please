@@ -30,6 +30,9 @@ export class Task<E, S> {
   public static none = none;
   public static succeedBy = succeedBy;
   public static ap = ap;
+  public static map2 = map2;
+  public static map3 = map3;
+  public static map4 = map4;
 
   public fork: Fork<E, S>;
 
@@ -579,6 +582,42 @@ export function map<E, S, S2>(
   );
 }
 
+export function map2<E, E2, S, S2, S3>(
+  fn: (a: S) => (b: S2) => S3,
+  taskA: Task<E, S>,
+  taskB: Task<E2, S2>
+): Task<E | E2, S3> {
+  return Task.of(fn)
+    .ap(taskA)
+    .ap(taskB);
+}
+
+export function map3<E, E2, E3, S, S2, S3, S4>(
+  fn: (a: S) => (b: S2) => (c: S3) => S4,
+  taskA: Task<E, S>,
+  taskB: Task<E2, S2>,
+  taskC: Task<E3, S3>
+): Task<E | E2 | E3, S4> {
+  return Task.of(fn)
+    .ap(taskA)
+    .ap(taskB)
+    .ap(taskC);
+}
+
+export function map4<E, E2, E3, E4, S, S2, S3, S4, S5>(
+  fn: (a: S) => (b: S2) => (c: S3) => (d: S4) => S5,
+  taskA: Task<E, S>,
+  taskB: Task<E2, S2>,
+  taskC: Task<E3, S3>,
+  taskD: Task<E4, S4>
+): Task<E | E2 | E3 | E4, S5> {
+  return Task.of(fn)
+    .ap(taskA)
+    .ap(taskB)
+    .ap(taskC)
+    .ap(taskD);
+}
+
 /**
  * Run a side-effect on success. Useful for logging.
  * @param fn A function will fire with the successful value.
@@ -659,7 +698,6 @@ export function orElse<E, S>(
 /**
  * Given a task that succeeds with a map function as its result,
  * run that function over the result of a second successful Task.
- * @alias mapN
  * @param appliedTask The task whose value will be passed to the map function.
  * @param task The task who will return a map function as the success result.
  */
@@ -716,8 +754,6 @@ export function ap<E, S, S2>(
     );
   });
 }
-
-export const mapN = ap;
 
 /**
  * Wait some number of seconds to continue after a successful task.
