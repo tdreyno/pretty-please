@@ -788,3 +788,7 @@ export function retryWithExponentialBackoff<E, S>(
 ): Task<E, S> {
   return range(times).reduce((sum, i) => sum.retryIn(ms * 2 ** i), task);
 }
+
+interface Promise<T> {
+  toTask(): Task<any, T>;
+}
