@@ -1,6 +1,6 @@
 {
   "name": "@tdreyno/pretty-please",
-  "version": "1.0.0-beta.21",
+  "version": "1.0.0-beta.22",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
   "repository": "git://github.com/tdreyno/pretty-please.git",
