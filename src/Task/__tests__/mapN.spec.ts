@@ -1,5 +1,5 @@
-import { fail, map2, map3, map4, succeed, Task } from "../Task";
-import { ERROR_RESULT, SUCCESS_RESULT } from "./util";
+import { fail, map2, map3, map4, succeed } from "../Task";
+import { ERROR_RESULT } from "./util";
 
 describe("mapN", () => {
   describe("map2", () => {
