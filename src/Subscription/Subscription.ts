@@ -22,6 +22,7 @@ export class Subscription<T> {
 
   public subscribe(fn: EventSubscriber<T>): Unsubscriber {
     this.eventSubscribers.add(fn);
+    this.checkStatus();
 
     return () => {
       this.eventSubscribers.delete(fn);

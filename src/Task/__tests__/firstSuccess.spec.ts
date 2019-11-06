@@ -17,6 +17,16 @@ describe("firstSuccess", () => {
     expect(resolve).toBeCalledWith(SUCCESS_RESULT);
   });
 
+  test("should fail with empty array on empty task list", () => {
+    const resolve = jest.fn();
+    const reject = jest.fn();
+
+    firstSuccess([]).fork(reject, resolve);
+
+    expect(resolve).not.toBeCalled();
+    expect(reject).toBeCalledWith([]);
+  });
+
   test("should reject when the no responses are successful", () => {
     const resolve = jest.fn();
     const reject = jest.fn();

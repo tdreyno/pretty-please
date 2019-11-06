@@ -1,19 +1,40 @@
-import { AxiosResponse } from "axios";
-import { get } from "../../HTTP/HTTP";
-import { fromTask, initialize } from "../RemoteData";
+import { ERROR_RESULT, SUCCESS_RESULT } from "../../Task/__tests__/util";
+import { fail, fold, initialize, pending, succeed } from "../RemoteData";
 
 describe("Remote Data", () => {
-  test.skip("Test", () => {
-    let remoteData = initialize<Error, AxiosResponse<any>>();
+  test("Initialized", () => {
+    const remoteData = initialize<any, any>();
 
-    expect(remoteData.type).toBe("Initialized");
+    const fn = jest.fn();
+    fold(fn, jest.fn(), jest.fn(), jest.fn(), remoteData);
 
-    const task = fromTask(get("/endpoint"));
+    expect(fn).toHaveBeenCalled();
+  });
 
-    // remoteData.start();
+  test("Pending", () => {
+    const remoteData = pending<any, any>();
 
-    expect(remoteData.type).toBe("Pending");
+    const fn = jest.fn();
+    fold(jest.fn(), fn, jest.fn(), jest.fn(), remoteData);
 
-    task.fork(() => void 0, r => (remoteData = r));
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test("Failed", () => {
+    const remoteData = fail<string>(ERROR_RESULT);
+
+    const fn = jest.fn();
+    fold(jest.fn(), jest.fn(), fn, jest.fn(), remoteData);
+
+    expect(fn).toHaveBeenCalledWith(ERROR_RESULT);
+  });
+
+  test("Succeeded", () => {
+    const remoteData = succeed<string>(SUCCESS_RESULT);
+
+    const fn = jest.fn();
+    fold(jest.fn(), jest.fn(), jest.fn(), fn, remoteData);
+
+    expect(fn).toHaveBeenCalledWith(SUCCESS_RESULT);
   });
 });

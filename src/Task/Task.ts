@@ -139,6 +139,7 @@ export class ExternalTask<E, S> extends Task<E, S> {
     this.alreadyError = error;
     this.lastState = "error";
 
+    /* istanbul ignore next */
     if (this.computationReject) {
       this.computationReject(error);
     }
@@ -148,6 +149,7 @@ export class ExternalTask<E, S> extends Task<E, S> {
     this.alreadyResult = result;
     this.lastState = "success";
 
+    /* istanbul ignore next */
     if (this.computationResolve) {
       this.computationResolve(result);
     }

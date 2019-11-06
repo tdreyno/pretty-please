@@ -24,6 +24,19 @@ describe("trySequence", () => {
     expect(reject).toBeCalledWith("B");
   });
 
+  test("should accept a new task as a continuation", () => {
+    const resolve = jest.fn();
+    const reject = jest.fn();
+
+    trySequence(() => succeed("D"), [fail("A"), fail("B"), succeed("C")]).fork(
+      reject,
+      resolve
+    );
+
+    expect(resolve).toBeCalledWith("D");
+    expect(reject).not.toBeCalled();
+  });
+
   test("should throw EndOfSequence if everything fails", () => {
     const resolve = jest.fn();
 

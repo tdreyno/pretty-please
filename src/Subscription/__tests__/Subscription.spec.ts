@@ -46,4 +46,24 @@ describe("Subscription", () => {
     expect(reject).not.toBeCalled();
     expect(resolve).toBeCalledWith([]);
   });
+
+  test("should notify when the first subscriber is added", () => {
+    const sub = new Subscription<string>();
+
+    expect.hasAssertions();
+
+    const onStatusChange = jest.fn();
+
+    sub.onStatusChange(onStatusChange);
+
+    expect(onStatusChange).not.toBeCalled();
+
+    const unsubscriber = sub.subscribe(jest.fn());
+
+    expect(onStatusChange).toBeCalledWith("active");
+
+    unsubscriber();
+
+    expect(onStatusChange).toBeCalledWith("inactive");
+  });
 });

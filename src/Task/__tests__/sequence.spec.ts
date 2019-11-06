@@ -2,7 +2,7 @@ import { failIn, sequence, succeedIn } from "../Task";
 import { ERROR_RESULT } from "./util";
 
 describe("sequence", () => {
-  test("should run all taks in sequence and return an array of results in their original order", () => {
+  test("should run all tasks in sequence and return an array of results in their original order", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
@@ -17,6 +17,16 @@ describe("sequence", () => {
 
     expect(reject).not.toBeCalled();
     expect(resolve).toBeCalledWith(["A", "B"]);
+  });
+
+  test("should succeed with empty array on empty task list", () => {
+    const resolve = jest.fn();
+    const reject = jest.fn();
+
+    sequence([]).fork(reject, resolve);
+
+    expect(resolve).toBeCalledWith([]);
+    expect(reject).not.toBeCalled();
   });
 
   test("should fail on first error", () => {

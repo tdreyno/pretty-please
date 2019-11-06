@@ -82,7 +82,17 @@ describe("toJSON", () => {
     });
   });
 
-  test("invalid text response should resolve with JSON", () => {
+  test("valid text response without a responseType should resolve with JSON", () => {
+    expect.hasAssertions();
+
+    toJSON({
+      data: JSON.stringify({ name: "Test" })
+    } as AxiosResponse<string>).fork(jest.fn(), result => {
+      expect((result as any).name).toBe("Test");
+    });
+  });
+
+  test("invalid text response should fail", () => {
     expect.hasAssertions();
 
     toJSON({

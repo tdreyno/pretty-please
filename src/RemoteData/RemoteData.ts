@@ -57,9 +57,3 @@ export function fold<E, S, R>(
       return onSuccess(remote.result);
   }
 }
-
-export function fromTask<E, S>(
-  task: Task<E, S>
-): Task<unknown, RemoteData<E, S>> {
-  return task.map(succeed).orElse(e => of(fail(e)));
-}
