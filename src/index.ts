@@ -1,4 +1,3 @@
-import "./extend";
 import HTTP from "./HTTP/index";
 import RemoteData from "./RemoteData/index";
 import Subscription from "./Subscription/index";

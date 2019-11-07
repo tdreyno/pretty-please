@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { fail, fromPromise, succeed, Task } from "../Task/Task";
+import { fail, fromPromise, succeed, succeedBy, Task } from "../Task/Task";
 
 export function get<T = any>(
   url: string,
@@ -59,11 +59,7 @@ export function toJSON<S, T>(resp: AxiosResponse<T>): Task<Error, S> {
       return succeed((resp.data as unknown) as S);
 
     case "text":
-      try {
-        return succeed(JSON.parse((resp.data as unknown) as string));
-      } catch (e) {
-        return fail(e);
-      }
+      return succeedBy(() => JSON.parse((resp.data as unknown) as string));
 
     default:
       return fail(new Error("Invalid data"));
