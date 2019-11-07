@@ -23,6 +23,7 @@ export class Task<E, S> {
   public static firstSuccess = firstSuccess;
   public static never = never;
   public static fromPromise = fromPromise;
+  public static fromLazyPromise = fromLazyPromise;
   public static race = race;
   public static external = external;
   public static emitter = emitter;
@@ -376,6 +377,16 @@ export function fromPromise<S, E = any>(
   }
 
   return of(maybePromise);
+}
+
+/**
+ * Take a function which generates a promise and lazily execute it.
+ * @param getPromise The getter function
+ */
+export function fromLazyPromise<S, E = any>(
+  getPromise: () => S | Promise<S>
+): Task<E, S> {
+  return succeedBy(getPromise).andThen(fromPromise);
 }
 
 /**
