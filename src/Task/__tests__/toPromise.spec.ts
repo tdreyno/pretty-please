@@ -9,7 +9,10 @@ describe("toPromise", () => {
     const task = succeed(SUCCESS_RESULT);
     const promise = task.toPromise().then(resolve, reject);
 
-    task.fork(() => void 0, () => void 0);
+    task.fork(
+      () => void 0,
+      () => void 0
+    );
 
     await promise.catch(() => void 0);
 
@@ -24,7 +27,10 @@ describe("toPromise", () => {
     const task = fail(ERROR_RESULT);
     const promise = task.toPromise().then(resolve, reject);
 
-    task.fork(() => void 0, () => void 0);
+    task.fork(
+      () => void 0,
+      () => void 0
+    );
 
     await promise.catch(() => void 0);
 

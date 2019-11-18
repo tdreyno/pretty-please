@@ -33,8 +33,18 @@ describe("map", () => {
       onFork();
     });
 
-    task.map(() => SUCCESS_RESULT).fork(() => void 0, () => void 0);
-    task.map(() => SUCCESS_RESULT).fork(() => void 0, () => void 0);
+    task
+      .map(() => SUCCESS_RESULT)
+      .fork(
+        () => void 0,
+        () => void 0
+      );
+    task
+      .map(() => SUCCESS_RESULT)
+      .fork(
+        () => void 0,
+        () => void 0
+      );
 
     expect(onFork).toBeCalledTimes(2);
   });
@@ -49,7 +59,10 @@ describe("map", () => {
     task
       .map(() => SUCCESS_RESULT)
       .map(() => SUCCESS_RESULT)
-      .fork(() => void 0, () => void 0);
+      .fork(
+        () => void 0,
+        () => void 0
+      );
 
     expect(onFork).toBeCalledTimes(1);
   });

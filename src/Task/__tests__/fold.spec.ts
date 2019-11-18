@@ -6,7 +6,10 @@ describe("fold", () => {
     const reject = jest.fn();
 
     succeed(5)
-      .fold(r => r ** 2, r => r * 2)
+      .fold(
+        r => r ** 2,
+        r => r * 2
+      )
       .fork(reject, resolve);
 
     expect(reject).not.toBeCalled();
@@ -18,7 +21,10 @@ describe("fold", () => {
     const reject = jest.fn();
 
     fail(5)
-      .fold(r => r ** 2, r => r * 2)
+      .fold(
+        r => r ** 2,
+        r => r * 2
+      )
       .fork(reject, resolve);
 
     expect(reject).not.toBeCalled();

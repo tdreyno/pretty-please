@@ -39,8 +39,14 @@ describe("fork", () => {
       onFork();
     });
 
-    task.fork(() => void 0, () => void 0);
-    task.fork(() => void 0, () => void 0);
+    task.fork(
+      () => void 0,
+      () => void 0
+    );
+    task.fork(
+      () => void 0,
+      () => void 0
+    );
 
     expect(onFork).toBeCalledTimes(2);
   });

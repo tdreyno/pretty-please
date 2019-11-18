@@ -13,16 +13,13 @@ function loadUserNameTask(id: string): Task<Error, [string, string]> {
 function editorTuplesToMap(
   results: Array<[string, string]>
 ): { [userId: string]: string } {
-  return results.reduce(
-    (sum, [userId, userName]) => {
-      if (userName) {
-        sum[userId] = userName;
-      }
+  return results.reduce((sum, [userId, userName]) => {
+    if (userName) {
+      sum[userId] = userName;
+    }
 
-      return sum;
-    },
-    {} as { [userId: string]: string }
-  );
+    return sum;
+  }, {} as { [userId: string]: string });
 }
 
 describe("more test", () => {

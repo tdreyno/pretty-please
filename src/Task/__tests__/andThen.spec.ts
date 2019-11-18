@@ -35,11 +35,17 @@ describe("andThen", () => {
 
     task
       .andThen(() => succeed(SUCCESS_RESULT))
-      .fork(() => void 0, () => void 0);
+      .fork(
+        () => void 0,
+        () => void 0
+      );
 
     task
       .andThen(() => succeed(SUCCESS_RESULT))
-      .fork(() => void 0, () => void 0);
+      .fork(
+        () => void 0,
+        () => void 0
+      );
 
     expect(onFork).toBeCalledTimes(2);
   });
@@ -54,7 +60,10 @@ describe("andThen", () => {
     task
       .andThen(() => succeed(SUCCESS_RESULT))
       .andThen(() => succeed(SUCCESS_RESULT))
-      .fork(() => void 0, () => void 0);
+      .fork(
+        () => void 0,
+        () => void 0
+      );
 
     expect(onFork).toBeCalledTimes(1);
   });
