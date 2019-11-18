@@ -53,7 +53,7 @@
     "@pika/plugin-ts-standard-pkg": "^0.7.1",
     "@types/jest": "^24.0.23",
     "@types/react": "^16.9.11",
-    "husky": "^3.0.9",
+    "husky": "^3.1.0",
     "jest": "^24.5.0",
     "lint-staged": "^9.4.3",
     "prettier": "^1.19.1",
