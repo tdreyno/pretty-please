@@ -52,7 +52,7 @@
     "@pika/plugin-build-web": "^0.8.1",
     "@pika/plugin-ts-standard-pkg": "^0.7.1",
     "@types/jest": "^24.0.23",
-    "@types/react": "^16.9.11",
+    "@types/react": "^16.9.13",
     "husky": "^3.1.0",
     "jest": "^24.5.0",
     "lint-staged": "^9.4.3",
