@@ -57,7 +57,7 @@
     "jest": "^24.5.0",
     "lint-staged": "^9.5.0",
     "prettier": "^1.19.1",
-    "terser": "^4.4.0",
+    "terser": "^4.4.2",
     "ts-jest": "^24.2.0",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
