@@ -31,4 +31,40 @@ describe("race", () => {
     expect(resolve).not.toBeCalled();
     expect(reject).toBeCalledWith(ERROR_RESULT);
   });
+
+  test("should resolve when the first promise is successful", async () => {
+    const resolve = jest.fn();
+    const reject = jest.fn();
+
+    race([Promise.resolve(SUCCESS_RESULT), failIn(200, ERROR_RESULT)]).fork(
+      reject,
+      resolve
+    );
+
+    // "hack" to flush the promise queue
+    await new Promise(r => setImmediate(r));
+
+    jest.advanceTimersByTime(150);
+
+    expect(reject).not.toBeCalled();
+    expect(resolve).toBeCalledWith(SUCCESS_RESULT);
+  });
+
+  test("should reject when the first promise is a failure", async () => {
+    const resolve = jest.fn();
+    const reject = jest.fn();
+
+    race([succeedIn(200, SUCCESS_RESULT), Promise.reject(ERROR_RESULT)]).fork(
+      reject,
+      resolve
+    );
+
+    // "hack" to flush the promise queue
+    await new Promise(r => setImmediate(r));
+
+    jest.advanceTimersByTime(150);
+
+    expect(resolve).not.toBeCalled();
+    expect(reject).toBeCalledWith(ERROR_RESULT);
+  });
 });

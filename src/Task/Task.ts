@@ -11,7 +11,7 @@ export const none = void 0;
  * Create a new task.
  * @param computation A function which will be run when the task starts.
  */
-export class Task<E, S> {
+export class Task<E, S> implements PromiseLike<S> {
   public static fail = fail;
   public static succeed = succeed;
   public static empty = empty;
@@ -41,7 +41,25 @@ export class Task<E, S> {
     this.fork = computation;
   }
 
-  public andThen<S2>(fn: (result: S) => Task<E, S2>): Task<E, S2> {
+  /**
+   * Alias to match promise API and let async/await work.
+   */
+  public then<TResult1 = S, TResult2 = never>(
+    onfulfilled?:
+      | ((value: S) => TResult1 | PromiseLike<TResult1>)
+      | undefined
+      | null,
+    onrejected?:
+      | ((reason: any) => TResult2 | PromiseLike<TResult2>)
+      | undefined
+      | null
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.toPromise().then(onfulfilled, onrejected);
+  }
+
+  public andThen<S2>(
+    fn: (result: S) => Task<E, S2> | Promise<S2>
+  ): Task<E, S2> {
     return andThen(fn, this);
   }
 
@@ -87,7 +105,9 @@ export class Task<E, S> {
     return fold(handleError, handleSuccess, this);
   }
 
-  public orElse<S2>(fn: (error: E) => Task<E, S | S2>): Task<E, S | S2> {
+  public orElse<S2>(
+    fn: (error: E) => Task<E, S | S2> | Promise<S | S2>
+  ): Task<E, S | S2> {
     return orElse(fn, this);
   }
 
@@ -267,12 +287,25 @@ export function fork<E, S>(
  * @param task The task which will chain to the next one on success.
  */
 export function andThen<E, S, S2>(
-  fn: (result: S) => Task<E, S2>,
+  fn: (result: S) => Task<E, S2> | Promise<S2>,
   task: Task<E, S>
 ): Task<E, S2> {
   return new Task((reject, resolve) =>
-    task.fork(reject, b => fn(b).fork(reject, resolve))
+    task.fork(reject, b => autoPromiseToTask(fn(b)).fork(reject, resolve))
   );
+}
+
+/**
+ * If a function returns a Promise instead of a Task, automatically
+ * convert it to a Task.
+ * @param promiseOrTask Either a promise or a task
+ */
+function autoPromiseToTask<E, S>(promiseOrTask: Task<E, S> | Promise<S>) {
+  if (promiseOrTask instanceof Promise) {
+    return fromPromise(promiseOrTask);
+  }
+
+  return promiseOrTask;
 }
 
 export const chain = andThen;
@@ -399,14 +432,16 @@ export function toPromise<E, S>(task: Task<E, S>): Promise<S> {
 
 /**
  * Given an array of tasks, return the one which finishes first.
- * @param tasks The tasks to run in parallel.
+ * @param tasksOrPromises The tasks to run in parallel.
  */
-export function race<E, S>(tasks: Array<Task<E, S>>): Task<E, S> {
+export function race<E, S>(
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>
+): Task<E, S> {
   return new Task<E, S>((reject, resolve) => {
     let done = false;
 
-    return tasks.map(task =>
-      task.fork(
+    return tasksOrPromises.map(taskOrPromise =>
+      autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
           /* istanbul ignore next */
           if (done) {
@@ -436,17 +471,23 @@ export class EndOfSequence extends Error {
   }
 }
 
+/**
+ * Attempt a sequence of tasks, but also allow `orElse` recovery
+ * when there is an error.
+ * @param onError
+ * @param tasksOrPromises
+ */
 export function trySequence<E, S>(
-  onError: (error: E) => boolean | Task<E, S>,
-  tasks: Array<Task<E, S>>
+  onError: (error: E) => boolean | Task<E, S> | Promise<S>,
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>
 ): Task<E | EndOfSequence, S> {
-  const [head, ...tail] = tasks;
+  const [head, ...tail] = tasksOrPromises;
 
   if (!head) {
     return fail(new EndOfSequence());
   }
 
-  return head.orElse(e => {
+  return autoPromiseToTask(head).orElse(e => {
     const shouldContinue = onError(e);
 
     if (shouldContinue === false) {
@@ -463,21 +504,23 @@ export function trySequence<E, S>(
 
 /**
  * Given an array of tasks, return the one which finishes successfully first.
- * @param tasks The tasks to run in parallel.
+ * @param tasksOrPromises The tasks to run in parallel.
  */
-export function firstSuccess<E, S>(tasks: Array<Task<E, S>>): Task<E[], S> {
-  if (tasks.length === 0) {
+export function firstSuccess<E, S>(
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>
+): Task<E[], S> {
+  if (tasksOrPromises.length === 0) {
     return fail([]);
   }
 
   return new Task<E[], S>((reject, resolve) => {
     let isDone = false;
-    let runningTasks = tasks.length;
+    let runningTasks = tasksOrPromises.length;
 
     const errors: E[] = [];
 
-    return tasks.map(task =>
-      task.fork(
+    return tasksOrPromises.map(taskOrPromise =>
+      autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
           /* Should be impossible. */
           /* istanbul ignore next */
@@ -511,21 +554,23 @@ export function firstSuccess<E, S>(tasks: Array<Task<E, S>>): Task<E[], S> {
 
 /**
  * Given an array of task which return a result, return a new task which results an array of results.
- * @param tasks The tasks to run in parallel.
+ * @param tasksOrPromises The tasks to run in parallel.
  */
-export function all<E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> {
-  if (tasks.length === 0) {
+export function all<E, S>(
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>
+): Task<E, S[]> {
+  if (tasksOrPromises.length === 0) {
     return of([]);
   }
 
   return new Task<E, S[]>((reject, resolve) => {
     let isDone = false;
-    let runningTasks = tasks.length;
+    let runningTasks = tasksOrPromises.length;
 
     const results: S[] = [];
 
-    return tasks.map((task, i) =>
-      task.fork(
+    return tasksOrPromises.map((taskOrPromise, i) =>
+      autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
           /* Should be impossible. */
           /* istanbul ignore next */
@@ -561,14 +606,16 @@ export function all<E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> {
  * Given an array of task which return a result, return a new task which results an array of results.
  * @param tasks The tasks to run in sequence.
  */
-export function sequence<E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> {
-  if (tasks.length === 0) {
+export function sequence<E, S>(
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>
+): Task<E, S[]> {
+  if (tasksOrPromises.length === 0) {
     return of([]);
   }
 
-  return tasks.reduce((sum, task) => {
+  return tasksOrPromises.reduce((sum, taskOrPromise) => {
     return andThen(list => {
-      return map(result => [...list, result], task);
+      return map(result => [...list, result], autoPromiseToTask(taskOrPromise));
     }, sum);
   }, succeed([] as S[]));
 }
@@ -700,11 +747,14 @@ export function fold<E, S, R>(
  * @param task The task to try to run a recovery function on failure.
  */
 export function orElse<E, S>(
-  fn: (error: E) => Task<E, S>,
+  fn: (error: E) => Task<E, S> | Promise<S>,
   task: Task<E, S>
 ): Task<E, S> {
   return new Task<E, S>((reject, resolve) =>
-    task.fork(error => fn(error).fork(reject, resolve), resolve)
+    task.fork(
+      error => autoPromiseToTask(fn(error)).fork(reject, resolve),
+      resolve
+    )
   );
 }
 
