@@ -82,13 +82,13 @@ describe("trySequence", () => {
     expect(reject).toBeCalledWith("B");
   });
 
-  test("should accept a new promise as a continuation", async () => {
+  test.only("should accept a new promise as a continuation", async () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
     trySequence(() => Promise.resolve("D"), [
       Promise.reject("A"),
-      Promise.reject("B"),
+      Promise.reject("B").catch(() => void 0),
       Promise.resolve("C")
     ]).fork(reject, resolve);
 
