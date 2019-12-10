@@ -21,21 +21,18 @@ npm install --save @tdreyno/pretty-please
 ## Examples
 
 ```typescript
-import { HTTP } from "@tdreyno/pretty-please";
-
 const getFriendsNames = id =>
-  HTTP
-    // Load data.
-    .get(`/user/${id}.json`)
+  // Load data.
+  Task.fromPromise(fetch(`/user/${id}.json`))
 
     // Parse JSON text into valid Person type.
-    .andThen(parseUserData)
+    .chain(parseUserData)
 
     // Load all of a user's friends in parallel.
-    .andThen(user =>
+    .chain(user =>
       user.friends
-        .map(id => HTTP.get(`/user/${id}.json`).andThen(parseUserData))
-        .andThen(Task.all)
+        .map(id => HTTP.get(`/user/${id}.json`).chain(parseUserData))
+        .chain(Task.all)
     )
 
     // Map to an array of friend's names.
@@ -45,7 +42,10 @@ const getFriendsNames = id =>
 const task = getFriendsNames(1);
 
 // Run the task.
-task.fork(e => console.error(e), names => console.log("Friend names", names));
+task.fork(
+  e => console.error(e),
+  names => console.log("Friend names", names)
+);
 ```
 
 ## License

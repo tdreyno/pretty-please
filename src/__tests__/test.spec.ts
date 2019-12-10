@@ -1,5 +1,3 @@
-import mockAxios, { AxiosResponse } from "axios";
-import { get, toJSON } from "../HTTP/HTTP";
 import { fromPromise, of, Task } from "../Task/Task";
 
 function slugify(..._args: any[]): string {
@@ -115,13 +113,25 @@ function responseToPageContent(response: QueryResponse): PageContent {
   return response.results[0].data;
 }
 
+function fetch(_url: string) {
+  return Promise.resolve(
+    JSON.stringify({
+      data: {
+        jobs: []
+      }
+    })
+  );
+}
+
 export function loadData(req: Request): Task<Error, PageContent> {
-  const jobsTask = get(`https://api.greenhouse.io/v1/boards/instrument/jobs`)
-    .andThen(toJSON)
+  const jobsTask = Task.fromPromise(
+    fetch(`https://api.greenhouse.io/v1/boards/instrument/jobs`)
+  )
+    .map(JSON.parse)
     .map(jsonToJobs);
 
   const pageContentTask = prismicAPI(req)
-    .andThen(
+    .chain(
       query(Prismic.Predicates.at("document.type", "careers_page"), {
         graphQuery: `{
             careers_page {
@@ -145,19 +155,6 @@ function asyncData({ error, req }: Context): Promise<PageContent> {
 
 describe("Instrument.com", () => {
   test("loadData", async () => {
-    (mockAxios.get as any).mockImplementation(async () => {
-      return {
-        data: JSON.stringify({
-          data: {
-            jobs: []
-          }
-        }),
-        config: {
-          responseType: "text"
-        }
-      } as AxiosResponse<string>;
-    });
-
     const onError = jest.fn();
 
     const result = await asyncData({ error: onError, req: {} });

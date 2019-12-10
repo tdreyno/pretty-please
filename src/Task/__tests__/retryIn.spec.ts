@@ -24,7 +24,7 @@ describe("retryIn", () => {
       .mockReturnValueOnce(succeed(SUCCESS_RESULT));
 
     succeed(true)
-      .andThen(response)
+      .chain(response)
       .retryIn(100)
       .fork(reject, resolve);
 

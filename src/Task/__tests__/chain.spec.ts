@@ -1,13 +1,13 @@
 import { fail, succeed, Task } from "../Task";
 import { ERROR_RESULT, SUCCESS_RESULT } from "./util";
 
-describe("andThen", () => {
+describe("chain", () => {
   test("should succeed when chaining on a successful task", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
     succeed(5)
-      .andThen(r => succeed(r * 2))
+      .chain(r => succeed(r * 2))
       .fork(reject, resolve);
 
     expect(resolve).toBeCalledWith(10);
@@ -19,7 +19,7 @@ describe("andThen", () => {
     const reject = jest.fn();
 
     succeed(5)
-      .andThen(r => Promise.resolve(r * 2))
+      .chain(r => Promise.resolve(r * 2))
       .fork(reject, resolve);
 
     // "hack" to flush the promise queue
@@ -34,7 +34,7 @@ describe("andThen", () => {
     const reject = jest.fn();
 
     fail(ERROR_RESULT)
-      .andThen(_ => succeed(true))
+      .chain(_ => succeed(true))
       .fork(reject, resolve);
 
     expect(resolve).not.toBeCalled();
@@ -46,7 +46,7 @@ describe("andThen", () => {
     const reject = jest.fn();
 
     fail(ERROR_RESULT)
-      .andThen(_ => Promise.reject(true))
+      .chain(_ => Promise.reject(true))
       .fork(reject, resolve);
 
     // "hack" to flush the promise queue
@@ -56,7 +56,7 @@ describe("andThen", () => {
     expect(reject).toBeCalledWith(ERROR_RESULT);
   });
 
-  test("should call computation once per andThen", () => {
+  test("should call computation once per chain", () => {
     const onFork = jest.fn();
 
     const task = new Task(() => {
@@ -64,14 +64,14 @@ describe("andThen", () => {
     });
 
     task
-      .andThen(() => succeed(SUCCESS_RESULT))
+      .chain(() => succeed(SUCCESS_RESULT))
       .fork(
         () => void 0,
         () => void 0
       );
 
     task
-      .andThen(() => succeed(SUCCESS_RESULT))
+      .chain(() => succeed(SUCCESS_RESULT))
       .fork(
         () => void 0,
         () => void 0
@@ -88,8 +88,8 @@ describe("andThen", () => {
     });
 
     task
-      .andThen(() => succeed(SUCCESS_RESULT))
-      .andThen(() => succeed(SUCCESS_RESULT))
+      .chain(() => succeed(SUCCESS_RESULT))
+      .chain(() => succeed(SUCCESS_RESULT))
       .fork(
         () => void 0,
         () => void 0

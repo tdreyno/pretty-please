@@ -37,6 +37,8 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public fork: Fork<E, S>;
 
+  public andThen = chain;
+
   constructor(computation: Fork<E, S>) {
     this.fork = computation;
   }
@@ -57,10 +59,8 @@ export class Task<E, S> implements PromiseLike<S> {
     return this.toPromise().then(onfulfilled, onrejected);
   }
 
-  public andThen<S2>(
-    fn: (result: S) => Task<E, S2> | Promise<S2>
-  ): Task<E, S2> {
-    return andThen(fn, this);
+  public chain<S2>(fn: (result: S) => Task<E, S2> | Promise<S2>): Task<E, S2> {
+    return chain(fn, this);
   }
 
   public succeedIf(fn: () => S | undefined): Task<E, S> {
@@ -112,9 +112,9 @@ export class Task<E, S> implements PromiseLike<S> {
   }
 
   public ap<E2, S2, S3 = S extends (arg: S2) => any ? ReturnType<S> : never>(
-    task: Task<E | E2, S2>
+    taskOrPromise: Task<E | E2, S2> | Promise<S2>
   ): Task<E | E2, S3> {
-    return ap((this as unknown) as Task<E, (result: S2) => S3>, task);
+    return ap((this as unknown) as Task<E, (result: S2) => S3>, taskOrPromise);
   }
 
   public wait(ms: number): Task<E, S> {
@@ -282,11 +282,11 @@ export function fork<E, S>(
 
 /**
  * Chain a task to run after a previous task has succeeded.
- * @alias chain
+ * @alias andThen
  * @param fn Takes a successful result and returns a new task.
  * @param task The task which will chain to the next one on success.
  */
-export function andThen<E, S, S2>(
+export function chain<E, S, S2>(
   fn: (result: S) => Task<E, S2> | Promise<S2>,
   task: Task<E, S>
 ): Task<E, S2> {
@@ -294,6 +294,8 @@ export function andThen<E, S, S2>(
     task.fork(reject, b => autoPromiseToTask(fn(b)).fork(reject, resolve))
   );
 }
+
+export const andThen = chain;
 
 /**
  * If a function returns a Promise instead of a Task, automatically
@@ -307,8 +309,6 @@ function autoPromiseToTask<E, S>(promiseOrTask: Task<E, S> | Promise<S>) {
 
   return promiseOrTask;
 }
-
-export const chain = andThen;
 
 /**
  * When forked, run a function which can check whether the task has already succeeded.
@@ -419,7 +419,7 @@ export function fromPromise<S, E = any>(
 export function fromLazyPromise<S, E = any>(
   getPromise: () => S | Promise<S>
 ): Task<E, S> {
-  return succeedBy(getPromise).andThen(fromPromise);
+  return succeedBy(getPromise).chain(fromPromise);
 }
 
 /**
@@ -614,7 +614,7 @@ export function sequence<E, S>(
   }
 
   return tasksOrPromises.reduce((sum, taskOrPromise) => {
-    return andThen(list => {
+    return chain(list => {
       return map(result => [...list, result], autoPromiseToTask(taskOrPromise));
     }, sum);
   }, succeed([] as S[]));
@@ -761,12 +761,12 @@ export function orElse<E, S>(
 /**
  * Given a task that succeeds with a map function as its result,
  * run that function over the result of a second successful Task.
- * @param appliedTask The task whose value will be passed to the map function.
+ * @param appliedTaskOrPromise The task whose value will be passed to the map function.
  * @param task The task who will return a map function as the success result.
  */
 export function ap<E, S, S2>(
-  task: Task<E, (result: S) => S2>,
-  appliedTask: Task<E, S>
+  taskOrPromise: Task<E, (result: S) => S2> | Promise<(result: S) => S2>,
+  appliedTaskOrPromise: Task<E, S> | Promise<S>
 ): Task<E, S2> {
   return new Task((reject, resolve) => {
     let targetResult: S;
@@ -801,14 +801,14 @@ export function ap<E, S, S2>(
       reject(x);
     };
 
-    task.fork(
+    autoPromiseToTask(taskOrPromise).fork(
       handleReject,
       handleResolve((x: (result: S) => S2) => {
         applierFunction = x;
       })
     );
 
-    appliedTask.fork(
+    autoPromiseToTask(appliedTaskOrPromise).fork(
       handleReject,
       handleResolve<S>((x: S) => {
         hasResultLoaded = true;

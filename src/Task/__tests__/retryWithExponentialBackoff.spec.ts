@@ -29,7 +29,7 @@ describe("retryWithExponentialBackoff", () => {
     const attempts = 4;
 
     succeed(true)
-      .andThen(response)
+      .chain(response)
       .retryWithExponentialBackoff(10, attempts)
       .fork(reject, resolve);
 

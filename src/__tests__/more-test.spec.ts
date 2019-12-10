@@ -30,7 +30,7 @@ describe("more test", () => {
   test("Tasks", () => {
     of(editors)
       .map(ids => ids.map(loadUserNameTask))
-      .andThen(all)
+      .chain(all)
       .map(editorTuplesToMap)
       .fork(jest.fn(), jest.fn());
   });
