@@ -15,3 +15,7 @@ export function to<A, T>(fn: (items: A[]) => T) {
     return fn(all);
   };
 }
+
+export function constant<T>(value: T): () => T {
+  return () => value;
+}

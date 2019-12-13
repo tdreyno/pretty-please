@@ -1,5 +1,5 @@
 // tslint:disable: max-classes-per-file
-import { range } from "../util";
+import { constant, range } from "../util";
 
 export type Reject<E> = (error: E) => void;
 export type Resolve<S> = (result: S) => void;
@@ -81,6 +81,10 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public map<S2>(fn: (result: S) => S2): Task<E, S2> {
     return map(fn, this);
+  }
+
+  public forward<S2>(value: S2): Task<E, S2> {
+    return map(constant(value), this);
   }
 
   public tap(fn: (result: S) => void): Task<E, S> {
