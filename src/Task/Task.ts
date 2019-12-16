@@ -91,6 +91,12 @@ export class Task<E, S> implements PromiseLike<S> {
     return tap(fn, this);
   }
 
+  public tapChain<S2>(
+    fn: (result: S) => Task<E, S2> | Promise<S2>
+  ): Task<E, S> {
+    return tapChain(fn, this);
+  }
+
   public mapError<E2>(fn: (error: E) => E2): Task<E2, S> {
     return mapError(fn, this);
   }
@@ -696,6 +702,18 @@ export function tap<E, S>(
 
     return result;
   }, task);
+}
+
+/**
+ * Run an additional task on success. Useful for async side-effects.
+ * @param fn A function will fire with the successful value.
+ * @param task The task to tap on succcess.
+ */
+export function tapChain<E, S, S2>(
+  fn: (result: S) => Task<E, S2> | Promise<S2>,
+  task: Task<E, S>
+): Task<E, S> {
+  return chain(result => autoPromiseToTask(fn(result)).forward(result), task);
 }
 
 /**
