@@ -654,8 +654,8 @@ export function map<E, S, S2>(
 
 export function map2<E, E2, S, S2, S3>(
   fn: (a: S) => (b: S2) => S3,
-  taskA: Task<E, S>,
-  taskB: Task<E2, S2>
+  taskA: Task<E, S> | Promise<S>,
+  taskB: Task<E2, S2> | Promise<S2>
 ): Task<E | E2, S3> {
   return Task.of(fn)
     .ap(taskA)
@@ -664,9 +664,9 @@ export function map2<E, E2, S, S2, S3>(
 
 export function map3<E, E2, E3, S, S2, S3, S4>(
   fn: (a: S) => (b: S2) => (c: S3) => S4,
-  taskA: Task<E, S>,
-  taskB: Task<E2, S2>,
-  taskC: Task<E3, S3>
+  taskA: Task<E, S> | Promise<S>,
+  taskB: Task<E2, S2> | Promise<S2>,
+  taskC: Task<E3, S3> | Promise<S3>
 ): Task<E | E2 | E3, S4> {
   return Task.of(fn)
     .ap(taskA)
@@ -676,10 +676,10 @@ export function map3<E, E2, E3, S, S2, S3, S4>(
 
 export function map4<E, E2, E3, E4, S, S2, S3, S4, S5>(
   fn: (a: S) => (b: S2) => (c: S3) => (d: S4) => S5,
-  taskA: Task<E, S>,
-  taskB: Task<E2, S2>,
-  taskC: Task<E3, S3>,
-  taskD: Task<E4, S4>
+  taskA: Task<E, S> | Promise<S>,
+  taskB: Task<E2, S2> | Promise<S2>,
+  taskC: Task<E3, S3> | Promise<S3>,
+  taskD: Task<E4, S4> | Promise<S4>
 ): Task<E | E2 | E3 | E4, S5> {
   return Task.of(fn)
     .ap(taskA)
