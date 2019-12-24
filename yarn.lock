@@ -6105,10 +6105,10 @@ ts-jest@^24.2.0:
     semver "^5.5"
     yargs-parser "10.x"
 
-ts-toolbelt@^4.14.6:
-  version "4.14.6"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-4.14.6.tgz#9a232f62276caeee4fa9e81e0c4bffa047de0765"
-  integrity sha512-SONcnRd93+LuYGfn/CZg5A5qhCODohZslAVZKHHu5bnwUxoXLqd2k2VIdwRUXYfKnY+UCeNbI2pTPz+Dno6Mpg==
+ts-toolbelt@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-6.0.1.tgz#53bedae1e35c74ecf0a9dd09686f2d7f61eba46f"
+  integrity sha512-TtpGHn+q7m9imKOZYcfGzXLzGvWyXVQX10kTDfo9/ArsKtnqtIRDRWIzZvuATDb3ioaqIleztwjOrLqYCh+V4Q==
 
 tslib@^1.8.0, tslib@^1.8.1, tslib@^1.9.0:
   version "1.10.0"
