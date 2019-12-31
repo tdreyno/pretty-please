@@ -1,5 +1,5 @@
 // tslint:disable: max-classes-per-file
-import { constant, range } from "../util";
+import { constant, identity, range } from "../util";
 
 export type Reject<E> = (error: E) => void;
 export type Resolve<S> = (result: S) => void;
@@ -27,13 +27,17 @@ export class Task<E, S> implements PromiseLike<S> {
   public static race = race;
   public static external = external;
   public static emitter = emitter;
-  public static trySequence = trySequence;
   public static none = none;
   public static succeedBy = succeedBy;
   public static ap = ap;
   public static map2 = map2;
   public static map3 = map3;
   public static map4 = map4;
+  public static loop = loop;
+  public static reduce = reduce;
+  public static zip = zip;
+  public static zipWith = zipWith;
+  public static flatten = flatten;
 
   public fork: Fork<E, S>;
 
@@ -138,6 +142,10 @@ export class Task<E, S> implements PromiseLike<S> {
   public retryWithExponentialBackoff(ms: number, times: number): Task<E, S> {
     return retryWithExponentialBackoff(ms, times, this);
   }
+
+  public flatten<S2>(this: Task<E, Task<E, S2>>): Task<E, S2> {
+    return flatten(this);
+  }
 }
 
 /**
@@ -214,6 +222,7 @@ export function emitter<Args extends any[], R>(
 /**
  * Creates a Task which has already successfully completed with `result`.
  * @alias of
+ * @alias ok
  * @param result The value to place into the successful Task.
  */
 export function succeed<S, E = any>(result: S): Task<E, S> {
@@ -238,6 +247,7 @@ export function succeedBy<S, E = any>(result: () => S): Task<E, S> {
 
 /**
  * Creates a Task has an empty result.
+ * @alias unit
  */
 export function empty<E = any>(): Task<E, void> {
   return of(void 0);
@@ -254,6 +264,7 @@ export function succeedIn<S, E = any>(ms: number, result: S): Task<E, S> {
 
 /**
  * Creates a Task which has already failed with `error`.
+ * @alias err
  * @param error The error to place into the failed Task.
  */
 export function fail<E, S = any>(error: E): Task<E, S> {
@@ -392,6 +403,7 @@ export function onlyOnce<E, S>(task: Task<E, S>): Task<E, S> {
         reject(cachedError!);
         break;
 
+      /* istanbul ignore next */
       case "pending":
         notify(reject, resolve);
         break;
@@ -442,6 +454,7 @@ export function toPromise<E, S>(task: Task<E, S>): Promise<S> {
 
 /**
  * Given an array of tasks, return the one which finishes first.
+ * @alias select
  * @param tasksOrPromises The tasks to run in parallel.
  */
 export function race<E, S>(
@@ -475,41 +488,77 @@ export function race<E, S>(
   });
 }
 
-export class EndOfSequence extends Error {
-  constructor() {
-    super("End of sequence");
-  }
+export class LoopBreak<S> {
+  constructor(public readonly value: S) {}
+}
+
+export class LoopContinue<S> {
+  constructor(public readonly value: S) {}
 }
 
 /**
- * Attempt a sequence of tasks, but also allow `orElse` recovery
- * when there is an error.
- * @param onError
- * @param tasksOrPromises
+ * Given an initialValue, asynchronously loop until either a value is
+ * resolved by returning a Task<E, LoopBreak<S>>.
+ * @param fn A function that takes the current loop value and decides whether to continue or break.
+ * @param initialValue The initial value.
  */
-export function trySequence<E, S>(
-  onError: (error: E) => boolean | Task<E, S> | Promise<S>,
-  tasksOrPromises: Array<Task<E, S> | Promise<S>>
-): Task<E | EndOfSequence, S> {
-  const [head, ...tail] = tasksOrPromises;
+export function loop<E, S, T>(
+  fn: (currentValue: T) => Task<E, LoopBreak<S> | LoopContinue<T>>,
+  initialValue: T
+): Task<E, S> {
+  return new Task((reject, resolve) => {
+    const tryLoop = (currentValue: T) => {
+      fn(currentValue).fork(
+        err => {
+          reject(err);
+        },
 
-  if (!head) {
-    return fail(new EndOfSequence());
-  }
+        result => {
+          if (result instanceof LoopBreak) {
+            resolve(result.value);
+          }
 
-  return autoPromiseToTask(head).orElse(e => {
-    const shouldContinue = onError(e);
+          if (result instanceof LoopContinue) {
+            tryLoop(result.value);
+          }
+        }
+      );
+    };
 
-    if (shouldContinue === false) {
-      return fail(e);
-    }
-
-    if (shouldContinue === true) {
-      return trySequence(onError, tail) as Task<E, S>;
-    }
-
-    return shouldContinue;
+    tryLoop(initialValue);
   });
+}
+
+/**
+ * An async reducer. Given an initial return value and an array of
+ * items to sequentially loop over, pass each step through a reducer
+ * function which returns a Task of the next reduced value.
+ * @param fn
+ * @param initialValue
+ * @param items
+ */
+export function reduce<E, T, V>(
+  fn: (acc: V, currentValue: T, index: number, original: T[]) => Task<E, V>,
+  initialValue: V,
+  items: T[]
+): Task<E, V> {
+  return loop(
+    ({ remainingItems, currentResult }) => {
+      if (remainingItems.length === 0) {
+        return of(new LoopBreak(currentResult));
+      }
+
+      const [head, ...tail] = remainingItems;
+      const index = items.length - tail.length - 1;
+
+      return fn(currentResult, head, index, items).map(
+        nextResult =>
+          new LoopContinue({ remainingItems: tail, currentResult: nextResult })
+      );
+    },
+
+    { remainingItems: items, currentResult: initialValue }
+  );
 }
 
 /**
@@ -532,7 +581,6 @@ export function firstSuccess<E, S>(
     return tasksOrPromises.map(taskOrPromise =>
       autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
-          /* Should be impossible. */
           /* istanbul ignore next */
           if (isDone) {
             return;
@@ -547,7 +595,6 @@ export function firstSuccess<E, S>(
           }
         },
         (result: S) => {
-          /* Should be impossible. */
           /* istanbul ignore next */
           if (isDone) {
             return;
@@ -564,6 +611,7 @@ export function firstSuccess<E, S>(
 
 /**
  * Given an array of task which return a result, return a new task which results an array of results.
+ * @alias collect
  * @param tasksOrPromises The tasks to run in parallel.
  */
 export function all<E, S>(
@@ -582,7 +630,6 @@ export function all<E, S>(
     return tasksOrPromises.map((taskOrPromise, i) =>
       autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
-          /* Should be impossible. */
           /* istanbul ignore next */
           if (isDone) {
             return;
@@ -593,7 +640,6 @@ export function all<E, S>(
           reject(error);
         },
         (result: S) => {
-          /* Should be impossible. */
           /* istanbul ignore next */
           if (isDone) {
             return;
@@ -610,6 +656,99 @@ export function all<E, S>(
       )
     );
   });
+}
+
+/**
+ * Creates a task that waits for two tasks of different types to
+ * resolve as a two-tuple of the results.
+ * @param taskAOrPromise The first task.
+ * @param taskBOrPromise The second task.
+ */
+export function zip<E, E2, S, S2>(
+  taskAOrPromise: Task<E, S> | Promise<S>,
+  taskBOrPromise: Task<E2, S2> | Promise<S2>
+): Task<E | E2, [S, S2]> {
+  return new Task<E | E2, [S, S2]>((reject, resolve) => {
+    let isDone = false;
+    let hasAValue = false;
+    let hasBValue = false;
+    let aValue: S;
+    let bValue: S2;
+
+    autoPromiseToTask(taskAOrPromise).fork(
+      aError => {
+        /* istanbul ignore next */
+        if (isDone) {
+          return;
+        }
+
+        isDone = true;
+
+        reject(aError);
+      },
+
+      aResult => {
+        /* istanbul ignore next */
+        if (isDone) {
+          return;
+        }
+
+        if (hasBValue) {
+          isDone = true;
+
+          resolve([aResult, bValue]);
+        } else {
+          hasAValue = true;
+          aValue = aResult;
+        }
+      }
+    );
+
+    autoPromiseToTask(taskBOrPromise).fork(
+      bError => {
+        /* istanbul ignore next */
+        if (isDone) {
+          return;
+        }
+
+        isDone = true;
+
+        reject(bError);
+      },
+
+      bResult => {
+        /* istanbul ignore next */
+        if (isDone) {
+          return;
+        }
+
+        if (hasAValue) {
+          isDone = true;
+
+          resolve([aValue, bResult]);
+        } else {
+          hasBValue = true;
+          bValue = bResult;
+        }
+      }
+    );
+  });
+}
+
+/**
+ * Creates a task that waits for two tasks of different types to
+ * resolve, then passing the resulting two-tuple of results through
+ * a mapping function.
+ * @param fn
+ * @param taskAOrPromise The first task.
+ * @param taskBOrPromise The second task.
+ */
+export function zipWith<E, E2, S, S2, V>(
+  fn: (resultA: S, resultB: S2) => V,
+  taskAOrPromise: Task<E, S> | Promise<S>,
+  taskBOrPromise: Task<E2, S2> | Promise<S2>
+): Task<E | E2, V> {
+  return map(([a, b]) => fn(a, b), zip(taskAOrPromise, taskBOrPromise));
 }
 
 /**
@@ -718,6 +857,8 @@ export function tapChain<E, S, S2>(
 
 /**
  * Given a task, map the failure error to a Task.
+ * @alias recoverWith
+ * @alias rescue
  * @param fn A function which takes the original failure error and returns the new one.
  * @param task The task to map the failure.
  */
@@ -798,7 +939,6 @@ export function ap<E, S, S2>(
 
     const handleResolve = <T>(onResolve: (result: T) => void) => {
       return (x: T) => {
-        /* Should be impossible. */
         /* istanbul ignore next */
         if (isRejected) {
           return;
@@ -813,7 +953,6 @@ export function ap<E, S, S2>(
     };
 
     const handleReject = (x: E) => {
-      /* Should be impossible. */
       /* istanbul ignore next */
       if (isRejected) {
         return;
@@ -872,4 +1011,13 @@ export function retryWithExponentialBackoff<E, S>(
   task: Task<E, S>
 ): Task<E, S> {
   return range(times).reduce((sum, i) => sum.retryIn(ms * 2 ** i), task);
+}
+
+/**
+ * Takes a nested task of tasks, which often comes from a map, and
+ * flattens to just the resulting chained task.
+ * @param task The task which resolves to an other task.
+ */
+export function flatten<E, S>(task: Task<E, Task<E, S>>) {
+  return task.chain(identity);
 }
