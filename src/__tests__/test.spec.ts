@@ -1,4 +1,4 @@
-import { fromPromise, of, Task } from "../Task/Task";
+import { Task } from "../Task/Task";
 
 function slugify(..._args: any[]): string {
   return "slug";
@@ -61,7 +61,7 @@ interface QueryResponse {
   results: any[];
 }
 
-const mergeJobsIntoContent = (pageContent: PageContent) => (jobs: Job[]) => {
+const mergeJobsIntoContent = (pageContent: PageContent, jobs: Job[]) => {
   pageContent.body.forEach(slice => {
     if (slice.slice_type === "job_listing_categories") {
       slice.items.forEach(category => {
@@ -98,60 +98,53 @@ const Prismic = {
   }
 };
 
-function prismicAPI(request: Request): Task<never, PrismicAPI> {
-  return fromPromise(Prismic.getApi(Prismic.apiEndpoint, { req: request }));
-}
+const prismicAPI = (request: Request) =>
+  Task.fromLazyPromise(() =>
+    Prismic.getApi(Prismic.apiEndpoint, { req: request })
+  );
 
-function query(
-  where: any,
-  options: any
-): (api: PrismicAPI) => Task<never, QueryResponse> {
-  return (api: PrismicAPI) => fromPromise(api.query(where, options));
-}
+const query = (where: any, options: any) => (api: PrismicAPI) =>
+  Task.fromLazyPromise(() => api.query(where, options));
 
-function responseToPageContent(response: QueryResponse): PageContent {
-  return response.results[0].data;
-}
+const responseToPageContent = (response: QueryResponse): PageContent =>
+  response.results[0].data;
 
-function fetch(_url: string) {
-  return Promise.resolve(
+const fetch = (_url: string) =>
+  Promise.resolve(
     JSON.stringify({
       data: {
         jobs: []
       }
     })
   );
-}
 
-export function loadData(req: Request): Task<Error, PageContent> {
-  const jobsTask = Task.fromPromise(
-    fetch(`https://api.greenhouse.io/v1/boards/instrument/jobs`)
-  )
-    .map(JSON.parse)
-    .map(jsonToJobs);
+export const loadData = (req: Request) =>
+  Task.zipWith(
+    mergeJobsIntoContent,
 
-  const pageContentTask = prismicAPI(req)
-    .chain(
-      query(Prismic.Predicates.at("document.type", "careers_page"), {
-        graphQuery: `{
+    prismicAPI(req)
+      .chain(
+        query(Prismic.Predicates.at("document.type", "careers_page"), {
+          graphQuery: `{
             careers_page {
               ...careers_pageFields
             }
           }`
-      })
+        })
+      )
+      .map(responseToPageContent),
+
+    Task.fromLazyPromise(() =>
+      fetch(`https://api.greenhouse.io/v1/boards/instrument/jobs`)
     )
-    .map(responseToPageContent);
+      .map(JSON.parse)
+      .map(jsonToJobs)
+  );
 
-  return of(mergeJobsIntoContent)
-    .ap(pageContentTask)
-    .ap(jobsTask);
-}
-
-function asyncData({ error, req }: Context): Promise<PageContent> {
-  return loadData(req)
+const asyncData = ({ error, req }: Context) =>
+  loadData(req)
     .mapError(e => error({ statusCode: 500, message: e.toString() }))
     .toPromise();
-}
 
 describe("Instrument.com", () => {
   test("loadData", async () => {

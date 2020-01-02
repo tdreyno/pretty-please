@@ -845,6 +845,7 @@ export function tap<E, S>(
 
 /**
  * Run an additional task on success. Useful for async side-effects.
+ * @alias defer
  * @param fn A function will fire with the successful value.
  * @param task The task to tap on succcess.
  */
