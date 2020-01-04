@@ -668,71 +668,7 @@ export function zip<E, E2, S, S2>(
   taskAOrPromise: Task<E, S> | Promise<S>,
   taskBOrPromise: Task<E2, S2> | Promise<S2>
 ): Task<E | E2, [S, S2]> {
-  return new Task<E | E2, [S, S2]>((reject, resolve) => {
-    let isDone = false;
-    let hasAValue = false;
-    let hasBValue = false;
-    let aValue: S;
-    let bValue: S2;
-
-    autoPromiseToTask(taskAOrPromise).fork(
-      aError => {
-        /* istanbul ignore next */
-        if (isDone) {
-          return;
-        }
-
-        isDone = true;
-
-        reject(aError);
-      },
-
-      aResult => {
-        /* istanbul ignore next */
-        if (isDone) {
-          return;
-        }
-
-        if (hasBValue) {
-          isDone = true;
-
-          resolve([aResult, bValue]);
-        } else {
-          hasAValue = true;
-          aValue = aResult;
-        }
-      }
-    );
-
-    autoPromiseToTask(taskBOrPromise).fork(
-      bError => {
-        /* istanbul ignore next */
-        if (isDone) {
-          return;
-        }
-
-        isDone = true;
-
-        reject(bError);
-      },
-
-      bResult => {
-        /* istanbul ignore next */
-        if (isDone) {
-          return;
-        }
-
-        if (hasAValue) {
-          isDone = true;
-
-          resolve([aValue, bResult]);
-        } else {
-          hasBValue = true;
-          bValue = bResult;
-        }
-      }
-    );
-  });
+  return map2(a => b => [a, b], taskAOrPromise, taskBOrPromise);
 }
 
 /**
@@ -748,7 +684,7 @@ export function zipWith<E, E2, S, S2, V>(
   taskAOrPromise: Task<E, S> | Promise<S>,
   taskBOrPromise: Task<E2, S2> | Promise<S2>
 ): Task<E | E2, V> {
-  return map(([a, b]) => fn(a, b), zip(taskAOrPromise, taskBOrPromise));
+  return map2(a => b => fn(a, b), taskAOrPromise, taskBOrPromise);
 }
 
 /**
