@@ -41,7 +41,7 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public fork: Fork<E, S>;
 
-  public andThen = chain;
+  public andThen = this.chain;
 
   constructor(computation: Fork<E, S>) {
     this.fork = computation;
