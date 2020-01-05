@@ -2,3 +2,4 @@ node_modules
 pkg
 .DS_Store
 coverage
+report.*
