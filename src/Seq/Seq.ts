@@ -143,7 +143,7 @@ export class Seq<K, T> {
     });
   }
 
-  public filter(fn: (value: T, key: K) => boolean): Seq<K, T> {
+  public filter(fn: (value: T, key: K) => unknown): Seq<K, T> {
     const self = this;
 
     return new Seq(function*() {
@@ -157,18 +157,18 @@ export class Seq<K, T> {
     });
   }
 
-  public find(fn: (value: T, key: K) => boolean): T | undefined {
+  public find(fn: (value: T, key: K) => unknown): T | undefined {
     return this.filter(fn).first();
   }
 
-  public fold<A>(fn: (sum: A, value: T, key: K) => A, initial: A): A {
+  public reduce<A>(fn: (sum: A, value: T, key: K) => A, initial: A): A {
     return this.toEntries().reduce(
       (sum, [key, value]) => fn(sum, value, key),
       initial
     );
   }
 
-  public some(fn: (value: T, key: K) => boolean): boolean {
+  public some(fn: (value: T, key: K) => unknown): boolean {
     for (const [k, v] of this) {
       if (fn(v, k)) {
         return true;
@@ -178,7 +178,7 @@ export class Seq<K, T> {
     return false;
   }
 
-  public every(fn: (value: T, key: K) => boolean): boolean {
+  public every(fn: (value: T, key: K) => unknown): boolean {
     return this.toEntries().every(([key, value]) => fn(value, key));
   }
 

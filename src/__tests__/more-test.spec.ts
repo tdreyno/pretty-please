@@ -1,4 +1,6 @@
+import Seq from "../Seq";
 import { all, of, Task } from "../Task/Task";
+import { pairsToIndexedObject } from "../util";
 
 const editors = ["1", "2", "3"];
 
@@ -10,16 +12,12 @@ function loadUserNameTask(id: string): Task<Error, [string, string]> {
   return of([id, "name"]);
 }
 
-function editorTuplesToMap(
-  results: Array<[string, string]>
-): { [userId: string]: string } {
-  return results.reduce((sum, [userId, userName]) => {
-    if (userName) {
-      sum[userId] = userName;
-    }
-
-    return sum;
-  }, {} as { [userId: string]: string });
+function editorTuplesToMap<R extends { [userId: string]: string }>(
+  results: Array<[string, string | undefined]>
+): R {
+  return Seq.fromArray(results)
+    .filter(([_, userName]) => userName)
+    .reduce(pairsToIndexedObject, {} as R);
 }
 
 describe("more test", () => {
@@ -29,8 +27,7 @@ describe("more test", () => {
 
   test("Tasks", () => {
     of(editors)
-      .map(ids => ids.map(loadUserNameTask))
-      .chain(all)
+      .chain(ids => all(ids.map(loadUserNameTask)))
       .map(editorTuplesToMap)
       .fork(jest.fn(), jest.fn());
   });
