@@ -61,7 +61,7 @@
     "puppeteer": "^2.0.0",
     "terser": "^4.6.2",
     "ts-jest": "^24.3.0",
-    "ts-toolbelt": "^6.1.5",
+    "ts-toolbelt": "^6.1.6",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
     "tslint-immutable": "^6.0.1",
