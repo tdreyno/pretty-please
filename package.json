@@ -60,7 +60,7 @@
     "prettier": "^1.19.1",
     "puppeteer": "^2.0.0",
     "terser": "^4.5.1",
-    "ts-jest": "^24.2.0",
+    "ts-jest": "^24.3.0",
     "ts-toolbelt": "^6.1.5",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
