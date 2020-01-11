@@ -179,7 +179,13 @@ export class Seq<K, T> {
   }
 
   public every(fn: (value: T, key: K) => unknown): boolean {
-    return this.toEntries().every(([key, value]) => fn(value, key));
+    for (const [k, v] of this) {
+      if (!fn(v, k)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   public takeWhile(fn: (value: T, key: K) => boolean): Seq<K, T> {
