@@ -168,6 +168,10 @@ export class Seq<K, T> {
     );
   }
 
+  public chain<U>(fn: (value: Seq<K, T>) => U): U {
+    return fn(this);
+  }
+
   public some(fn: (value: T, key: K) => unknown): boolean {
     for (const [k, v] of this) {
       if (fn(v, k)) {
@@ -228,8 +232,12 @@ export class Seq<K, T> {
     });
   }
 
+  public index(i: number): T | undefined {
+    return this.take(i + 1).toArray()[i];
+  }
+
   public first(): T | undefined {
-    return this.take(1).toArray()[0];
+    return this.index(0);
   }
 
   public [Symbol.iterator]() {
