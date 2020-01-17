@@ -16,6 +16,7 @@ export class Seq<K, T> {
   public static fromIterator<K, T>(
     data: () => IterableIterator<[K, T]>
   ): Seq<K, T> {
+    /* istanbul ignore next */
     return new Seq(data);
   }
 
@@ -23,16 +24,16 @@ export class Seq<K, T> {
     return new Seq(data);
   }
 
-  public static range(end: number, start: number = 0): Seq<number, number> {
+  public static range(start: number, end: number): Seq<number, number> {
     return Seq.fromGenerator(function*() {
-      const isForwards = end > start;
+      const isForwards = start < end;
 
       if (isForwards) {
-        for (let i = 0; start + i < end; i++) {
+        for (let i = 0; start + i <= end; i++) {
           yield [i, start + i];
         }
       } else {
-        for (let i = 0; start - i > end; i++) {
+        for (let i = 0; start - i >= end; i++) {
           yield [i, start - i];
         }
       }
@@ -40,11 +41,12 @@ export class Seq<K, T> {
   }
 
   public static empty(): Seq<unknown, never> {
+    /* istanbul ignore next */
     return Seq.fromArray([]);
   }
 
   public static infinite(): Seq<number, number> {
-    return Seq.range(Infinity);
+    return Seq.range(0, Infinity);
   }
 
   public static zipWith<K1, T1, K2, T2, K3, T3>(
@@ -118,6 +120,7 @@ export class Seq<K, T> {
   }
 
   public log(): Seq<K, T> {
+    /* istanbul ignore next */
     // tslint:disable-next-line: no-console
     return this.tap((v, k) => console.log([k, v]));
   }
@@ -157,6 +160,75 @@ export class Seq<K, T> {
     });
   }
 
+  public partition(fn: (value: T, key: K) => unknown): [Seq<K, T>, Seq<K, T>] {
+    const self = this;
+
+    const trueBackpressure: Array<[K, T]> = [];
+    const falseBackpressure: Array<[K, T]> = [];
+
+    let previousSource: ReturnType<typeof self.source> | undefined;
+
+    const getIterator = () => {
+      if (!previousSource) {
+        previousSource = self.source();
+      }
+
+      return previousSource!;
+    };
+
+    return [
+      new Seq(function*() {
+        const iterator = getIterator();
+
+        while (true) {
+          if (trueBackpressure.length > 0) {
+            const item = trueBackpressure.shift();
+            yield item;
+            continue;
+          }
+
+          const { value, done } = iterator.next();
+
+          /* istanbul ignore next */
+          if (done) {
+            return;
+          }
+
+          if (fn(value[1], value[0])) {
+            yield value;
+          } else {
+            falseBackpressure.push(value);
+          }
+        }
+      }),
+
+      new Seq(function*() {
+        const iterator = getIterator();
+
+        while (true) {
+          if (falseBackpressure.length > 0) {
+            const item = falseBackpressure.shift();
+            yield item;
+            continue;
+          }
+
+          const { value, done } = iterator.next();
+
+          /* istanbul ignore next */
+          if (done) {
+            return;
+          }
+
+          if (!fn(value[1], value[0])) {
+            yield value;
+          } else {
+            trueBackpressure.push(value);
+          }
+        }
+      })
+    ];
+  }
+
   public find(fn: (value: T, key: K) => unknown): T | undefined {
     return this.filter(fn).first();
   }
@@ -192,7 +264,7 @@ export class Seq<K, T> {
     return true;
   }
 
-  public takeWhile(fn: (value: T, key: K) => boolean): Seq<K, T> {
+  public takeWhile(fn: (value: T, key: K) => unknown): Seq<K, T> {
     const self = this;
 
     return new Seq(function*() {
@@ -201,6 +273,7 @@ export class Seq<K, T> {
       while (true) {
         const result = iterator.next();
 
+        /* istanbul ignore next */
         if (result.done) {
           return;
         }
@@ -223,6 +296,57 @@ export class Seq<K, T> {
       for (let i = 0; i < num; i++) {
         const result = iterator.next();
 
+        if (result.done) {
+          return;
+        }
+
+        yield result.value;
+      }
+    });
+  }
+
+  public skipWhile(fn: (value: T, key: K) => unknown): Seq<K, T> {
+    const self = this;
+
+    return new Seq(function*() {
+      const iterator = self.source();
+
+      while (true) {
+        const result = iterator.next();
+
+        /* istanbul ignore next */
+        if (result.done) {
+          return;
+        }
+
+        if (fn(result.value[1], result.value[0])) {
+          continue;
+        }
+
+        yield result.value;
+      }
+    });
+  }
+
+  public skip(num: number): Seq<K, T> {
+    const self = this;
+
+    return new Seq(function*() {
+      const iterator = self.source();
+
+      for (let i = 0; i < num; i++) {
+        const result = iterator.next();
+
+        /* istanbul ignore next */
+        if (result.done) {
+          return;
+        }
+      }
+
+      while (true) {
+        const result = iterator.next();
+
+        /* istanbul ignore next */
         if (result.done) {
           return;
         }

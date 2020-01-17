@@ -1,5 +1,5 @@
 import { all, of, Task } from "../Task/Task";
-import { range, to } from "../util";
+import { mapToIndexedObject, range, to } from "../util";
 
 describe("range", () => {
   test("should make an array of the correct range", () => {
@@ -35,5 +35,21 @@ describe("to", () => {
 
     expect(reject).not.toBeCalled();
     expect(resolve).toBeCalledWith(["A", "B"]);
+  });
+});
+
+describe("mapToIndexedObject", () => {
+  test("should map an array to an indexed object", () => {
+    const result = mapToIndexedObject(
+      (num, i) => [i.toString(), num],
+      ["a", "b", "c"],
+      {}
+    );
+
+    expect(result).toEqual({
+      "0": "a",
+      "1": "b",
+      "2": "c"
+    });
   });
 });
