@@ -1,6 +1,8 @@
 // tslint:disable: max-classes-per-file
 
 export class Seq<K, T> {
+  public static MAX_YIELDS = 1_000_000;
+
   public static fromArray<T>(data: T[]): Seq<number, T> {
     return new Seq(() => data.entries());
   }
@@ -20,7 +22,9 @@ export class Seq<K, T> {
     return new Seq(data);
   }
 
-  public static fromGenerator<K, T>(data: () => Generator<[K, T]>): Seq<K, T> {
+  public static fromGenerator<K, T>(
+    data: (this: Seq<K, T>) => Generator<[K, T]>
+  ): Seq<K, T> {
     return new Seq(data);
   }
 
@@ -31,16 +35,18 @@ export class Seq<K, T> {
       if (isForwards) {
         for (let i = 0; start + i <= end; i++) {
           yield [i, start + i];
+          this.didYield();
         }
       } else {
         for (let i = 0; start - i >= end; i++) {
           yield [i, start - i];
+          this.didYield();
         }
       }
     });
   }
 
-  public static empty(): Seq<unknown, never> {
+  public static empty(): Seq<number, never> {
     /* istanbul ignore next */
     return Seq.fromArray([]);
   }
@@ -73,10 +79,13 @@ export class Seq<K, T> {
 
         if (result1.done && !result2.done) {
           yield fn([undefined, result2.value[1]], counter);
+          this.didYield();
         } else if (!result1.done && result2.done) {
           yield fn([result1.value[1], undefined], counter);
+          this.didYield();
         } else if (!result1.done && !result2.done) {
           yield fn([result1.value[1], result2.value[1]], counter);
+          this.didYield();
         }
 
         counter++;
@@ -95,8 +104,12 @@ export class Seq<K, T> {
     );
   }
 
+  private yields = 0;
+
   constructor(
-    private source: () => Generator<[K, T]> | IterableIterator<[K, T]>
+    private source: (
+      this: Seq<K, T>
+    ) => Generator<[K, T]> | IterableIterator<[K, T]>
   ) {}
 
   public map<U>(fn: (value: T, key: K) => U): Seq<K, U> {
@@ -107,6 +120,7 @@ export class Seq<K, T> {
 
       for (const item of iterator) {
         yield [item[0], fn(item[1], item[0])];
+        this.didYield();
       }
     });
   }
@@ -141,6 +155,7 @@ export class Seq<K, T> {
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < result.length; i++) {
           yield [counter++, result[i]];
+          this.didYield();
         }
       }
     });
@@ -155,6 +170,7 @@ export class Seq<K, T> {
       for (const item of iterator) {
         if (fn(item[1], item[0])) {
           yield item;
+          this.didYield();
         }
       }
     });
@@ -184,6 +200,7 @@ export class Seq<K, T> {
           if (trueBackpressure.length > 0) {
             const item = trueBackpressure.shift();
             yield item;
+            this.didYield();
             continue;
           }
 
@@ -196,6 +213,7 @@ export class Seq<K, T> {
 
           if (fn(value[1], value[0])) {
             yield value;
+            this.didYield();
           } else {
             falseBackpressure.push(value);
           }
@@ -209,6 +227,7 @@ export class Seq<K, T> {
           if (falseBackpressure.length > 0) {
             const item = falseBackpressure.shift();
             yield item;
+            this.didYield();
             continue;
           }
 
@@ -221,6 +240,7 @@ export class Seq<K, T> {
 
           if (!fn(value[1], value[0])) {
             yield value;
+            this.didYield();
           } else {
             trueBackpressure.push(value);
           }
@@ -283,6 +303,7 @@ export class Seq<K, T> {
         }
 
         yield result.value;
+        this.didYield();
       }
     });
   }
@@ -301,6 +322,7 @@ export class Seq<K, T> {
         }
 
         yield result.value;
+        this.didYield();
       }
     });
   }
@@ -324,6 +346,7 @@ export class Seq<K, T> {
         }
 
         yield result.value;
+        this.didYield();
       }
     });
   }
@@ -352,6 +375,7 @@ export class Seq<K, T> {
         }
 
         yield result.value;
+        this.didYield();
       }
     });
   }
@@ -387,6 +411,15 @@ export class Seq<K, T> {
   public forEach(fn: (value: T, key: K) => void): void {
     for (const result of this) {
       fn(result[1], result[0]);
+    }
+  }
+
+  // Needs to be public due to generator scoping issues.
+  private didYield() {
+    if (++this.yields > Seq.MAX_YIELDS) {
+      throw new Error(
+        `Seq has yielded ${this.yields} times. If this is okay, set Seq.MAX_YIELDS to a higher number (currently ${Seq.MAX_YIELDS}).`
+      );
     }
   }
 }
