@@ -1,3 +1,5 @@
+import { constant } from "../util";
+
 // tslint:disable: max-classes-per-file
 
 export class Seq<K, T> {
@@ -42,6 +44,41 @@ export class Seq<K, T> {
           yield [i, start - i];
           this.didYield();
         }
+      }
+    });
+  }
+
+  public static cycle<T>(items: T[]): Seq<number, T> {
+    return Seq.fromGenerator(function*() {
+      let index = 0;
+
+      while (true) {
+        for (const item of items) {
+          yield [index++, item];
+          this.didYield();
+        }
+      }
+    });
+  }
+
+  public static repeat<T>(value: T, times = Infinity): Seq<number, T> {
+    return Seq.repeatedly(constant(value), times);
+  }
+
+  public static repeatedly<T>(
+    value: () => T,
+    times = Infinity
+  ): Seq<number, T> {
+    return Seq.fromGenerator(function*() {
+      let index = 0;
+
+      while (true) {
+        if (index + 1 > times) {
+          return;
+        }
+
+        yield [index++, value()];
+        this.didYield();
       }
     });
   }
@@ -125,6 +162,14 @@ export class Seq<K, T> {
     });
   }
 
+  public isEmpty(): boolean {
+    const iterator = this.source();
+
+    const item = iterator.next();
+
+    return !!item.done;
+  }
+
   public tap(fn: (value: T, key: K) => void): Seq<K, T> {
     return this.map((v, k) => {
       fn(v, k);
@@ -174,6 +219,101 @@ export class Seq<K, T> {
         }
       }
     });
+  }
+
+  public concat(...tail: Array<Seq<K, T>>): Seq<K, T> {
+    const self = this;
+
+    return new Seq(function*() {
+      const iterators = [self.source(), ...tail.map(s => s.source())];
+
+      for (const iterator of iterators) {
+        for (const item of iterator) {
+          yield item;
+          this.didYield();
+        }
+      }
+    });
+  }
+
+  public interleave(...tail: Array<Seq<K, T>>): Seq<K, T> {
+    const self = this;
+
+    return new Seq(function*() {
+      const iterators = [self.source(), ...tail.map(s => s.source())];
+
+      let index = 0;
+
+      while (true) {
+        if (iterators.length <= 0) {
+          return;
+        }
+
+        const boundedIndex = index % iterators.length;
+        const iterator = iterators[boundedIndex];
+
+        const item = iterator.next();
+
+        if (item.done) {
+          iterators.splice(boundedIndex, 1);
+          continue;
+        }
+
+        yield item.value;
+        this.didYield();
+
+        index++;
+      }
+    });
+  }
+
+  public interpose(separator: T): Seq<number, T> {
+    const self = this;
+
+    return new Seq(function*() {
+      let index = 0;
+
+      const iterator = self.source();
+
+      while (true) {
+        const item = iterator.next();
+
+        if (item.done) {
+          return;
+        }
+
+        if (index > 0) {
+          yield [index++, separator];
+        }
+
+        yield [index++, item.value[1]];
+        this.didYield();
+      }
+    });
+  }
+
+  public distinct(): Seq<K, T> {
+    const seen = new Set<T>();
+
+    return this.filter(value => {
+      if (seen.has(value)) {
+        return false;
+      }
+
+      seen.add(value);
+
+      return true;
+    });
+  }
+
+  public frequencies(): Map<T, number> {
+    return this.reduce((sum, value) => {
+      if (sum.has(value)) {
+        return sum.set(value, sum.get(value)! + 1);
+      }
+
+      return sum.set(value, 0 + 1);
+    }, new Map<T, number>());
   }
 
   public partition(fn: (value: T, key: K) => unknown): [Seq<K, T>, Seq<K, T>] {

@@ -128,6 +128,121 @@ describe("Seq", () => {
     });
   });
 
+  describe("distinct", () => {
+    test("should only return unique items in a sequence", () => {
+      const result = Seq.fromArray([1, 2, 1, 3, 2, 4, 4, 5])
+        .distinct()
+        .take(4)
+        .toArray();
+
+      expect(result).toEqual([1, 2, 3, 4]);
+    });
+  });
+
+  describe("concat", () => {
+    test("should concat multiple sequences on to the first", () => {
+      const result = Seq.fromArray([1, 2, 3])
+        .concat(
+          Seq.infinite()
+            .skip(4)
+            .take(2),
+          Seq.fromSet(new Set([6, 7, 8]))
+        )
+        .take(8)
+        .toArray();
+
+      expect(result).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    });
+  });
+
+  describe("isEmpty", () => {
+    test("should know if the sequence is empty", () => {
+      expect(Seq.fromArray([]).isEmpty()).toEqual(true);
+
+      expect(Seq.infinite().isEmpty()).toEqual(false);
+    });
+  });
+
+  describe("interpose", () => {
+    test("should place the separator between items", () => {
+      const result = Seq.fromArray(["one", "two", "three"])
+        .interpose(", ")
+        .toArray()
+        .join("");
+
+      expect(result).toEqual("one, two, three");
+    });
+  });
+
+  describe("cycle", () => {
+    test("should infinitely repeat an array of values", () => {
+      const result = Seq.cycle([1, 2, 3])
+        .take(7)
+        .toArray();
+
+      expect(result).toEqual([1, 2, 3, 1, 2, 3, 1]);
+    });
+  });
+
+  describe("repeat", () => {
+    test("should repeat a value X times", () => {
+      const result = Seq.repeat(1, 5).toArray();
+      expect(result).toEqual([1, 1, 1, 1, 1]);
+    });
+  });
+
+  describe("repeatedly", () => {
+    test("should repeatedly call a side-effect function", () => {
+      const cb = jest.fn();
+
+      const result = Seq.repeatedly(() => {
+        cb();
+        return Date.now();
+      }, 5).toArray();
+
+      expect(cb).toBeCalledTimes(5);
+      expect(result).toHaveLength(5);
+    });
+  });
+
+  describe("frequencies", () => {
+    test("should count the occurances of a value", () => {
+      const result = Seq.fromArray([1, 2, 3, 1, 2, 1]).frequencies();
+
+      expect(result).toEqual(
+        new Map([
+          [1, 3], // 3 occurances of value 1
+          [2, 2], // 2 occurances of value 2
+          [3, 1] /// 1 occurance  of value 3
+        ])
+      );
+    });
+  });
+
+  describe("interleave", () => {
+    test("should alternate between sequences", () => {
+      const result = Seq.range(100, 97)
+        .interleave(Seq.infinite(), Seq.fromArray([-1000, -2000, -3000]))
+        .take(12)
+        .toArray();
+
+      expect(result).toEqual([
+        100,
+        0,
+        -1000,
+        99,
+        1,
+        -2000,
+        98,
+        2,
+        -3000,
+        97,
+        3,
+        4
+      ]);
+    });
+  });
+
   describe("find", () => {
     test("should find the first matching item", () => {
       const cb = jest.fn();
