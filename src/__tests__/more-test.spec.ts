@@ -1,4 +1,3 @@
-import Seq from "../Seq";
 import { all, of, Task } from "../Task/Task";
 import { pairsToIndexedObject } from "../util";
 
@@ -15,7 +14,7 @@ function loadUserNameTask(id: string): Task<Error, [string, string]> {
 function editorTuplesToMap<R extends { [userId: string]: string }>(
   results: Array<[string, string | undefined]>
 ): R {
-  return Seq.fromArray(results)
+  return results
     .filter(([_, userName]) => userName)
     .reduce(pairsToIndexedObject, {} as R);
 }
