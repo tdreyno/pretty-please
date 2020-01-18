@@ -528,6 +528,24 @@ export class Seq<K, T> {
     return this.index(0);
   }
 
+  public zipWith<K2, T2, K3, T3>(
+    fn: (
+      [result1, result2]: [T, T2] | [T, undefined] | [undefined, T2],
+      index: number
+    ) => [K3, T3],
+    seq2: Seq<K2, T2>
+  ): Seq<K3, T3> {
+    /* istanbul ignore next */
+    return Seq.zipWith(fn, this, seq2);
+  }
+
+  public zip<K2, T2>(
+    seq2: Seq<K2, T2>
+  ): Seq<number, [T | undefined, T2 | undefined]> {
+    /* istanbul ignore next */
+    return Seq.zip(this, seq2);
+  }
+
   public [Symbol.iterator]() {
     return this.source();
   }
