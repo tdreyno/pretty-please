@@ -14,6 +14,18 @@ describe("Seq", () => {
       expect(cb).toHaveBeenCalledTimes(4);
     });
 
+    test("should lazily pull from the range that increases by step", () => {
+      const cb = jest.fn();
+
+      const result = Seq.range(-2, 2, 2)
+        .tap(cb)
+        .take(3)
+        .toArray();
+
+      expect(result).toEqual([-2, 0, 2]);
+      expect(cb).toHaveBeenCalledTimes(3);
+    });
+
     test("should lazily pull from the range that decreases", () => {
       const cb = jest.fn();
 
@@ -24,6 +36,36 @@ describe("Seq", () => {
 
       expect(result).toEqual([2, 1, 0, -1]);
       expect(cb).toHaveBeenCalledTimes(4);
+    });
+
+    test("should lazily pull from the range that decreases by step", () => {
+      const cb = jest.fn();
+
+      const result = Seq.range(2, -2, 2)
+        .tap(cb)
+        .take(3)
+        .toArray();
+
+      expect(result).toEqual([2, 0, -2]);
+      expect(cb).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  describe("of", () => {
+    test("should use singleton sequence", () => {
+      const result = Seq.of(5).first();
+
+      expect(result).toEqual(5);
+    });
+  });
+
+  describe("iterate", () => {
+    test("should lazily pull from an iterator", () => {
+      const result = Seq.iterate(a => a + 1, 1)
+        .take(4)
+        .toArray();
+
+      expect(result).toEqual([1, 2, 3, 4]);
     });
   });
 
@@ -256,6 +298,19 @@ describe("Seq", () => {
     });
   });
 
+  describe("includes", () => {
+    test("should detect if a sequence includes a value", () => {
+      const cb = jest.fn();
+
+      const result = Seq.infinite()
+        .tap(cb)
+        .includes(3);
+
+      expect(result).toEqual(true);
+      expect(cb).toHaveBeenCalledTimes(4);
+    });
+  });
+
   describe("some", () => {
     test("should some as soon as we find some", () => {
       const cb = jest.fn();
@@ -295,6 +350,71 @@ describe("Seq", () => {
 
       expect(cb).toBeCalledTimes(2);
       expect(result).toEqual(false);
+    });
+  });
+
+  describe("sum", () => {
+    test("should be able to sum a sequence of numbers", () => {
+      const result = Seq.infinite()
+        .take(4)
+        .sum();
+
+      expect(result).toEqual(6);
+    });
+  });
+
+  describe("sumBy", () => {
+    test("should be able to sum a sequence of anything", () => {
+      const result = Seq.fromArray([
+        { data: 0 },
+        { data: 1 },
+        { data: 2 },
+        { data: 3 }
+      ])
+        .take(4)
+        .sumBy(obj => obj.data);
+
+      expect(result).toEqual(6);
+    });
+  });
+
+  describe("average", () => {
+    test("should be able to average a sequence of numbers", () => {
+      const result = Seq.infinite()
+        .take(4)
+        .average();
+
+      expect(result).toEqual(1.5);
+    });
+  });
+
+  describe("averageBy", () => {
+    test("should be able to average a sequence of anything", () => {
+      const result = Seq.fromArray([
+        { data: 0 },
+        { data: 1 },
+        { data: 2 },
+        { data: 3 }
+      ])
+        .take(4)
+        .averageBy(obj => obj.data);
+
+      expect(result).toEqual(1.5);
+    });
+  });
+
+  describe("groupBy", () => {
+    test("should be group arbitrarily", () => {
+      const result = Seq.infinite()
+        .take(8)
+        .groupBy(item => (item % 2 === 0 ? "even" : "odd"));
+
+      expect(result).toEqual(
+        new Map([
+          ["even", [0, 2, 4, 6]],
+          ["odd", [1, 3, 5, 7]]
+        ])
+      );
     });
   });
 
@@ -472,6 +592,41 @@ describe("Seq", () => {
       expect(lessOrEqualResult2).toEqual([2, 3]);
 
       expect(cb).toHaveBeenCalledTimes(10);
+    });
+  });
+
+  describe("window", () => {
+    test("should group sequence into groups of N", () => {
+      const cb = jest.fn();
+
+      const result = Seq.infinite()
+        .tap(cb)
+        .window(4)
+        .take(2)
+        .toArray();
+
+      expect(result).toEqual([
+        [0, 1, 2, 3],
+        [4, 5, 6, 7]
+      ]);
+    });
+  });
+
+  describe("pairwise", () => {
+    test("should group sequence into groups of 2", () => {
+      const cb = jest.fn();
+
+      const result = Seq.infinite()
+        .tap(cb)
+        .pairwise()
+        .take(3)
+        .toArray();
+
+      expect(result).toEqual([
+        [0, 1],
+        [2, 3],
+        [4, 5]
+      ]);
     });
   });
 

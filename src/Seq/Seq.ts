@@ -1,4 +1,4 @@
-import { constant } from "../util";
+import { constant, identity } from "../util";
 
 // tslint:disable: max-classes-per-file
 
@@ -30,17 +30,43 @@ export class Seq<K, T> {
     return new Seq(data);
   }
 
-  public static range(start: number, end: number): Seq<number, number> {
+  public static iterate<T>(fn: (current: T) => T, start: T): Seq<number, T> {
+    return Seq.fromGenerator(function*() {
+      let index = 0;
+      let previous: T = start;
+
+      yield [index++, start];
+
+      while (true) {
+        previous = fn(previous);
+        yield [index++, previous];
+        this.didYield();
+      }
+    });
+  }
+
+  public static of<T>(value: T): Seq<number, T> {
+    return Seq.fromGenerator(function*() {
+      yield [0, value];
+      this.didYield();
+    });
+  }
+
+  public static range(
+    start: number,
+    end: number,
+    step = 1
+  ): Seq<number, number> {
     return Seq.fromGenerator(function*() {
       const isForwards = start < end;
 
       if (isForwards) {
-        for (let i = 0; start + i <= end; i++) {
+        for (let i = 0; start + i <= end; i += step) {
           yield [i, start + i];
           this.didYield();
         }
       } else {
-        for (let i = 0; start - i >= end; i++) {
+        for (let i = 0; start - i >= end; i += step) {
           yield [i, start - i];
           this.didYield();
         }
@@ -162,6 +188,35 @@ export class Seq<K, T> {
     });
   }
 
+  public window(size: number, allowPartialWindow = true): Seq<number, T[]> {
+    let self: Seq<K, T> = this;
+
+    return new Seq(function*() {
+      let index = 0;
+
+      while (true) {
+        const items = self.take(size).toArray();
+        self = self.skip(size);
+
+        /* istanbul ignore next */
+        if (!allowPartialWindow && items.length < size) {
+          return;
+        }
+
+        yield [index++, items];
+
+        /* istanbul ignore next */
+        if (items.length < size) {
+          return;
+        }
+      }
+    });
+  }
+
+  public pairwise(): Seq<number, [T, T]> {
+    return (this.window(2, false) as unknown) as Seq<number, [T, T]>;
+  }
+
   public isEmpty(): boolean {
     const iterator = this.source();
 
@@ -245,6 +300,7 @@ export class Seq<K, T> {
       let index = 0;
 
       while (true) {
+        /* istanbul ignore next */
         if (iterators.length <= 0) {
           return;
         }
@@ -292,18 +348,38 @@ export class Seq<K, T> {
     });
   }
 
-  public distinct(): Seq<K, T> {
-    const seen = new Set<T>();
+  public distinctBy<U>(fn: (value: T) => U): Seq<K, T> {
+    const seen = new Set<U>();
 
     return this.filter(value => {
-      if (seen.has(value)) {
+      const compareBy = fn(value);
+
+      if (seen.has(compareBy)) {
         return false;
       }
 
-      seen.add(value);
+      seen.add(compareBy);
 
       return true;
     });
+  }
+
+  public distinct(): Seq<K, T> {
+    return this.distinctBy(identity);
+  }
+
+  public groupBy<U>(fn: (item: T) => U): Map<U, T[]> {
+    return this.reduce((sum, item) => {
+      const group = fn(item);
+
+      if (sum.has(group)) {
+        const currentArray = sum.get(group)!;
+        currentArray?.push(item);
+        return sum.set(group, currentArray);
+      }
+
+      return sum.set(group, [item]);
+    }, new Map<U, T[]>());
   }
 
   public frequencies(): Map<T, number> {
@@ -387,6 +463,10 @@ export class Seq<K, T> {
         }
       })
     ];
+  }
+
+  public includes(value: T): boolean {
+    return !!this.filter(a => a === value).first();
   }
 
   public find(fn: (value: T, key: K) => unknown): T | undefined {
@@ -570,6 +650,23 @@ export class Seq<K, T> {
     for (const result of this) {
       fn(result[1], result[0]);
     }
+  }
+
+  public sumBy(fn: (value: T) => number): number {
+    return this.map(fn).reduce((sum, num) => sum + num, 0);
+  }
+
+  public sum(this: Seq<any, number>): number {
+    return this.sumBy(identity);
+  }
+
+  public averageBy(fn: (value: T) => number): number {
+    const all = this.toArray();
+    return all.map(fn).reduce((sum, num) => sum + num, 0) / all.length;
+  }
+
+  public average(this: Seq<any, number>): number {
+    return this.averageBy(identity);
   }
 
   // Needs to be public due to generator scoping issues.
