@@ -58,7 +58,7 @@
     "jest": "^24.5.0",
     "lint-staged": "^10.0.0",
     "prettier": "^1.19.1",
-    "puppeteer": "^2.0.0",
+    "puppeteer": "^2.1.0",
     "terser": "^4.6.3",
     "ts-jest": "^24.3.0",
     "ts-toolbelt": "^6.1.6",
