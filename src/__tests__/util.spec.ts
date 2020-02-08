@@ -30,7 +30,7 @@ describe("to", () => {
 
     ["A", "B"]
       .map(of)
-      .reduce<Task<any, string[]>>(to(all), of([]))
+      .reduce<Task<unknown, string[]>>(to(all), of([]))
       .fork(reject, resolve);
 
     expect(reject).not.toBeCalled();

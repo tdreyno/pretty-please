@@ -5,7 +5,7 @@
   "typings": "build/index.d.ts",
   "repository": "git://github.com/tdreyno/pretty-please.git",
   "scripts": {
-    "lint": "tslint --project .",
+    "lint": "eslint -c .eslintrc.js --ext .ts src",
     "build": "pika build && yarn compress",
     "compress": "terser pkg/dist-web/index.js -o pkg/dist-web/index.min.js --source-map --mangle --compress passes=2 --toplevel --mangle-props regex=/_$/ && gzip-size pkg/dist-web/index.min.js",
     "test": "jest --runInBand",
@@ -31,7 +31,11 @@
     ]
   },
   "lint-staged": {
-    "*.{ts,tsx,css,md}": [
+    "*.{ts,tsx}": [
+      "eslint -c .eslintrc.js --ext .ts src --fix",
+      "prettier --write"
+    ],
+    "*.{css,md}": [
       "prettier --write"
     ]
   },
@@ -61,10 +65,11 @@
     "terser": "^4.6.3",
     "ts-jest": "^24.3.0",
     "ts-toolbelt": "^6.1.13",
-    "tslint": "^5.20.1",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-immutable": "^6.0.1",
-    "tslint-microsoft-contrib": "^6.1.0",
+    "@typescript-eslint/eslint-plugin": "^2.19.0",
+    "@typescript-eslint/parser": "^2.19.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "typescript": "^3.7.5"
   },
   "dependencies": {},

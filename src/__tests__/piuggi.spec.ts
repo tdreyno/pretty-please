@@ -1,4 +1,4 @@
-// tslint:disable: no-console no-var-requires max-classes-per-file
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import {
   devices,
   DirectNavigationOptions,
@@ -12,18 +12,6 @@ import Task from "../Task";
 const uniq = <T>(a: T[]): T[] => Array.from(new Set<T>(a));
 const compact = <T>(a: Array<null | undefined | T>): T[] =>
   a.filter(link => !!link) as T[];
-
-const launch = (_options?: LaunchOptions) => Task.of(new Browser());
-
-class Browser {
-  public newPage() {
-    return Task.of(new Page());
-  }
-
-  public close() {
-    return Task.empty();
-  }
-}
 
 class Page {
   public emulate(__options: EmulateOptions) {
@@ -46,6 +34,18 @@ class Page {
     return Task.empty();
   }
 }
+
+class Browser {
+  public newPage() {
+    return Task.of(new Page());
+  }
+
+  public close() {
+    return Task.empty();
+  }
+}
+
+const launch = (_options?: LaunchOptions) => Task.of(new Browser());
 
 const SITE_URL = `https://www.marriott.com`;
 const iPhone = devices["iPhone 8"];
@@ -94,17 +94,6 @@ const devicesToScreenshot = [
   desktopSmall,
   desktopMedium
 ];
-
-describe("piugi script", () => {
-  test("the test", () =>
-    // Launch a browser
-    launch({ headless, executablePath, args })
-      // Load a page
-      .chain(browser => browser.newPage().chain(page => execute(browser, page)))
-
-      // Make Jest happy
-      .toPromise());
-});
 
 const getLinkData = (elem: HTMLAnchorElement) => {
   const attrObj: any = {};
@@ -195,3 +184,14 @@ const execute = (browser: Browser, page: Page) =>
 
     // Close out the session
     .tapChain(() => Task.sequence([page.close(), browser.close()]));
+
+describe("piugi script", () => {
+  test("the test", () =>
+    // Launch a browser
+    launch({ headless, executablePath, args })
+      // Load a page
+      .chain(browser => browser.newPage().chain(page => execute(browser, page)))
+
+      // Make Jest happy
+      .toPromise());
+});

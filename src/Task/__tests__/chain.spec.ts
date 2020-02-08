@@ -34,7 +34,7 @@ describe("chain", () => {
     const reject = jest.fn();
 
     fail(ERROR_RESULT)
-      .chain(_ => succeed(true))
+      .chain(() => succeed(true))
       .fork(reject, resolve);
 
     expect(resolve).not.toBeCalled();
@@ -46,7 +46,7 @@ describe("chain", () => {
     const reject = jest.fn();
 
     fail(ERROR_RESULT)
-      .chain(_ => Promise.reject(true))
+      .chain(() => Promise.reject(true))
       .fork(reject, resolve);
 
     // "hack" to flush the promise queue

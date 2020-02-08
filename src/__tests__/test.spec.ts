@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { Task } from "../Task/Task";
 
 function slugify(..._args: any[]): string {
   return "slug";
 }
 
-// tslint:disable-next-line: no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Request {}
 
 interface Context {
@@ -29,14 +30,6 @@ interface Job {
   category: string;
 }
 
-function jsonToJobs(json: any): Job[] {
-  if (!json.data || !Array.isArray(json.data.jobs)) {
-    throw new Error("Invalid data");
-  }
-
-  return json.data.jobs.map(toJob);
-}
-
 function toJob(job: any): job is Job {
   if (!job.title || !job.id || !job.metadata || !Array.isArray(job.metadata)) {
     throw new Error("Invalid data");
@@ -55,6 +48,14 @@ function toJob(job: any): job is Job {
   });
 
   return job;
+}
+
+function jsonToJobs(json: any): Job[] {
+  if (!json.data || !Array.isArray(json.data.jobs)) {
+    throw new Error("Invalid data");
+  }
+
+  return json.data.jobs.map(toJob);
 }
 
 interface QueryResponse {

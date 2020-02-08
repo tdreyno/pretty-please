@@ -1,4 +1,4 @@
-// tslint:disable: no-console no-var-requires max-classes-per-file
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import Task from "../Task";
 
 // Contentful mock
@@ -54,6 +54,19 @@ const contentToQuery: ContentTypes[] = [
   "getContentTypes"
 ];
 
+const unpublishAndDelete = (entry: typeof ENTRY) =>
+  entry.isPublished() ? entry.unpublish() : entry.delete();
+
+const queryContentType = (environment: typeof ENV) => (
+  contentType: ContentTypes
+) =>
+  environment[contentType]({
+    order: "sys.createdAt",
+    limit: 1000
+  })
+    .map(response => response.items.map(unpublishAndDelete))
+    .chain(Task.sequence);
+
 describe("piugi script 2", () => {
   test("the test", () =>
     createClient({
@@ -67,16 +80,3 @@ describe("piugi script 2", () => {
       // Make Jest happy
       .toPromise());
 });
-
-const queryContentType = (environment: typeof ENV) => (
-  contentType: ContentTypes
-) =>
-  environment[contentType]({
-    order: "sys.createdAt",
-    limit: 1000
-  })
-    .map(response => response.items.map(unpublishAndDelete))
-    .chain(Task.sequence);
-
-const unpublishAndDelete = (entry: typeof ENTRY) =>
-  entry.isPublished() ? entry.unpublish() : entry.delete();

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ERROR_RESULT, SUCCESS_RESULT } from "../../Task/__tests__/util";
 import { fail, fold, initialize, pending, succeed } from "../RemoteData";
 

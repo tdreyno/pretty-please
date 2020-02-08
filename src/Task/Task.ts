@@ -1,4 +1,4 @@
-// tslint:disable: max-classes-per-file
+/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any, @typescript-eslint/no-use-before-define */
 import { constant, identity, range } from "../util";
 
 export type Reject<E> = (error: E) => void;
@@ -41,6 +41,7 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public fork: Fork<E, S>;
 
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   public andThen = this.chain;
 
   constructor(computation: Fork<E, S>) {
@@ -268,7 +269,7 @@ export function succeedIn<S, E = any>(ms: number, result: S): Task<E, S> {
  * @param error The error to place into the failed Task.
  */
 export function fail<E, S = any>(error: E): Task<E, S> {
-  return new Task((reject, _) => reject(error));
+  return new Task(reject => reject(error));
 }
 
 /**
@@ -277,7 +278,7 @@ export function fail<E, S = any>(error: E): Task<E, S> {
  * @param error The error to place into the failed Task.
  */
 export function failIn<E, S = any>(ms: number, error: E): Task<E, S> {
-  return new Task((reject, _) => setTimeout(() => reject(error), ms));
+  return new Task(reject => setTimeout(() => reject(error), ms));
 }
 
 /**
@@ -428,6 +429,7 @@ export function fromPromise<S, E = any>(
   maybePromise: S | Promise<S>
 ): Task<E, S> {
   if (maybePromise instanceof Promise) {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     return new Task((reject, resolve) => maybePromise.then(resolve, reject));
   }
 

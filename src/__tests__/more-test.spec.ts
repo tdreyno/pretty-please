@@ -15,7 +15,7 @@ function editorTuplesToMap<R extends { [userId: string]: string }>(
   results: Array<[string, string | undefined]>
 ): R {
   return results
-    .filter(([_, userName]) => userName)
+    .filter(([, userName]) => userName)
     .reduce(pairsToIndexedObject, {} as R);
 }
 

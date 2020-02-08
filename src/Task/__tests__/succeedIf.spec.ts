@@ -41,7 +41,7 @@ describe("succeedIf", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
 
-    const task = new Task<string, never>((rootReject, _) => {
+    const task = new Task<string, never>(rootReject => {
       didRootExecute();
       rootReject(ERROR_RESULT);
     });

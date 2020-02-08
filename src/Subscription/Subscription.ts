@@ -1,6 +1,7 @@
 import { Task } from "../Task/Task";
 
 export type Status = "active" | "inactive";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EventSubscriber<T> = (value: T) => void | Task<any, any>;
 export type StatusSubscriber = (status: Status) => void;
 export type Unsubscriber = () => void;
@@ -14,6 +15,7 @@ export class Subscription<T> {
     StatusSubscriber
   >();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public emit(value: T): Task<any, any[]> {
     return Task.all(
       Array.from(this.eventSubscribers_).map(sub => sub(value) || Task.empty())
