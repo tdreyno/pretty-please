@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "tslint --project .",
     "build": "pika build && yarn compress",
-    "compress": "terser pkg/dist-web/index.js -o pkg/dist-web/index.min.js --source-map",
+    "compress": "terser pkg/dist-web/index.js -o pkg/dist-web/index.min.js --source-map --mangle --compress passes=2 --toplevel --mangle-props regex=/_$/ && gzip-size pkg/dist-web/index.min.js",
     "test": "jest --runInBand",
     "docs": "typedoc --out docs src",
     "version": "yarn run build",
@@ -54,6 +54,7 @@
     "@types/jest": "^25.1.2",
     "@types/puppeteer": "^2.0.0",
     "@types/react": "^16.9.19",
+    "gzip-size-cli": "^3.0.0",
     "husky": "^3.1.0",
     "jest": "^24.5.0",
     "lint-staged": "^10.0.7",

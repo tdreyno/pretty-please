@@ -152,45 +152,45 @@ export class Task<E, S> implements PromiseLike<S> {
  * A special form of Task which can be resolved/rejected externally.
  */
 export class ExternalTask<E, S> extends Task<E, S> {
-  private computationReject?: (error: E) => void;
-  private computationResolve?: (result: S) => void;
-  private alreadyError?: E;
-  private alreadyResult?: S;
-  private lastState: "pending" | "error" | "success" = "pending";
+  private computationReject_?: (error: E) => void;
+  private computationResolve_?: (result: S) => void;
+  private alreadyError_?: E;
+  private alreadyResult_?: S;
+  private lastState_: "pending" | "error" | "success" = "pending";
 
   constructor() {
     super((reject, resolve) => {
-      switch (this.lastState) {
+      switch (this.lastState_) {
         case "error":
-          reject(this.alreadyError!);
+          reject(this.alreadyError_!);
 
         case "success":
-          resolve(this.alreadyResult!);
+          resolve(this.alreadyResult_!);
 
         case "pending":
-          this.computationReject = reject;
-          this.computationResolve = resolve;
+          this.computationReject_ = reject;
+          this.computationResolve_ = resolve;
       }
     });
   }
 
   public reject(error: E): void {
-    this.alreadyError = error;
-    this.lastState = "error";
+    this.alreadyError_ = error;
+    this.lastState_ = "error";
 
     /* istanbul ignore next */
-    if (this.computationReject) {
-      this.computationReject(error);
+    if (this.computationReject_) {
+      this.computationReject_(error);
     }
   }
 
   public resolve(result: S): void {
-    this.alreadyResult = result;
-    this.lastState = "success";
+    this.alreadyResult_ = result;
+    this.lastState_ = "success";
 
     /* istanbul ignore next */
-    if (this.computationResolve) {
-      this.computationResolve(result);
+    if (this.computationResolve_) {
+      this.computationResolve_(result);
     }
   }
 }
