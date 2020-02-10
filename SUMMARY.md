@@ -6,5 +6,6 @@
 
 ## API
 
-- [Task](docs/task.md)
-- [Subscription](docs/subscription.md)
+- [Creating Tasks](docs/task-static.md)
+- [Chaining Tasks](docs/task-instance.md)
+- [Subscriptions](docs/subscription.md)

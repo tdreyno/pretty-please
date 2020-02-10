@@ -50,6 +50,7 @@ export class Task<E, S> implements PromiseLike<S> {
 
   /**
    * Alias to match promise API and let async/await work.
+   * Mostly "private". Do not use.
    */
   public then<TResult1 = S, TResult2 = never>(
     onfulfilled?:
