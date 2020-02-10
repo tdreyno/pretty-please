@@ -180,7 +180,6 @@ export class ExternalTask<E, S> extends Task<E, S> {
     this.alreadyError_ = error;
     this.lastState_ = "error";
 
-    /* istanbul ignore next */
     if (this.computationReject_) {
       this.computationReject_(error);
     }
@@ -190,7 +189,6 @@ export class ExternalTask<E, S> extends Task<E, S> {
     this.alreadyResult_ = result;
     this.lastState_ = "success";
 
-    /* istanbul ignore next */
     if (this.computationResolve_) {
       this.computationResolve_(result);
     }
@@ -405,7 +403,6 @@ export function onlyOnce<E, S>(task: Task<E, S>): Task<E, S> {
         reject(cachedError!);
         break;
 
-      /* istanbul ignore next */
       case "pending":
         notify(reject, resolve);
         break;
@@ -469,7 +466,6 @@ export function race<E, S>(
     return tasksOrPromises.map(taskOrPromise =>
       autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
-          /* istanbul ignore next */
           if (done) {
             return;
           }
@@ -478,7 +474,6 @@ export function race<E, S>(
           reject(error);
         },
         (result: S) => {
-          /* istanbul ignore next */
           if (done) {
             return;
           }
@@ -584,7 +579,6 @@ export function firstSuccess<E, S>(
     return tasksOrPromises.map(taskOrPromise =>
       autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
-          /* istanbul ignore next */
           if (isDone) {
             return;
           }
@@ -598,7 +592,6 @@ export function firstSuccess<E, S>(
           }
         },
         (result: S) => {
-          /* istanbul ignore next */
           if (isDone) {
             return;
           }
@@ -633,7 +626,6 @@ export function all<E, S>(
     return tasksOrPromises.map((taskOrPromise, i) =>
       autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
-          /* istanbul ignore next */
           if (isDone) {
             return;
           }
@@ -643,7 +635,6 @@ export function all<E, S>(
           reject(error);
         },
         (result: S) => {
-          /* istanbul ignore next */
           if (isDone) {
             return;
           }
@@ -879,7 +870,6 @@ export function ap<E, S, S2>(
 
     const handleResolve = <T>(onResolve: (result: T) => void) => {
       return (x: T) => {
-        /* istanbul ignore next */
         if (isRejected) {
           return;
         }
@@ -893,7 +883,6 @@ export function ap<E, S, S2>(
     };
 
     const handleReject = (x: E) => {
-      /* istanbul ignore next */
       if (isRejected) {
         return;
       }
