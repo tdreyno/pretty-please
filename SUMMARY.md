@@ -2,7 +2,7 @@
 
 - [Introduction](README.md)
 - [F.A.Q.](docs/faq.md)
-- [Changelog](CHANGELOG.md)
+- [Changelog](https://github.com/tdreyno/pretty-please/releases)
 
 ## API
 

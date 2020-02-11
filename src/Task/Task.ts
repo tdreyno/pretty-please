@@ -5,8 +5,6 @@ export type Reject<E> = (error: E) => void;
 export type Resolve<S> = (result: S) => void;
 export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void;
 
-export const none = void 0;
-
 /**
  * Create a new task.
  * @param computation A function which will be run when the task starts.
@@ -27,7 +25,6 @@ export class Task<E, S> implements PromiseLike<S> {
   public static race = race;
   public static external = external;
   public static emitter = emitter;
-  public static none = none;
   public static succeedBy = succeedBy;
   public static ap = ap;
   public static map2 = map2;
@@ -947,6 +944,6 @@ export function retryWithExponentialBackoff<E, S>(
  * flattens to just the resulting chained task.
  * @param task The task which resolves to an other task.
  */
-export function flatten<E, S>(task: Task<E, Task<E, S>>) {
+export function flatten<E, S>(task: Task<E, Task<E, S>>): Task<E, S> {
   return task.chain(identity);
 }
