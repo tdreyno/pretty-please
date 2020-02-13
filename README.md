@@ -54,6 +54,78 @@ Many tasks which are parallelizable end up becoming serial when converted to `as
 
 That said. For integration purposes, Tasks can be `await`ed just like Promises. If you have a large `async`/`await` codebase, using Tasks will look exactly like using Promises.
 
+## Code Comparison
+
+Here's a quick example that might seem complicated, but is actually a very simple problem programmers encounter.
+
+Imagine a site which works like Github. There are Users with have Projects. Users also have Friends. Those Friends have Projects. There are also global Notifications.
+
+Load all the Projects that the User can access (both theirs and their friends) and load the notifications.
+
+### Promises
+
+If you are well-versed in Promises, the following can be written and is both readable and performant. That said it is not lazy. And if it were written using `async`/`await` the parallelism would likely be omitted.
+
+```typescript
+function Loader(
+  user: User,
+  notificationsApi: NotificationsAPI
+): Promise<Result> {
+  return Promise.all([
+    notificationsApi.getMessages(),
+
+    Promise.all([
+      user.getProjects(),
+
+      user
+        .getFriends()
+        .then(friends =>
+          Promise.all(friends.map(friend => friend.getProjects())).then(flatten)
+        )
+    ]).then(([myProjects, friendsProjects]) =>
+      myProjects.concat(friendsProjects).map(project => project.name)
+    )
+  ]).then(([notifications, projectNames]) => ({
+    projectNames,
+    notifications
+  }));
+}
+```
+
+### Tasks
+
+Important to remember that this is all lazy. So until the data is used to render the page, the request does not start.
+
+```typescript
+function Loader(
+  user: User,
+  notificationsApi: NotificationsAPI
+): Task<Error, Result> {
+  return Task.map3(
+    notifications => myProjects => friendsProjects => ({
+      notifications,
+
+      projectNames: myProjects
+        .concat(friendsProjects)
+        .map(project => project.name)
+    }),
+
+    // Get Notifications
+    notificationsApi.getMessages(),
+
+    // Get My Projects
+    user.getProjects(),
+
+    // Get My Friends Projects
+    user
+      .getFriends()
+      .map(friends => friends.map(friend => friend.getProjects()))
+      .chain(Task.all)
+      .map(flatten)
+  );
+}
+```
+
 ## Installation
 
 ### Yarn
