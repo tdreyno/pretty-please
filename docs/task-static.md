@@ -94,8 +94,6 @@ type succeedBy = <S, E = any>(result: () => S) => Task<E, S>;
 
 ## fail
 
-## of
-
 Creates a task that will always fail with the given error. Similar in use to `Promise.reject`.
 
 {% tabs %}
