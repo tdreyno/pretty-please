@@ -386,17 +386,228 @@ type emitter = <Args extends any[], R>(
 
 ## map2
 
+Given two tasks, run the successful values through a mapping function to combine them into a new output. Unlike `Task.all`, this allows each task to be of a different type.
+
+The function must be curried. That is, each parameter is handled one at a time. A version of this function which is not curried is available as `zipWith`.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown, [number, string]> = Task.map2(
+  a => b => [a, b],
+  Task.of(5),
+  Task.of("Hello")
+);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type map2 = <E, E2, S, S2, S3>(
+  fn: (a: S) => (b: S2) => S3,
+  taskA: Task<E, S> | Promise<S>,
+  taskB: Task<E2, S2> | Promise<S2>
+) => Task<E | E2, S3>;
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## map3
+
+Given three tasks, run the successful values through a mapping function to combine them into a new output. Unlike `Task.all`, this allows each task to be of a different type.
+
+The function must be curried. That is, each parameter is handled one at a time.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown, [number, string, boolean]> = Task.map3(
+  a => b => c => [a, b, c],
+  Task.of(5),
+  Task.of("Hello"),
+  Task.of(true)
+);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type map3 = <E, E2, E3, S, S2, S3, S4>(
+  fn: (a: S) => (b: S2) => (c: S3) => S4,
+  taskA: Task<E, S> | Promise<S>,
+  taskB: Task<E2, S2> | Promise<S2>,
+  taskC: Task<E3, S3> | Promise<S3>
+) => Task<E | E2 | E3, S4>;
+```
+
+{% endtab %}
+{% endtabs %}
 
 ## map4
 
+Given four tasks, run the successful values through a mapping function to combine them into a new output. Unlike `Task.all`, this allows each task to be of a different type.
+
+The function must be curried. That is, each parameter is handled one at a time.
+
+If you need to operate on more than 4 tasks, consider using `ap` which can combine an arbitrary number of tasks using a mapping function.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown, [number, string, boolean, Set<string>]> = Task.map4(
+  a => b => c => d => [a, b, c, d],
+  Task.of(5),
+  Task.of("Hello"),
+  Task.of(true),
+  Task.of(new Set(["hi"]))
+);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type map4 = <E, E2, E3, E4, S, S2, S3, S4, S5>(
+  fn: (a: S) => (b: S2) => (c: S3) => (d: S4) => S5,
+  taskA: Task<E, S> | Promise<S>,
+  taskB: Task<E2, S2> | Promise<S2>,
+  taskC: Task<E3, S3> | Promise<S3>,
+  taskD: Task<E4, S4> | Promise<S4>
+) => Task<E | E2 | E3 | E4, S5>;
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## loop
+
+Allows the construction of a recursive, asynchrous loop. Given an initial starting value, call the currrent loop function and return a Task that contains either a `LoopBreak` or `LoopContinue` instance. The instance holds on to the current value. Will loop until it encounters a `LoopBreak`.
+
+This is a simplified version of what some will accomplish with a `Array.prototype.reduce` which uses the current Promise as it's value.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+// Count to six but wait 100ms between each step.
+const task: Task<unknown, number> = Task.loop(num => {
+  if (num > 5) {
+    return Task.wait(100).forward(new LoopBreak(num));
+  }
+
+  return Task.wait(100).forward(new LoopContinue(num + 1));
+}, 1);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type loop = <E, S, T>(
+  fn: (currentValue: T) => Task<E, LoopBreak<S> | LoopContinue<T>>,
+  initialValue: T
+) => Task<E, S>;
+```
+
+{% endtab %}
+{% endtabs %}
 
 ## reduce
 
+Works exactly like `Array.prototype.reduce`, but asynchronously. The return value of each reducer must return a Task.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+// Count to six but wait 100ms between each step.
+const task: Task<unknown, number> = Task.reduce(
+  sum => Task.succeedIn(100, sum + 1),
+  0,
+  [1, 2, 3, 4, 5, 6]
+);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type reduce = <E, T, V>(
+  fn: (acc: V, currentValue: T, index: number, original: T[]) => Task<E, V>,
+  initialValue: V,
+  items: T[]
+) => Task<E, V>;
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## zip
 
+Given two tasks, return a new Task which succeeds with a 2-tuple of their successful results.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown, [number, string]> = Task.zip(
+  Task.of(5),
+  Task.of("Hello")
+);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type zip = <E, E2, S, S2>(
+  taskAOrPromise: Task<E, S> | Promise<S>,
+  taskBOrPromise: Task<E2, S2> | Promise<S2>
+) => Task<E | E2, [S, S2]>;
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## zipWith
+
+Given two tasks, return a new Task which succeeds by running the successful results through a mapping function. Very similar to `map2`, but `zipWith` uses 1 parameter per successful Task. `map2` uses a curried mapping function.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown, [number, string]> = Task.zip(
+  Task.of(5),
+  Task.of("Hello")
+);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type zip = <E, E2, S, S2>(
+  taskAOrPromise: Task<E, S> | Promise<S>,
+  taskBOrPromise: Task<E2, S2> | Promise<S2>
+) => Task<E | E2, [S, S2]>;
+```
+
+{% endtab %}
+{% endtabs %}
 
 ## flatten
 
