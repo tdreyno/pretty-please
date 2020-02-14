@@ -46,7 +46,7 @@ Pretty Please provides dozens of well-named helper methods to make sure your log
 
 ## async/await
 
-I believe that most Javascript programmers have a hard time working with Promises. That's actually okay. Asynchronous programming is hard. The platform has introduced `async`/`await` to attemt to improve the situation. I believe that this was actually a mistake. `async`/`await` makes asynchronous programming \*_look_ easy. But it distances the programmer from the complexity of the system.
+I believe that most Javascript programmers have a hard time working with Promises. That's actually okay. Asynchronous programming is hard. The platform has introduced `async`/`await` to attempt to improve the situation. I believe that this was actually a mistake. `async`/`await` makes asynchronous programming \*_look_ easy. But it distances the programmer from the complexity of the system.
 
 _Side bar: here come the generalizations. I'm sure you are a smart programmer and you never make these mistakes, but I have reviewed hundreds of Javascript programmers code and I see this repeated often._
 
