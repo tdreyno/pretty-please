@@ -38,9 +38,6 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public fork: Fork<E, S>;
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  public andThen = this.chain;
-
   constructor(computation: Fork<E, S>) {
     this.fork = computation;
   }
@@ -78,8 +75,8 @@ export class Task<E, S> implements PromiseLike<S> {
     return toPromise(this);
   }
 
-  public swap(): Task<S, E> {
-    return swap(this);
+  public swap<E2 extends E, S2 extends S>(): Task<S2, E2> {
+    return swap<E, S, E2, S2>(this);
   }
 
   public map<S2>(fn: (result: S) => S2): Task<E, S2> {
@@ -300,7 +297,6 @@ export function fork<E, S>(
 
 /**
  * Chain a task to run after a previous task has succeeded.
- * @alias andThen
  * @param fn Takes a successful result and returns a new task.
  * @param task The task which will chain to the next one on success.
  */
@@ -312,8 +308,6 @@ export function chain<E, S, S2>(
     task.fork(reject, b => autoPromiseToTask(fn(b)).fork(reject, resolve))
   );
 }
-
-export const andThen = chain;
 
 /**
  * If a function returns a Promise instead of a Task, automatically
@@ -700,8 +694,15 @@ export function sequence<E, S>(
  * Given a task, swap the error and success values.
  * @param task The task to swap the results of.
  */
-export function swap<E, S>(task: Task<E, S>): Task<S, E> {
-  return new Task<S, E>((reject, resolve) => task.fork(resolve, reject));
+export function swap<E, S, E2 extends E, S2 extends S>(
+  task: Task<E, S>
+): Task<S2, E2> {
+  return new Task<S2, E2>((reject, resolve) =>
+    task.fork(
+      e => resolve(e as E2),
+      s => reject(s as S2)
+    )
+  );
 }
 
 /**
