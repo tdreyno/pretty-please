@@ -39,25 +39,31 @@ export class Task<E, S> implements PromiseLike<S> {
   public isCanceled = false;
   constructor(private computation: Fork<E, S>) {}
 
-  fork(reject: Reject<E>, resolve: Resolve<S>) {
-    if (this.isCanceled) {
-      return this;
+  fork(reject: Reject<E>, resolve: Resolve<S>): { cancel: () => void } {
+    let localCancel = this.isCanceled;
+
+    const result = {
+      cancel: () => (localCancel = true)
+    };
+
+    if (localCancel) {
+      return result;
     }
 
     this.computation(
       err => {
-        if (!this.isCanceled) {
+        if (!localCancel) {
           reject(err);
         }
       },
       value => {
-        if (!this.isCanceled) {
+        if (!localCancel) {
           resolve(value);
         }
       }
     );
 
-    return this;
+    return result;
   }
 
   cancel() {
@@ -313,7 +319,7 @@ export function fork<E, S>(
   reject: Reject<E>,
   resolve: Resolve<S>,
   task: Task<E, S>
-): Task<E, S> {
+): { cancel: () => void } {
   return task.fork(reject, resolve);
 }
 
