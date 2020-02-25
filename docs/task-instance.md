@@ -2,6 +2,28 @@
 
 The `Task` class is the core of this library. Below are all the methods that can be called on a task. To create a new task, refer to [Creating Tasks](docs/task-static.md).
 
+## cancel
+
+Cancels a task, meaning it will never complete.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task = Task.of(5).cancel();
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type cancel = () => void;
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## map
 
 Given a task, when it has _succeeded_, pass the value through a mapping function.

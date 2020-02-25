@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any, @typescript-eslint/no-use-before-define */
+/* eslint-disable @typescript-eslint/no-misused-promises, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any, @typescript-eslint/no-use-before-define */
 import { constant, identity, range } from "../util";
 
 export type Reject<E> = (error: E) => void;
@@ -37,27 +37,27 @@ export class Task<E, S> implements PromiseLike<S> {
   public static flatten = flatten;
 
   public isCanceled = false;
-  public fork: Fork<E, S>;
+  constructor(private computation: Fork<E, S>) {}
 
-  constructor(computation: Fork<E, S>) {
-    this.fork = (reject: Reject<E>, resolve: Resolve<S>) => {
-      if (this.isCanceled) {
-        return;
-      }
+  fork(reject: Reject<E>, resolve: Resolve<S>) {
+    if (this.isCanceled) {
+      return this;
+    }
 
-      computation(
-        err => {
-          if (!this.isCanceled) {
-            reject(err);
-          }
-        },
-        value => {
-          if (!this.isCanceled) {
-            resolve(value);
-          }
+    this.computation(
+      err => {
+        if (!this.isCanceled) {
+          reject(err);
         }
-      );
-    };
+      },
+      value => {
+        if (!this.isCanceled) {
+          resolve(value);
+        }
+      }
+    );
+
+    return this;
   }
 
   cancel() {
@@ -313,7 +313,7 @@ export function fork<E, S>(
   reject: Reject<E>,
   resolve: Resolve<S>,
   task: Task<E, S>
-): void {
+): Task<E, S> {
   return task.fork(reject, resolve);
 }
 
