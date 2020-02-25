@@ -36,10 +36,32 @@ export class Task<E, S> implements PromiseLike<S> {
   public static zipWith = zipWith;
   public static flatten = flatten;
 
+  public isCanceled = false;
   public fork: Fork<E, S>;
 
   constructor(computation: Fork<E, S>) {
-    this.fork = computation;
+    this.fork = (reject: Reject<E>, resolve: Resolve<S>) => {
+      if (this.isCanceled) {
+        return;
+      }
+
+      computation(
+        err => {
+          if (!this.isCanceled) {
+            reject(err);
+          }
+        },
+        value => {
+          if (!this.isCanceled) {
+            resolve(value);
+          }
+        }
+      );
+    };
+  }
+
+  cancel() {
+    this.isCanceled = true;
   }
 
   /**
