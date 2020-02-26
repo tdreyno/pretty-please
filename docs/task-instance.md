@@ -440,6 +440,28 @@ type forward = <S2>(value: S2) => Task<E, S2>;
 {% endtab %}
 {% endtabs %}
 
+## append
+
+Given a successful Task, join it with an additional value. Useful for threading a value along with a task. Like `zip`, but when one of the values is not a Task.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown, [number, number]> = Task.of(5).append(10);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type append = <S2>(this: Task<E, S>, value: S2) => Task<E, [S, S2]>;
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## ap
 
 The applicative. If you know what that means, you'll be excited. If not, it is fine. This is a low level tool that helps build more complex features.

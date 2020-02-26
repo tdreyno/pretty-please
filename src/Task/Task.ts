@@ -115,6 +115,21 @@ export class Task<E, S> implements PromiseLike<S> {
     return map(constant(value), this);
   }
 
+  public append<A, B, C, D, E>(
+    a: A,
+    b: B,
+    c: C,
+    d: D,
+    e: E
+  ): Task<E, [S, A, B, C, D, E]>;
+  public append<A, B, C, D>(a: A, b: B, c: C, d: D): Task<E, [S, A, B, C, D]>;
+  public append<A, B, C>(a: A, b: B, c: C): Task<E, [S, A, B, C]>;
+  public append<A, B>(a: A, b: B): Task<E, [S, A, B]>;
+  public append<A>(a: A): Task<E, [S, A]>;
+  public append(...items: any[]): Task<E, any[]> {
+    return map<E, S, any[]>(a => [a, ...items], this);
+  }
+
   public tap(fn: (result: S) => void): Task<E, S> {
     return tap(fn, this);
   }
