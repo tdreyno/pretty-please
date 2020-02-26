@@ -1,3 +1,3 @@
-import * as RemoteData from "./RemoteData";
+import * as RemoteData from "./RemoteData"
 
-export default RemoteData;
+export default RemoteData

@@ -6,51 +6,51 @@ import {
   LaunchOptions,
   PageCloseOptions,
   ScreenshotOptions
-} from "puppeteer";
-import Task from "../Task";
+} from "puppeteer"
+import Task from "../Task"
 
-const uniq = <T>(a: T[]): T[] => Array.from(new Set<T>(a));
+const uniq = <T>(a: T[]): T[] => Array.from(new Set<T>(a))
 const compact = <T>(a: Array<null | undefined | T>): T[] =>
-  a.filter(link => !!link) as T[];
+  a.filter(link => !!link) as T[]
 
 class Page {
   public emulate(__options: EmulateOptions) {
-    return Task.empty();
+    return Task.empty()
   }
 
   public goto(_url: string, __options?: DirectNavigationOptions) {
-    return Task.of(null);
+    return Task.of(null)
   }
 
   public evaluate(_pageFunction: any, ..._args: any[]): Task<any, any[]> {
-    return Task.of([]);
+    return Task.of([])
   }
 
   public screenshot(__options?: ScreenshotOptions) {
-    return Task.of("url");
+    return Task.of("url")
   }
 
   public close(__options?: PageCloseOptions) {
-    return Task.empty();
+    return Task.empty()
   }
 }
 
 class Browser {
   public newPage() {
-    return Task.of(new Page());
+    return Task.of(new Page())
   }
 
   public close() {
-    return Task.empty();
+    return Task.empty()
   }
 }
 
-const launch = (_options?: LaunchOptions) => Task.of(new Browser());
+const launch = (_options?: LaunchOptions) => Task.of(new Browser())
 
-const SITE_URL = `https://www.marriott.com`;
-const iPhone = devices["iPhone 8"];
-const iPad = devices.iPad;
-const Android = devices["Pixel 2"];
+const SITE_URL = `https://www.marriott.com`
+const iPhone = devices["iPhone 8"]
+const iPad = devices.iPad
+const Android = devices["Pixel 2"]
 const desktopSmall = {
   name: "Desktop Small",
   userAgent:
@@ -63,7 +63,7 @@ const desktopSmall = {
     hasTouch: false,
     isLandscape: true
   }
-};
+}
 const desktopMedium = {
   name: "Desktop Medium",
   userAgent:
@@ -76,36 +76,30 @@ const desktopMedium = {
     hasTouch: false,
     isLandscape: true
   }
-};
+}
 
-const headless = false;
-const ignoreHTTPSErrors = true;
+const headless = false
+const ignoreHTTPSErrors = true
 const executablePath =
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const args = ["--enable-features=NetworkService"];
-const fullPage = true;
-const omitBackground = false;
-const rootpath = `assets/screenshots`;
-const type = "png";
-const devicesToScreenshot = [
-  iPhone,
-  iPad,
-  Android,
-  desktopSmall,
-  desktopMedium
-];
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+const args = ["--enable-features=NetworkService"]
+const fullPage = true
+const omitBackground = false
+const rootpath = `assets/screenshots`
+const type = "png"
+const devicesToScreenshot = [iPhone, iPad, Android, desktopSmall, desktopMedium]
 
 const getLinkData = (elem: HTMLAnchorElement) => {
-  const attrObj: any = {};
+  const attrObj: any = {}
 
   elem.getAttributeNames().forEach((name: string) => {
-    attrObj[name] = elem.getAttribute(name);
-  });
+    attrObj[name] = elem.getAttribute(name)
+  })
 
-  attrObj.text = elem.innerHTML;
+  attrObj.text = elem.innerHTML
 
-  return attrObj;
-};
+  return attrObj
+}
 
 const cleanLink = (link: any): string | null => {
   if (
@@ -116,21 +110,21 @@ const cleanLink = (link: any): string | null => {
     link.href !== "undefined"
   ) {
     if (link.href[0] === "/") {
-      return `https://marriott.com${link.href}`;
+      return `https://marriott.com${link.href}`
     }
 
-    return link.href;
+    return link.href
   }
 
-  return null;
-};
+  return null
+}
 
 const iterateDevices = (browser: Browser, url: string) => (
   device: devices.Device
 ) => {
-  const cleanURL = url.replace(/(^\w+:|^)\/\//, "").replace(/\//g, "-");
-  const cleanDeviceName = device.name.replace(/ /g, "-");
-  const path = `${rootpath}/${cleanURL}-${cleanDeviceName}.${type}`;
+  const cleanURL = url.replace(/(^\w+:|^)\/\//, "").replace(/\//g, "-")
+  const cleanDeviceName = device.name.replace(/ /g, "-")
+  const path = `${rootpath}/${cleanURL}-${cleanDeviceName}.${type}`
 
   return browser.newPage().chain(page =>
     page
@@ -138,8 +132,8 @@ const iterateDevices = (browser: Browser, url: string) => (
       .chain(() => page.goto(url, { waitUntil: "networkidle2", timeout: 0 }))
       .chain(() => page.screenshot({ path, fullPage, type, omitBackground }))
       .chain(() => page.close())
-  );
-};
+  )
+}
 
 const execute = (browser: Browser, page: Page) =>
   // Setup viewport
@@ -183,7 +177,7 @@ const execute = (browser: Browser, page: Page) =>
     .chain(Task.sequence)
 
     // Close out the session
-    .tapChain(() => Task.sequence([page.close(), browser.close()]));
+    .tapChain(() => Task.sequence([page.close(), browser.close()]))
 
 describe("piugi script", () => {
   test("the test", () =>
@@ -193,5 +187,5 @@ describe("piugi script", () => {
       .chain(browser => browser.newPage().chain(page => execute(browser, page)))
 
       // Make Jest happy
-      .toPromise());
-});
+      .toPromise())
+})

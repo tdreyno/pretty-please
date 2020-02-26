@@ -1,1 +1,1 @@
-export * from "./useRemoteData";
+export * from "./useRemoteData"

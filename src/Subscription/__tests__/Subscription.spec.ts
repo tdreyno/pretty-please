@@ -1,69 +1,69 @@
-import { Subscription } from "../Subscription";
+import { Subscription } from "../Subscription"
 
 describe("Subscription", () => {
   test("should call subscribers when emitting", () => {
-    const sub = new Subscription<string>();
+    const sub = new Subscription<string>()
 
-    const subscriber1 = jest.fn();
-    const subscriber2 = jest.fn();
+    const subscriber1 = jest.fn()
+    const subscriber2 = jest.fn()
 
-    sub.subscribe(subscriber1);
-    sub.subscribe(subscriber2);
+    sub.subscribe(subscriber1)
+    sub.subscribe(subscriber2)
 
-    sub.emit("test");
+    sub.emit("test")
 
-    expect(subscriber1).toBeCalledWith("test");
-    expect(subscriber2).toBeCalledWith("test");
-  });
+    expect(subscriber1).toBeCalledWith("test")
+    expect(subscriber2).toBeCalledWith("test")
+  })
 
   test("should remove all subscribers when clearing", () => {
-    const sub = new Subscription<string>();
+    const sub = new Subscription<string>()
 
-    const subscriber1 = jest.fn();
-    const subscriber2 = jest.fn();
+    const subscriber1 = jest.fn()
+    const subscriber2 = jest.fn()
 
-    sub.subscribe(subscriber1);
-    sub.subscribe(subscriber2);
+    sub.subscribe(subscriber1)
+    sub.subscribe(subscriber2)
 
-    sub.clear();
+    sub.clear()
 
-    sub.emit("test");
+    sub.emit("test")
 
-    expect(subscriber1).not.toBeCalledWith("test");
-    expect(subscriber2).not.toBeCalledWith("test");
-  });
+    expect(subscriber1).not.toBeCalledWith("test")
+    expect(subscriber2).not.toBeCalledWith("test")
+  })
 
   test("should still resolve with no subscribers", () => {
-    const sub = new Subscription<string>();
+    const sub = new Subscription<string>()
 
-    expect.hasAssertions();
+    expect.hasAssertions()
 
-    const reject = jest.fn();
-    const resolve = jest.fn();
+    const reject = jest.fn()
+    const resolve = jest.fn()
 
-    sub.emit("test").fork(reject, resolve);
+    sub.emit("test").fork(reject, resolve)
 
-    expect(reject).not.toBeCalled();
-    expect(resolve).toBeCalledWith([]);
-  });
+    expect(reject).not.toBeCalled()
+    expect(resolve).toBeCalledWith([])
+  })
 
   test("should notify when the first subscriber is added", () => {
-    const sub = new Subscription<string>();
+    const sub = new Subscription<string>()
 
-    expect.hasAssertions();
+    expect.hasAssertions()
 
-    const onStatusChange = jest.fn();
+    const onStatusChange = jest.fn()
 
-    sub.onStatusChange(onStatusChange);
+    sub.onStatusChange(onStatusChange)
 
-    expect(onStatusChange).not.toBeCalled();
+    expect(onStatusChange).not.toBeCalled()
 
-    const unsubscriber = sub.subscribe(jest.fn());
+    const unsubscriber = sub.subscribe(jest.fn())
 
-    expect(onStatusChange).toBeCalledWith("active");
+    expect(onStatusChange).toBeCalledWith("active")
 
-    unsubscriber();
+    unsubscriber()
 
-    expect(onStatusChange).toBeCalledWith("inactive");
-  });
-});
+    expect(onStatusChange).toBeCalledWith("inactive")
+  })
+})

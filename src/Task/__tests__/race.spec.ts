@@ -1,70 +1,70 @@
-import { failIn, race, succeedIn } from "../Task";
-import { ERROR_RESULT, SUCCESS_RESULT } from "./util";
+import { failIn, race, succeedIn } from "../Task"
+import { ERROR_RESULT, SUCCESS_RESULT } from "./util"
 
 describe("race", () => {
   test("should resolve when the first response is successful", () => {
-    const resolve = jest.fn();
-    const reject = jest.fn();
+    const resolve = jest.fn()
+    const reject = jest.fn()
 
     race([succeedIn(100, SUCCESS_RESULT), failIn(200, ERROR_RESULT)]).fork(
       reject,
       resolve
-    );
+    )
 
-    jest.advanceTimersByTime(150);
+    jest.advanceTimersByTime(150)
 
-    expect(reject).not.toBeCalled();
-    expect(resolve).toBeCalledWith(SUCCESS_RESULT);
-  });
+    expect(reject).not.toBeCalled()
+    expect(resolve).toBeCalledWith(SUCCESS_RESULT)
+  })
 
   test("should reject when the first response is a failure", () => {
-    const resolve = jest.fn();
-    const reject = jest.fn();
+    const resolve = jest.fn()
+    const reject = jest.fn()
 
     race([succeedIn(200, SUCCESS_RESULT), failIn(100, ERROR_RESULT)]).fork(
       reject,
       resolve
-    );
+    )
 
-    jest.advanceTimersByTime(150);
+    jest.advanceTimersByTime(150)
 
-    expect(resolve).not.toBeCalled();
-    expect(reject).toBeCalledWith(ERROR_RESULT);
-  });
+    expect(resolve).not.toBeCalled()
+    expect(reject).toBeCalledWith(ERROR_RESULT)
+  })
 
   test("should resolve when the first promise is successful", async () => {
-    const resolve = jest.fn();
-    const reject = jest.fn();
+    const resolve = jest.fn()
+    const reject = jest.fn()
 
     race([Promise.resolve(SUCCESS_RESULT), failIn(200, ERROR_RESULT)]).fork(
       reject,
       resolve
-    );
+    )
 
     // "hack" to flush the promise queue
-    await new Promise(r => setImmediate(r));
+    await new Promise(r => setImmediate(r))
 
-    jest.advanceTimersByTime(150);
+    jest.advanceTimersByTime(150)
 
-    expect(reject).not.toBeCalled();
-    expect(resolve).toBeCalledWith(SUCCESS_RESULT);
-  });
+    expect(reject).not.toBeCalled()
+    expect(resolve).toBeCalledWith(SUCCESS_RESULT)
+  })
 
   test("should reject when the first promise is a failure", async () => {
-    const resolve = jest.fn();
-    const reject = jest.fn();
+    const resolve = jest.fn()
+    const reject = jest.fn()
 
     race([succeedIn(200, SUCCESS_RESULT), Promise.reject(ERROR_RESULT)]).fork(
       reject,
       resolve
-    );
+    )
 
     // "hack" to flush the promise queue
-    await new Promise(r => setImmediate(r));
+    await new Promise(r => setImmediate(r))
 
-    jest.advanceTimersByTime(150);
+    jest.advanceTimersByTime(150)
 
-    expect(resolve).not.toBeCalled();
-    expect(reject).toBeCalledWith(ERROR_RESULT);
-  });
-});
+    expect(resolve).not.toBeCalled()
+    expect(reject).toBeCalledWith(ERROR_RESULT)
+  })
+})

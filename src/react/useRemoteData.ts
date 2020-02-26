@@ -1,27 +1,27 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState } from "react"
 import {
   fold,
   initialize,
   pending,
   RemoteData,
   succeed
-} from "../RemoteData/RemoteData";
-import { Task } from "../Task/Task";
+} from "../RemoteData/RemoteData"
+import { Task } from "../Task/Task"
 
 export function useRemoteData<E, S>(task: () => Task<E, S>) {
-  const [state, setState] = useState<RemoteData<E, S>>(initialize<E, S>());
+  const [state, setState] = useState<RemoteData<E, S>>(initialize<E, S>())
 
   const request = useCallback(() => {
     if (state.type !== "Initialized") {
-      return;
+      return
     }
 
-    setState(pending<E, S>());
+    setState(pending<E, S>())
 
     task()
       .mapBoth(fail, succeed)
-      .fork(setState, setState);
-  }, [state, setState]);
+      .fork(setState, setState)
+  }, [state, setState])
 
   const caseof = useCallback(
     <R>(
@@ -36,10 +36,10 @@ export function useRemoteData<E, S>(task: () => Task<E, S>) {
         onFailure,
         onSuccess,
         state
-      );
+      )
     },
     [state]
-  );
+  )
 
-  return [state, caseof, request];
+  return [state, caseof, request]
 }

@@ -1,73 +1,73 @@
 /* eslint-disable @typescript-eslint/no-misused-promises, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any, @typescript-eslint/no-use-before-define */
-import { constant, identity, range } from "../util";
+import { constant, identity, range } from "../util"
 
-export type Reject<E> = (error: E) => void;
-export type Resolve<S> = (result: S) => void;
-export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void;
+export type Reject<E> = (error: E) => void
+export type Resolve<S> = (result: S) => void
+export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void
 
 /**
  * Create a new task.
  * @param computation A function which will be run when the task starts.
  */
 export class Task<E, S> implements PromiseLike<S> {
-  public static fail = fail;
-  public static succeed = succeed;
-  public static empty = empty;
-  public static failIn = failIn;
-  public static succeedIn = succeedIn;
-  public static of = succeed;
-  public static all = all;
-  public static sequence = sequence;
-  public static firstSuccess = firstSuccess;
-  public static never = never;
-  public static fromPromise = fromPromise;
-  public static fromLazyPromise = fromLazyPromise;
-  public static race = race;
-  public static external = external;
-  public static emitter = emitter;
-  public static succeedBy = succeedBy;
-  public static ap = ap;
-  public static map2 = map2;
-  public static map3 = map3;
-  public static map4 = map4;
-  public static loop = loop;
-  public static reduce = reduce;
-  public static zip = zip;
-  public static zipWith = zipWith;
-  public static flatten = flatten;
+  public static fail = fail
+  public static succeed = succeed
+  public static empty = empty
+  public static failIn = failIn
+  public static succeedIn = succeedIn
+  public static of = succeed
+  public static all = all
+  public static sequence = sequence
+  public static firstSuccess = firstSuccess
+  public static never = never
+  public static fromPromise = fromPromise
+  public static fromLazyPromise = fromLazyPromise
+  public static race = race
+  public static external = external
+  public static emitter = emitter
+  public static succeedBy = succeedBy
+  public static ap = ap
+  public static map2 = map2
+  public static map3 = map3
+  public static map4 = map4
+  public static loop = loop
+  public static reduce = reduce
+  public static zip = zip
+  public static zipWith = zipWith
+  public static flatten = flatten
 
-  public isCanceled = false;
+  public isCanceled = false
   constructor(private computation: Fork<E, S>) {}
 
   fork(reject: Reject<E>, resolve: Resolve<S>): { cancel: () => void } {
-    let localCancel = this.isCanceled;
+    let localCancel = this.isCanceled
 
     const result = {
       cancel: () => (localCancel = true)
-    };
+    }
 
     if (localCancel) {
-      return result;
+      return result
     }
 
     this.computation(
       err => {
         if (!localCancel) {
-          reject(err);
+          reject(err)
         }
       },
       value => {
         if (!localCancel) {
-          resolve(value);
+          resolve(value)
         }
       }
-    );
+    )
 
-    return result;
+    return result
   }
 
   cancel() {
-    this.isCanceled = true;
+    this.isCanceled = true
   }
 
   /**
@@ -84,35 +84,35 @@ export class Task<E, S> implements PromiseLike<S> {
       | undefined
       | null
   ): PromiseLike<TResult1 | TResult2> {
-    return this.toPromise().then(onfulfilled, onrejected);
+    return this.toPromise().then(onfulfilled, onrejected)
   }
 
   public chain<S2>(fn: (result: S) => Task<E, S2> | Promise<S2>): Task<E, S2> {
-    return chain(fn, this);
+    return chain(fn, this)
   }
 
   public succeedIf(fn: () => S | undefined): Task<E, S> {
-    return succeedIf(fn, this);
+    return succeedIf(fn, this)
   }
 
   public onlyOnce(): Task<E, S> {
-    return onlyOnce(this);
+    return onlyOnce(this)
   }
 
   public toPromise(): Promise<S> {
-    return toPromise(this);
+    return toPromise(this)
   }
 
   public swap<E2 extends E, S2 extends S>(): Task<S2, E2> {
-    return swap<E, S, E2, S2>(this);
+    return swap<E, S, E2, S2>(this)
   }
 
   public map<S2>(fn: (result: S) => S2): Task<E, S2> {
-    return map(fn, this);
+    return map(fn, this)
   }
 
   public forward<S2>(value: S2): Task<E, S2> {
-    return map(constant(value), this);
+    return map(constant(value), this)
   }
 
   public append<A, B, C, D, E>(
@@ -121,13 +121,13 @@ export class Task<E, S> implements PromiseLike<S> {
     c: C,
     d: D,
     e: E
-  ): Task<E, [S, A, B, C, D, E]>;
-  public append<A, B, C, D>(a: A, b: B, c: C, d: D): Task<E, [S, A, B, C, D]>;
-  public append<A, B, C>(a: A, b: B, c: C): Task<E, [S, A, B, C]>;
-  public append<A, B>(a: A, b: B): Task<E, [S, A, B]>;
-  public append<A>(a: A): Task<E, [S, A]>;
+  ): Task<E, [S, A, B, C, D, E]>
+  public append<A, B, C, D>(a: A, b: B, c: C, d: D): Task<E, [S, A, B, C, D]>
+  public append<A, B, C>(a: A, b: B, c: C): Task<E, [S, A, B, C]>
+  public append<A, B>(a: A, b: B): Task<E, [S, A, B]>
+  public append<A>(a: A): Task<E, [S, A]>
   public append(...items: any[]): Task<E, any[]> {
-    return map<E, S, any[]>(a => [a, ...items], this);
+    return map<E, S, any[]>(a => [a, ...items], this)
   }
 
   public prepend<A, B, C, D, E>(
@@ -136,69 +136,69 @@ export class Task<E, S> implements PromiseLike<S> {
     c: C,
     d: D,
     e: E
-  ): Task<E, [S, A, B, C, D, E]>;
-  public prepend<A, B, C, D>(a: A, b: B, c: C, d: D): Task<E, [A, B, C, D, S]>;
-  public prepend<A, B, C>(a: A, b: B, c: C): Task<E, [A, B, C, S]>;
-  public prepend<A, B>(a: A, b: B): Task<E, [A, B, S]>;
-  public prepend<A>(a: A): Task<E, [A, S]>;
+  ): Task<E, [S, A, B, C, D, E]>
+  public prepend<A, B, C, D>(a: A, b: B, c: C, d: D): Task<E, [A, B, C, D, S]>
+  public prepend<A, B, C>(a: A, b: B, c: C): Task<E, [A, B, C, S]>
+  public prepend<A, B>(a: A, b: B): Task<E, [A, B, S]>
+  public prepend<A>(a: A): Task<E, [A, S]>
   public prepend(...items: any[]): Task<E, any[]> {
-    return map<E, S, any[]>(a => [...items, a], this);
+    return map<E, S, any[]>(a => [...items, a], this)
   }
 
   public tap(fn: (result: S) => void): Task<E, S> {
-    return tap(fn, this);
+    return tap(fn, this)
   }
 
   public tapChain<S2>(
     fn: (result: S) => Task<E, S2> | Promise<S2>
   ): Task<E, S> {
-    return tapChain(fn, this);
+    return tapChain(fn, this)
   }
 
   public mapError<E2>(fn: (error: E) => E2): Task<E2, S> {
-    return mapError(fn, this);
+    return mapError(fn, this)
   }
 
   public mapBoth<E2, S2>(
     handleError: (error: E) => E2,
     handleSuccess: (success: S) => S2
   ): Task<E2, S2> {
-    return mapBoth(handleError, handleSuccess, this);
+    return mapBoth(handleError, handleSuccess, this)
   }
 
   public fold<R>(
     handleError: (error: E) => R,
     handleSuccess: (success: S) => R
   ): Task<unknown, R> {
-    return fold(handleError, handleSuccess, this);
+    return fold(handleError, handleSuccess, this)
   }
 
   public orElse<S2>(
     fn: (error: E) => Task<E, S | S2> | Promise<S | S2>
   ): Task<E, S | S2> {
-    return orElse(fn, this);
+    return orElse(fn, this)
   }
 
   public ap<E2, S2, S3 = S extends (arg: S2) => any ? ReturnType<S> : never>(
     taskOrPromise: Task<E | E2, S2> | Promise<S2>
   ): Task<E | E2, S3> {
-    return ap((this as unknown) as Task<E, (result: S2) => S3>, taskOrPromise);
+    return ap((this as unknown) as Task<E, (result: S2) => S3>, taskOrPromise)
   }
 
   public wait(ms: number): Task<E, S> {
-    return wait(ms, this);
+    return wait(ms, this)
   }
 
   public retryIn(ms: number): Task<E, S> {
-    return retryIn(ms, this);
+    return retryIn(ms, this)
   }
 
   public retryWithExponentialBackoff(ms: number, times: number): Task<E, S> {
-    return retryWithExponentialBackoff(ms, times, this);
+    return retryWithExponentialBackoff(ms, times, this)
   }
 
   public flatten<S2>(this: Task<E, Task<E, S2>>): Task<E, S2> {
-    return flatten(this);
+    return flatten(this)
   }
 }
 
@@ -206,43 +206,43 @@ export class Task<E, S> implements PromiseLike<S> {
  * A special form of Task which can be resolved/rejected externally.
  */
 export class ExternalTask<E, S> extends Task<E, S> {
-  private computationReject_?: (error: E) => void;
-  private computationResolve_?: (result: S) => void;
-  private alreadyError_?: E;
-  private alreadyResult_?: S;
-  private lastState_: "pending" | "error" | "success" = "pending";
+  private computationReject_?: (error: E) => void
+  private computationResolve_?: (result: S) => void
+  private alreadyError_?: E
+  private alreadyResult_?: S
+  private lastState_: "pending" | "error" | "success" = "pending"
 
   constructor() {
     super((reject, resolve) => {
       switch (this.lastState_) {
         case "error":
-          reject(this.alreadyError_!);
+          reject(this.alreadyError_!)
 
         case "success":
-          resolve(this.alreadyResult_!);
+          resolve(this.alreadyResult_!)
 
         case "pending":
-          this.computationReject_ = reject;
-          this.computationResolve_ = resolve;
+          this.computationReject_ = reject
+          this.computationResolve_ = resolve
       }
-    });
+    })
   }
 
   public reject(error: E): void {
-    this.alreadyError_ = error;
-    this.lastState_ = "error";
+    this.alreadyError_ = error
+    this.lastState_ = "error"
 
     if (this.computationReject_) {
-      this.computationReject_(error);
+      this.computationReject_(error)
     }
   }
 
   public resolve(result: S): void {
-    this.alreadyResult_ = result;
-    this.lastState_ = "success";
+    this.alreadyResult_ = result
+    this.lastState_ = "success"
 
     if (this.computationResolve_) {
-      this.computationResolve_(result);
+      this.computationResolve_(result)
     }
   }
 }
@@ -251,24 +251,24 @@ export class ExternalTask<E, S> extends Task<E, S> {
  * Creates a Task which can be resolved/rejected externally.
  */
 export function external<E, S>(): ExternalTask<E, S> {
-  return new ExternalTask();
+  return new ExternalTask()
 }
 
 export function emitter<Args extends any[], R>(
   fn: (...args: Args) => R
 ): [ExternalTask<any, R>, (...args: Args) => void] {
-  const task = external<any, R>();
+  const task = external<any, R>()
 
   return [
     task,
     (...args: Args) => {
       try {
-        task.resolve(fn(...args));
+        task.resolve(fn(...args))
       } catch (e) {
-        task.reject(e);
+        task.reject(e)
       }
     }
-  ];
+  ]
 }
 
 /**
@@ -278,10 +278,10 @@ export function emitter<Args extends any[], R>(
  * @param result The value to place into the successful Task.
  */
 export function succeed<S, E = any>(result: S): Task<E, S> {
-  return new Task((_, resolve) => resolve(result));
+  return new Task((_, resolve) => resolve(result))
 }
 
-export const of = succeed;
+export const of = succeed
 
 /**
  * Creates a Task which succeeds when forked.
@@ -290,11 +290,11 @@ export const of = succeed;
 export function succeedBy<S, E = any>(result: () => S): Task<E, S> {
   return new Task((reject, resolve) => {
     try {
-      resolve(result());
+      resolve(result())
     } catch (e) {
-      reject(e);
+      reject(e)
     }
-  });
+  })
 }
 
 /**
@@ -302,7 +302,7 @@ export function succeedBy<S, E = any>(result: () => S): Task<E, S> {
  * @alias unit
  */
 export function empty<E = any>(): Task<E, void> {
-  return of(void 0);
+  return of(void 0)
 }
 
 /**
@@ -311,7 +311,7 @@ export function empty<E = any>(): Task<E, void> {
  * @param result The value to place into the successful Task.
  */
 export function succeedIn<S, E = any>(ms: number, result: S): Task<E, S> {
-  return new Task((_, resolve) => setTimeout(() => resolve(result), ms));
+  return new Task((_, resolve) => setTimeout(() => resolve(result), ms))
 }
 
 /**
@@ -320,7 +320,7 @@ export function succeedIn<S, E = any>(ms: number, result: S): Task<E, S> {
  * @param error The error to place into the failed Task.
  */
 export function fail<E, S = any>(error: E): Task<E, S> {
-  return new Task(reject => reject(error));
+  return new Task(reject => reject(error))
 }
 
 /**
@@ -329,14 +329,14 @@ export function fail<E, S = any>(error: E): Task<E, S> {
  * @param error The error to place into the failed Task.
  */
 export function failIn<E, S = any>(ms: number, error: E): Task<E, S> {
-  return new Task(reject => setTimeout(() => reject(error), ms));
+  return new Task(reject => setTimeout(() => reject(error), ms))
 }
 
 /**
  * Creates a Task will never finish.
  */
 export function never(): Task<never, never> {
-  return new Task(() => void 0);
+  return new Task(() => void 0)
 }
 
 /**
@@ -350,7 +350,7 @@ export function fork<E, S>(
   resolve: Resolve<S>,
   task: Task<E, S>
 ): { cancel: () => void } {
-  return task.fork(reject, resolve);
+  return task.fork(reject, resolve)
 }
 
 /**
@@ -364,7 +364,7 @@ export function chain<E, S, S2>(
 ): Task<E, S2> {
   return new Task((reject, resolve) =>
     task.fork(reject, b => autoPromiseToTask(fn(b)).fork(reject, resolve))
-  );
+  )
 }
 
 /**
@@ -374,10 +374,10 @@ export function chain<E, S, S2>(
  */
 function autoPromiseToTask<E, S>(promiseOrTask: Task<E, S> | Promise<S>) {
   if (promiseOrTask instanceof Promise) {
-    return fromPromise(promiseOrTask);
+    return fromPromise(promiseOrTask)
   }
 
-  return promiseOrTask;
+  return promiseOrTask
 }
 
 /**
@@ -390,15 +390,15 @@ export function succeedIf<E, S>(
   task: Task<E, S>
 ): Task<E, S> {
   return new Task((reject, resolve) => {
-    const result = fn();
+    const result = fn()
 
     if (result) {
-      resolve(result);
-      return;
+      resolve(result)
+      return
     }
 
-    task.fork(reject, resolve);
-  });
+    task.fork(reject, resolve)
+  })
 }
 
 /**
@@ -407,66 +407,66 @@ export function succeedIf<E, S>(
  * @param task The task to cache results.
  */
 export function onlyOnce<E, S>(task: Task<E, S>): Task<E, S> {
-  let state: "initialized" | "pending" | "success" | "failure" = "initialized";
-  let cachedResult: S;
-  let cachedError: E;
+  let state: "initialized" | "pending" | "success" | "failure" = "initialized"
+  let cachedResult: S
+  let cachedError: E
 
-  let callbackId = 0;
+  let callbackId = 0
   const callbacks: {
-    [id: string]: { reject: Reject<E>; resolve: Resolve<S> };
-  } = {};
+    [id: string]: { reject: Reject<E>; resolve: Resolve<S> }
+  } = {}
 
   function notify(reject: Reject<E>, resolve: Resolve<S>) {
-    const id = callbackId++;
+    const id = callbackId++
 
-    callbacks[id] = { reject, resolve };
+    callbacks[id] = { reject, resolve }
   }
 
   function triggerReject(error: E) {
-    state = "failure";
-    cachedError = error;
+    state = "failure"
+    cachedError = error
 
     Object.keys(callbacks).forEach(id => {
-      callbacks[id].reject(error);
-      delete callbacks[id];
-    });
+      callbacks[id].reject(error)
+      delete callbacks[id]
+    })
   }
 
   function triggerResolve(result: S) {
-    state = "success";
-    cachedResult = result;
+    state = "success"
+    cachedResult = result
 
     Object.keys(callbacks).forEach(id => {
-      callbacks[id].resolve(result);
-      delete callbacks[id];
-    });
+      callbacks[id].resolve(result)
+      delete callbacks[id]
+    })
   }
 
   return new Task((reject, resolve) => {
     switch (state) {
       case "success":
-        resolve(cachedResult!);
-        break;
+        resolve(cachedResult!)
+        break
 
       case "failure":
-        reject(cachedError!);
-        break;
+        reject(cachedError!)
+        break
 
       case "pending":
-        notify(reject, resolve);
-        break;
+        notify(reject, resolve)
+        break
 
       case "initialized":
-        state = "pending";
+        state = "pending"
 
-        notify(reject, resolve);
+        notify(reject, resolve)
 
-        task.fork(triggerReject, triggerResolve);
+        task.fork(triggerReject, triggerResolve)
     }
-  });
+  })
 }
 
-export const share = onlyOnce;
+export const share = onlyOnce
 
 /**
  * Given a promise, create a Task which relies on it.
@@ -477,10 +477,10 @@ export function fromPromise<S, E = any>(
 ): Task<E, S> {
   if (maybePromise instanceof Promise) {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    return new Task((reject, resolve) => maybePromise.then(resolve, reject));
+    return new Task((reject, resolve) => maybePromise.then(resolve, reject))
   }
 
-  return of(maybePromise);
+  return of(maybePromise)
 }
 
 /**
@@ -490,7 +490,7 @@ export function fromPromise<S, E = any>(
 export function fromLazyPromise<S, E = any>(
   getPromise: () => S | Promise<S>
 ): Task<E, S> {
-  return succeedBy(getPromise).chain(fromPromise);
+  return succeedBy(getPromise).chain(fromPromise)
 }
 
 /**
@@ -498,7 +498,7 @@ export function fromLazyPromise<S, E = any>(
  * @param task The task we will convert to a promise.
  */
 export function toPromise<E, S>(task: Task<E, S>): Promise<S> {
-  return new Promise((resolve, reject) => task.fork(reject, resolve));
+  return new Promise((resolve, reject) => task.fork(reject, resolve))
 }
 
 /**
@@ -510,29 +510,29 @@ export function race<E, S>(
   tasksOrPromises: Array<Task<E, S> | Promise<S>>
 ): Task<E, S> {
   return new Task<E, S>((reject, resolve) => {
-    let done = false;
+    let done = false
 
     return tasksOrPromises.map(taskOrPromise =>
       autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
           if (done) {
-            return;
+            return
           }
 
-          done = true;
-          reject(error);
+          done = true
+          reject(error)
         },
         (result: S) => {
           if (done) {
-            return;
+            return
           }
 
-          done = true;
-          resolve(result);
+          done = true
+          resolve(result)
         }
       )
-    );
-  });
+    )
+  })
 }
 
 export class LoopBreak<S> {
@@ -557,23 +557,23 @@ export function loop<E, S, T>(
     const tryLoop = (currentValue: T) => {
       fn(currentValue).fork(
         err => {
-          reject(err);
+          reject(err)
         },
 
         result => {
           if (result instanceof LoopBreak) {
-            resolve(result.value);
+            resolve(result.value)
           }
 
           if (result instanceof LoopContinue) {
-            tryLoop(result.value);
+            tryLoop(result.value)
           }
         }
-      );
-    };
+      )
+    }
 
-    tryLoop(initialValue);
-  });
+    tryLoop(initialValue)
+  })
 }
 
 /**
@@ -592,20 +592,20 @@ export function reduce<E, T, V>(
   return loop(
     ({ remainingItems, currentResult }) => {
       if (remainingItems.length === 0) {
-        return of(new LoopBreak(currentResult));
+        return of(new LoopBreak(currentResult))
       }
 
-      const [head, ...tail] = remainingItems;
-      const index = items.length - tail.length - 1;
+      const [head, ...tail] = remainingItems
+      const index = items.length - tail.length - 1
 
       return fn(currentResult, head, index, items).map(
         nextResult =>
           new LoopContinue({ remainingItems: tail, currentResult: nextResult })
-      );
+      )
     },
 
     { remainingItems: items, currentResult: initialValue }
-  );
+  )
 }
 
 /**
@@ -616,42 +616,42 @@ export function firstSuccess<E, S>(
   tasksOrPromises: Array<Task<E, S> | Promise<S>>
 ): Task<E[], S> {
   if (tasksOrPromises.length === 0) {
-    return fail([]);
+    return fail([])
   }
 
   return new Task<E[], S>((reject, resolve) => {
-    let isDone = false;
-    let runningTasks = tasksOrPromises.length;
+    let isDone = false
+    let runningTasks = tasksOrPromises.length
 
-    const errors: E[] = [];
+    const errors: E[] = []
 
     return tasksOrPromises.map(taskOrPromise =>
       autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
           if (isDone) {
-            return;
+            return
           }
 
-          runningTasks -= 1;
+          runningTasks -= 1
 
-          errors.push(error);
+          errors.push(error)
 
           if (runningTasks === 0) {
-            reject(errors);
+            reject(errors)
           }
         },
         (result: S) => {
           if (isDone) {
-            return;
+            return
           }
 
-          isDone = true;
+          isDone = true
 
-          resolve(result);
+          resolve(result)
         }
       )
-    );
-  });
+    )
+  })
 }
 
 /**
@@ -663,42 +663,42 @@ export function all<E, S>(
   tasksOrPromises: Array<Task<E, S> | Promise<S>>
 ): Task<E, S[]> {
   if (tasksOrPromises.length === 0) {
-    return of([]);
+    return of([])
   }
 
   return new Task<E, S[]>((reject, resolve) => {
-    let isDone = false;
-    let runningTasks = tasksOrPromises.length;
+    let isDone = false
+    let runningTasks = tasksOrPromises.length
 
-    const results: S[] = [];
+    const results: S[] = []
 
     return tasksOrPromises.map((taskOrPromise, i) =>
       autoPromiseToTask(taskOrPromise).fork(
         (error: E) => {
           if (isDone) {
-            return;
+            return
           }
 
-          isDone = true;
+          isDone = true
 
-          reject(error);
+          reject(error)
         },
         (result: S) => {
           if (isDone) {
-            return;
+            return
           }
 
-          runningTasks -= 1;
+          runningTasks -= 1
 
-          results[i] = result;
+          results[i] = result
 
           if (runningTasks === 0) {
-            resolve(results);
+            resolve(results)
           }
         }
       )
-    );
-  });
+    )
+  })
 }
 
 /**
@@ -711,7 +711,7 @@ export function zip<E, E2, S, S2>(
   taskAOrPromise: Task<E, S> | Promise<S>,
   taskBOrPromise: Task<E2, S2> | Promise<S2>
 ): Task<E | E2, [S, S2]> {
-  return map2(a => b => [a, b], taskAOrPromise, taskBOrPromise);
+  return map2(a => b => [a, b], taskAOrPromise, taskBOrPromise)
 }
 
 /**
@@ -727,7 +727,7 @@ export function zipWith<E, E2, S, S2, V>(
   taskAOrPromise: Task<E, S> | Promise<S>,
   taskBOrPromise: Task<E2, S2> | Promise<S2>
 ): Task<E | E2, V> {
-  return map2(a => b => fn(a, b), taskAOrPromise, taskBOrPromise);
+  return map2(a => b => fn(a, b), taskAOrPromise, taskBOrPromise)
 }
 
 /**
@@ -738,14 +738,14 @@ export function sequence<E, S>(
   tasksOrPromises: Array<Task<E, S> | Promise<S>>
 ): Task<E, S[]> {
   if (tasksOrPromises.length === 0) {
-    return of([]);
+    return of([])
   }
 
   return tasksOrPromises.reduce((sum, taskOrPromise) => {
     return chain(list => {
-      return map(result => [...list, result], autoPromiseToTask(taskOrPromise));
-    }, sum);
-  }, succeed([] as S[]));
+      return map(result => [...list, result], autoPromiseToTask(taskOrPromise))
+    }, sum)
+  }, succeed([] as S[]))
 }
 
 /**
@@ -760,7 +760,7 @@ export function swap<E, S, E2 extends E, S2 extends S>(
       e => resolve(e as E2),
       s => reject(s as S2)
     )
-  );
+  )
 }
 
 /**
@@ -774,7 +774,7 @@ export function map<E, S, S2>(
 ): Task<E, S2> {
   return new Task<E, S2>((reject, resolve) =>
     task.fork(reject, result => resolve(fn(result)))
-  );
+  )
 }
 
 export function map2<E, E2, S, S2, S3>(
@@ -784,7 +784,7 @@ export function map2<E, E2, S, S2, S3>(
 ): Task<E | E2, S3> {
   return Task.of(fn)
     .ap(taskA)
-    .ap(taskB);
+    .ap(taskB)
 }
 
 export function map3<E, E2, E3, S, S2, S3, S4>(
@@ -796,7 +796,7 @@ export function map3<E, E2, E3, S, S2, S3, S4>(
   return Task.of(fn)
     .ap(taskA)
     .ap(taskB)
-    .ap(taskC);
+    .ap(taskC)
 }
 
 export function map4<E, E2, E3, E4, S, S2, S3, S4, S5>(
@@ -810,7 +810,7 @@ export function map4<E, E2, E3, E4, S, S2, S3, S4, S5>(
     .ap(taskA)
     .ap(taskB)
     .ap(taskC)
-    .ap(taskD);
+    .ap(taskD)
 }
 
 /**
@@ -823,10 +823,10 @@ export function tap<E, S>(
   task: Task<E, S>
 ): Task<E, S> {
   return map(result => {
-    fn(result);
+    fn(result)
 
-    return result;
-  }, task);
+    return result
+  }, task)
 }
 
 /**
@@ -839,7 +839,7 @@ export function tapChain<E, S, S2>(
   fn: (result: S) => Task<E, S2> | Promise<S2>,
   task: Task<E, S>
 ): Task<E, S> {
-  return chain(result => autoPromiseToTask(fn(result)).forward(result), task);
+  return chain(result => autoPromiseToTask(fn(result)).forward(result), task)
 }
 
 /**
@@ -855,7 +855,7 @@ export function mapError<E, S, E2>(
 ): Task<E2, S> {
   return new Task<E2, S>((reject, resolve) =>
     task.fork(error => reject(fn(error)), resolve)
-  );
+  )
 }
 
 /**
@@ -869,7 +869,7 @@ export function mapBoth<E, S, E2, S2>(
   handleSuccess: (success: S) => S2,
   task: Task<E, S>
 ): Task<E2, S2> {
-  return mapError(handleError, map(handleSuccess, task));
+  return mapError(handleError, map(handleSuccess, task))
 }
 
 /**
@@ -888,7 +888,7 @@ export function fold<E, S, R>(
       error => resolve(handleError(error)),
       result => resolve(handleSuccess(result))
     )
-  );
+  )
 }
 
 /**
@@ -905,7 +905,7 @@ export function orElse<E, S>(
       error => autoPromiseToTask(fn(error)).fork(reject, resolve),
       resolve
     )
-  );
+  )
 }
 
 /**
@@ -919,49 +919,49 @@ export function ap<E, S, S2>(
   appliedTaskOrPromise: Task<E, S> | Promise<S>
 ): Task<E, S2> {
   return new Task((reject, resolve) => {
-    let targetResult: S;
-    let applierFunction: ((result: S) => S2) | undefined;
-    let hasResultLoaded = false;
-    let isRejected = false;
+    let targetResult: S
+    let applierFunction: ((result: S) => S2) | undefined
+    let hasResultLoaded = false
+    let isRejected = false
 
     const handleResolve = <T>(onResolve: (result: T) => void) => {
       return (x: T) => {
         if (isRejected) {
-          return;
+          return
         }
 
-        onResolve(x);
+        onResolve(x)
 
         if (applierFunction && hasResultLoaded) {
-          resolve(applierFunction(targetResult));
+          resolve(applierFunction(targetResult))
         }
-      };
-    };
+      }
+    }
 
     const handleReject = (x: E) => {
       if (isRejected) {
-        return;
+        return
       }
 
-      isRejected = true;
-      reject(x);
-    };
+      isRejected = true
+      reject(x)
+    }
 
     autoPromiseToTask(taskOrPromise).fork(
       handleReject,
       handleResolve((x: (result: S) => S2) => {
-        applierFunction = x;
+        applierFunction = x
       })
-    );
+    )
 
     autoPromiseToTask(appliedTaskOrPromise).fork(
       handleReject,
       handleResolve<S>((x: S) => {
-        hasResultLoaded = true;
-        targetResult = x;
+        hasResultLoaded = true
+        targetResult = x
       })
-    );
-  });
+    )
+  })
 }
 
 /**
@@ -971,8 +971,8 @@ export function ap<E, S, S2>(
  */
 export function wait<E, S>(ms: number, task: Task<E, S>): Task<E, S> {
   return new Task((reject, resolve) => {
-    setTimeout(() => task.fork(reject, resolve), ms);
-  });
+    setTimeout(() => task.fork(reject, resolve), ms)
+  })
 }
 
 /**
@@ -981,7 +981,7 @@ export function wait<E, S>(ms: number, task: Task<E, S>): Task<E, S> {
  * @param task Which task to retry.
  */
 export function retryIn<E, S>(ms: number, task: Task<E, S>): Task<E, S> {
-  return task.orElse(() => task.wait(ms));
+  return task.orElse(() => task.wait(ms))
 }
 
 /**
@@ -995,7 +995,7 @@ export function retryWithExponentialBackoff<E, S>(
   times: number,
   task: Task<E, S>
 ): Task<E, S> {
-  return range(times).reduce((sum, i) => sum.retryIn(ms * 2 ** i), task);
+  return range(times).reduce((sum, i) => sum.retryIn(ms * 2 ** i), task)
 }
 
 /**
@@ -1004,5 +1004,5 @@ export function retryWithExponentialBackoff<E, S>(
  * @param task The task which resolves to an other task.
  */
 export function flatten<E, S>(task: Task<E, Task<E, S>>): Task<E, S> {
-  return task.chain(identity);
+  return task.chain(identity)
 }

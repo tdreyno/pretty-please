@@ -1,36 +1,36 @@
-import { failIn, succeedIn } from "../Task";
-import { ERROR_RESULT, SUCCESS_RESULT } from "./util";
+import { failIn, succeedIn } from "../Task"
+import { ERROR_RESULT, SUCCESS_RESULT } from "./util"
 
 describe("cancellation", () => {
   test("should be able to cancel a successful task", () => {
-    jest.useFakeTimers();
+    jest.useFakeTimers()
 
-    const resolve = jest.fn();
-    const reject = jest.fn();
+    const resolve = jest.fn()
+    const reject = jest.fn()
 
     succeedIn(1000, SUCCESS_RESULT)
       .fork(reject, resolve)
-      .cancel();
+      .cancel()
 
-    jest.runAllTimers();
+    jest.runAllTimers()
 
-    expect(resolve).not.toBeCalled();
-    expect(reject).not.toBeCalled();
-  });
+    expect(resolve).not.toBeCalled()
+    expect(reject).not.toBeCalled()
+  })
 
   test("should be able to cancel a failed task", () => {
-    jest.useFakeTimers();
+    jest.useFakeTimers()
 
-    const resolve = jest.fn();
-    const reject = jest.fn();
+    const resolve = jest.fn()
+    const reject = jest.fn()
 
     failIn(1000, ERROR_RESULT)
       .fork(reject, resolve)
-      .cancel();
+      .cancel()
 
-    jest.runAllTimers();
+    jest.runAllTimers()
 
-    expect(resolve).not.toBeCalled();
-    expect(reject).not.toBeCalled();
-  });
-});
+    expect(resolve).not.toBeCalled()
+    expect(reject).not.toBeCalled()
+  })
+})

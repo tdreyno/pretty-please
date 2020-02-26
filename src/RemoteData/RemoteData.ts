@@ -1,37 +1,37 @@
 export interface Initialized {
-  type: "Initialized";
+  type: "Initialized"
 }
 
 export interface Pending {
-  type: "Pending";
+  type: "Pending"
 }
 
 export interface Failure<E> {
-  type: "Failure";
-  error: E;
+  type: "Failure"
+  error: E
 }
 
 export interface Success<S> {
-  type: "Success";
-  result: S;
+  type: "Success"
+  result: S
 }
 
-export type RemoteData<E, S> = Initialized | Pending | Failure<E> | Success<S>;
+export type RemoteData<E, S> = Initialized | Pending | Failure<E> | Success<S>
 
 export function initialize<E, S>(): RemoteData<E, S> {
-  return { type: "Initialized" };
+  return { type: "Initialized" }
 }
 
 export function pending<E, S>(): RemoteData<E, S> {
-  return { type: "Pending" };
+  return { type: "Pending" }
 }
 
 export function succeed<S>(result: S): RemoteData<never, S> {
-  return { type: "Success", result };
+  return { type: "Success", result }
 }
 
 export function fail<E>(error: E): RemoteData<E, never> {
-  return { type: "Failure", error };
+  return { type: "Failure", error }
 }
 
 export function fold<E, S, R>(
@@ -43,15 +43,15 @@ export function fold<E, S, R>(
 ): R {
   switch (remote.type) {
     case "Initialized":
-      return onInitialized();
+      return onInitialized()
 
     case "Pending":
-      return onPending();
+      return onPending()
 
     case "Failure":
-      return onFailure(remote.error);
+      return onFailure(remote.error)
 
     case "Success":
-      return onSuccess(remote.result);
+      return onSuccess(remote.result)
   }
 }

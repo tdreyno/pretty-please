@@ -1,14 +1,14 @@
-import { all, of, Task } from "../Task/Task";
-import { pairsToIndexedObject } from "../util";
+import { all, of, Task } from "../Task/Task"
+import { pairsToIndexedObject } from "../util"
 
-const editors = ["1", "2", "3"];
+const editors = ["1", "2", "3"]
 
 function loadUserName(id: string): Promise<[string, string]> {
-  return Promise.resolve([id, "name"]);
+  return Promise.resolve([id, "name"])
 }
 
 function loadUserNameTask(id: string): Task<Error, [string, string]> {
-  return of([id, "name"]);
+  return of([id, "name"])
 }
 
 function editorTuplesToMap<R extends { [userId: string]: string }>(
@@ -16,18 +16,18 @@ function editorTuplesToMap<R extends { [userId: string]: string }>(
 ): R {
   return results
     .filter(([, userName]) => userName)
-    .reduce(pairsToIndexedObject, {} as R);
+    .reduce(pairsToIndexedObject, {} as R)
 }
 
 describe("more test", () => {
   test("Promises", async () => {
-    await Promise.all(editors.map(loadUserName)).then(editorTuplesToMap);
-  });
+    await Promise.all(editors.map(loadUserName)).then(editorTuplesToMap)
+  })
 
   test("Tasks", () => {
     of(editors)
       .chain(ids => all(ids.map(loadUserNameTask)))
       .map(editorTuplesToMap)
-      .fork(jest.fn(), jest.fn());
-  });
-});
+      .fork(jest.fn(), jest.fn())
+  })
+})
