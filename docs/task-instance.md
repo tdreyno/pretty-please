@@ -442,7 +442,7 @@ type forward = <S2>(value: S2) => Task<E, S2>;
 
 ## append
 
-Given a successful Task, join it with an additional value. Useful for threading a value along with a task. Like `zip`, but when one of the values is not a Task.
+Given a successful Task, join it before an additional value. Useful for threading a value along with a task. Like `zip`, but when one of the values is not a Task.
 
 {% tabs %}
 {% tab title="Usage" %}
@@ -457,6 +457,28 @@ const task: Task<unknown, [number, number]> = Task.of(5).append(10);
 
 ```typescript
 type append = <S2>(this: Task<E, S>, value: S2) => Task<E, [S, S2]>;
+```
+
+{% endtab %}
+{% endtabs %}
+
+## prepend
+
+Given a successful Task, join it after an additional value. Useful for threading a value along with a task. Like `zip`, but when one of the values is not a Task.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown, [number, number]> = Task.of(5).prepend(10);
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type prepend = <S2>(this: Task<E, S>, value: S2) => Task<E, [S2, S]>;
 ```
 
 {% endtab %}
