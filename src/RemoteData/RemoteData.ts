@@ -18,29 +18,29 @@ export interface Success<S> {
 
 export type RemoteData<E, S> = Initialized | Pending | Failure<E> | Success<S>
 
-export function initialize<E, S>(): RemoteData<E, S> {
-  return { type: "Initialized" }
-}
+export const initialize = <E, S>(): RemoteData<E, S> => ({
+  type: "Initialized"
+})
 
-export function pending<E, S>(): RemoteData<E, S> {
-  return { type: "Pending" }
-}
+export const pending = <E, S>(): RemoteData<E, S> => ({ type: "Pending" })
 
-export function succeed<S>(result: S): RemoteData<never, S> {
-  return { type: "Success", result }
-}
+export const succeed = <S>(result: S): RemoteData<never, S> => ({
+  type: "Success",
+  result
+})
 
-export function fail<E>(error: E): RemoteData<E, never> {
-  return { type: "Failure", error }
-}
+export const fail = <E>(error: E): RemoteData<E, never> => ({
+  type: "Failure",
+  error
+})
 
-export function fold<E, S, R>(
+export const fold = <E, S, R>(
   onInitialized: () => R,
   onPending: () => R,
   onFailure: (error: E) => R,
   onSuccess: (result: S) => R,
   remote: RemoteData<E, S>
-): R {
+): R => {
   switch (remote.type) {
     case "Initialized":
       return onInitialized()

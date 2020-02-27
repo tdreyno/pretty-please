@@ -8,7 +8,7 @@ import {
 } from "../RemoteData/RemoteData"
 import { Task } from "../Task/Task"
 
-export function useRemoteData<E, S>(task: () => Task<E, S>) {
+export const useRemoteData = <E, S>(task: () => Task<E, S>) => {
   const [state, setState] = useState<RemoteData<E, S>>(initialize<E, S>())
 
   const request = useCallback(() => {

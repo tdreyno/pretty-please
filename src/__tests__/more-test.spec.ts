@@ -3,21 +3,18 @@ import { pairsToIndexedObject } from "../util"
 
 const editors = ["1", "2", "3"]
 
-function loadUserName(id: string): Promise<[string, string]> {
-  return Promise.resolve([id, "name"])
-}
+const loadUserName = (id: string): Promise<[string, string]> =>
+  Promise.resolve([id, "name"])
 
-function loadUserNameTask(id: string): Task<Error, [string, string]> {
-  return of([id, "name"])
-}
+const loadUserNameTask = (id: string): Task<Error, [string, string]> =>
+  of([id, "name"])
 
-function editorTuplesToMap<R extends { [userId: string]: string }>(
+const editorTuplesToMap = <R extends { [userId: string]: string }>(
   results: Array<[string, string | undefined]>
-): R {
-  return results
+): R =>
+  results
     .filter(([, userName]) => userName)
     .reduce(pairsToIndexedObject, {} as R)
-}
 
 describe("more test", () => {
   test("Promises", async () => {

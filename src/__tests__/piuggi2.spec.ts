@@ -31,17 +31,15 @@ const ENV = {
   }
 }
 
-function createClient(_options: any) {
-  return {
-    getSpace(__options: any) {
-      return Task.of({
-        getEnvironment(___options: any) {
-          return Task.of(ENV)
-        }
-      })
-    }
+const createClient = (_options: any) => ({
+  getSpace(__options: any) {
+    return Task.of({
+      getEnvironment(___options: any) {
+        return Task.of(ENV)
+      }
+    })
   }
-}
+})
 
 // CLI mock
 const ACCESS_TOKEN = "123"

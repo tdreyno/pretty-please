@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { Task } from "../Task/Task"
 
-function slugify(..._args: any[]): string {
-  return "slug"
-}
+const slugify = (..._args: any[]) => "slug"
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Request {}
@@ -30,7 +28,7 @@ interface Job {
   category: string
 }
 
-function toJob(job: any): job is Job {
+const toJob = (job: any): job is Job => {
   if (!job.title || !job.id || !job.metadata || !Array.isArray(job.metadata)) {
     throw new Error("Invalid data")
   }
@@ -50,7 +48,7 @@ function toJob(job: any): job is Job {
   return job
 }
 
-function jsonToJobs(json: any): Job[] {
+const jsonToJobs = (json: any): Job[] => {
   if (!json.data || !Array.isArray(json.data.jobs)) {
     throw new Error("Invalid data")
   }

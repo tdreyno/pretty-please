@@ -15,9 +15,7 @@ describe("to", () => {
   test("should work with reduce to wrap a value", () => {
     const add = (a: number, b: number) => a + b
 
-    function sum(nums: number[]): number {
-      return nums.reduce(add, 0)
-    }
+    const sum = (nums: number[]): number => nums.reduce(add, 0)
 
     const result = [1, 2, 3].reduce(to(sum))
 
