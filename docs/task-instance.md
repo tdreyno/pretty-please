@@ -10,7 +10,7 @@ Cancels a task, meaning it will never complete.
 {% tab title="Usage" %}
 
 ```typescript
-const task = Task.of(5).cancel();
+const task = Task.of(5).cancel()
 ```
 
 {% endtab %}
@@ -18,7 +18,7 @@ const task = Task.of(5).cancel();
 {% tab title="Type Definition" %}
 
 ```typescript
-type cancel = () => void;
+type cancel = () => void
 ```
 
 {% endtab %}
@@ -32,7 +32,7 @@ Given a task, when it has _succeeded_, pass the value through a mapping function
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.of(5).map(number => number * 2);
+const task: Task<unknown, number> = Task.of(5).map(number => number * 2)
 ```
 
 {% endtab %}
@@ -40,7 +40,7 @@ const task: Task<unknown, number> = Task.of(5).map(number => number * 2);
 {% tab title="Type Definition" %}
 
 ```typescript
-type map = <S2>(fn: (result: S) => S2) => Task<E, S2>;
+type map = <S2>(fn: (result: S) => S2) => Task<E, S2>
 ```
 
 {% endtab %}
@@ -54,7 +54,7 @@ Given a task, when it has _failed_, pass the error through a mapping function to
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.fail(5).mapError(number => number * 2);
+const task: Task<unknown, number> = Task.fail(5).mapError(number => number * 2)
 ```
 
 {% endtab %}
@@ -62,7 +62,31 @@ const task: Task<unknown, number> = Task.fail(5).mapError(number => number * 2);
 {% tab title="Type Definition" %}
 
 ```typescript
-type mapError = <E2>(fn: (error: E) => E2) => Task<E2, S>;
+type mapError = <E2>(fn: (error: E) => E2) => Task<E2, S>
+```
+
+{% endtab %}
+{% endtabs %}
+
+## errorUnion
+
+Expand the error types of a task. Purely a TypeScript type system modification.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown | AnotherErrorPossibility, number> = Task.fail(
+  5
+).errorUnion<AnotherErrorPossibility>()
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type errorUnion = <E2>() => Task<E | E2, S>
 ```
 
 {% endtab %}
@@ -79,7 +103,7 @@ Given a task, provide mapping functions for both the success and fail states. Re
 const task: Task<Error, number> = Task.of(5).mapBoth(
   () => new Error("Surprising Error"),
   number => number * 2
-);
+)
 ```
 
 {% endtab %}
@@ -90,7 +114,7 @@ const task: Task<Error, number> = Task.of(5).mapBoth(
 type mapBoth = <E2, S2>(
   handleError: (error: E) => E2,
   handleSuccess: (success: S) => S2
-) => Task<E2, S2>;
+) => Task<E2, S2>
 ```
 
 {% endtab %}
@@ -108,7 +132,7 @@ In general, users have difficulty understanding the difference between `chain` a
 ```typescript
 const task: Task<unknown, number> = Task.of(5).chain(number =>
   Task.of(number * 2)
-);
+)
 ```
 
 {% endtab %}
@@ -116,7 +140,7 @@ const task: Task<unknown, number> = Task.of(5).chain(number =>
 {% tab title="Type Definition" %}
 
 ```typescript
-type chain = <S2>(fn: (result: S) => Task<E, S2> | Promise<S2>) => Task<E, S2>;
+type chain = <S2>(fn: (result: S) => Task<E, S2> | Promise<S2>) => Task<E, S2>
 ```
 
 {% endtab %}
@@ -130,7 +154,7 @@ Given a task, wait some number of milliseconds to forward the successful value. 
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.of(5).wait(2000);
+const task: Task<unknown, number> = Task.of(5).wait(2000)
 ```
 
 {% endtab %}
@@ -138,7 +162,7 @@ const task: Task<unknown, number> = Task.of(5).wait(2000);
 {% tab title="Type Definition" %}
 
 ```typescript
-type wait = (ms: number) => Task<E, S>;
+type wait = (ms: number) => Task<E, S>
 ```
 
 {% endtab %}
@@ -154,7 +178,7 @@ Given a failing task, wait some number of seconds and attempt to retry it. Usefu
 ```typescript
 const task: Task<unknown, Response> = Task.fromLazyPromise(() =>
   fetch(URL)
-).retryIn(2000);
+).retryIn(2000)
 ```
 
 {% endtab %}
@@ -162,7 +186,7 @@ const task: Task<unknown, Response> = Task.fromLazyPromise(() =>
 {% tab title="Type Definition" %}
 
 ```typescript
-type retryIn = (ms: number) => Task<E, S>;
+type retryIn = (ms: number) => Task<E, S>
 ```
 
 {% endtab %}
@@ -178,7 +202,7 @@ Given a task, continue to retry it some number of times. The time between each a
 ```typescript
 const task: Task<unknown, Response> = Task.fromLazyPromise(() =>
   fetch(URL)
-).retryWithExponentialBackoff(2000, 5);
+).retryWithExponentialBackoff(2000, 5)
 ```
 
 {% endtab %}
@@ -186,7 +210,7 @@ const task: Task<unknown, Response> = Task.fromLazyPromise(() =>
 {% tab title="Type Definition" %}
 
 ```typescript
-type retryWithExponentialBackoff = (ms: number, times: number) => Task<E, S>;
+type retryWithExponentialBackoff = (ms: number, times: number) => Task<E, S>
 ```
 
 {% endtab %}
@@ -200,7 +224,7 @@ Given a task which succeeds with another task, flatten into a single task which 
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.of(Task.of(5)).flatten();
+const task: Task<unknown, number> = Task.of(Task.of(5)).flatten()
 ```
 
 {% endtab %}
@@ -208,7 +232,7 @@ const task: Task<unknown, number> = Task.of(Task.of(5)).flatten();
 {% tab title="Type Definition" %}
 
 ```typescript
-type flatten = <S2>(this: Task<E, Task<E, S2>>) => Task<E, S2>;
+type flatten = <S2>(this: Task<E, Task<E, S2>>) => Task<E, S2>
 ```
 
 {% endtab %}
@@ -224,7 +248,7 @@ Given a task that fails, a function can be called to attempt a recovery. This is
 ```typescript
 const task: Task<string, string> = Task.fail("Error").orElse(() =>
   Task.of("Success")
-);
+)
 ```
 
 {% endtab %}
@@ -234,7 +258,7 @@ const task: Task<string, string> = Task.fail("Error").orElse(() =>
 ```typescript
 type orElse = <S2>(
   fn: (error: E) => Task<E, S | S2> | Promise<S | S2>
-) => Task<E, S | S2>;
+) => Task<E, S | S2>
 ```
 
 {% endtab %}
@@ -251,7 +275,7 @@ Given a task, provide a function to convert each of the success or error states 
 const task: Task<unknown, JSX> = Task.fromPromise(fetch(URL)).fold(
   () => <h1>Error</h1>,
   data => <h1>Worked: ${data}</h1>
-);
+)
 ```
 
 {% endtab %}
@@ -262,7 +286,7 @@ const task: Task<unknown, JSX> = Task.fromPromise(fetch(URL)).fold(
 type fold = <R>(
   handleError: (error: E) => R,
   handleSuccess: (success: S) => R
-) => Task<unknown, R>;
+) => Task<unknown, R>
 ```
 
 {% endtab %}
@@ -278,7 +302,7 @@ Given a task, pass the success value to the tap (like tapping a tree or process)
 ```typescript
 const task: Task<unknown, number> = Task.of(5).tap(num =>
   console.log("Got", num)
-);
+)
 ```
 
 {% endtab %}
@@ -286,7 +310,7 @@ const task: Task<unknown, number> = Task.of(5).tap(num =>
 {% tab title="Type Definition" %}
 
 ```typescript
-type tap = (fn: (result: S) => void) => Task<E, S>;
+type tap = (fn: (result: S) => void) => Task<E, S>
 ```
 
 {% endtab %}
@@ -302,7 +326,7 @@ Given a task, pass the success value to the tap (like tapping a tree or process)
 ```typescript
 const task: Task<unknown, number> = Task.of(5).tap(num =>
   console.log("Got", num)
-);
+)
 ```
 
 {% endtab %}
@@ -310,9 +334,7 @@ const task: Task<unknown, number> = Task.of(5).tap(num =>
 {% tab title="Type Definition" %}
 
 ```typescript
-type tapChain = <S2>(
-  fn: (result: S) => Task<E, S2> | Promise<S2>
-) => Task<E, S>;
+type tapChain = <S2>(fn: (result: S) => Task<E, S2> | Promise<S2>) => Task<E, S>
 ```
 
 {% endtab %}
@@ -344,7 +366,7 @@ for (let i = 0; i < 5, i++) {
 {% tab title="Type Definition" %}
 
 ```typescript
-type onlyOnce = () => Task<E, S>;
+type onlyOnce = () => Task<E, S>
 ```
 
 {% endtab %}
@@ -359,7 +381,7 @@ Like `onlyOnce`, but provides a function which can arbitrarily check whether the
 
 ```typescript
 // Succeed until some unknown date.
-const task: Task<unknown, number> = Task.of(5).succeedIf(() => Date.now() < x);
+const task: Task<unknown, number> = Task.of(5).succeedIf(() => Date.now() < x)
 ```
 
 {% endtab %}
@@ -367,7 +389,7 @@ const task: Task<unknown, number> = Task.of(5).succeedIf(() => Date.now() < x);
 {% tab title="Type Definition" %}
 
 ```typescript
-type succeedIf = (fn: () => S | undefined) => Task<E, S>;
+type succeedIf = (fn: () => S | undefined) => Task<E, S>
 ```
 
 {% endtab %}
@@ -381,7 +403,7 @@ Converts a task to a Promise. Useful for integrating with other libraries.
 {% tab title="Usage" %}
 
 ```typescript
-const promise: Promise<number> = Task.of(5).toPromise();
+const promise: Promise<number> = Task.of(5).toPromise()
 ```
 
 {% endtab %}
@@ -389,7 +411,7 @@ const promise: Promise<number> = Task.of(5).toPromise();
 {% tab title="Type Definition" %}
 
 ```typescript
-type toPromise = () => Promise<S>;
+type toPromise = () => Promise<S>
 ```
 
 {% endtab %}
@@ -403,8 +425,8 @@ Swaps the error and success values so the old error message in the new success a
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.of(5);
-const swapped: Task<number, unknown> = task.swap();
+const task: Task<unknown, number> = Task.of(5)
+const swapped: Task<number, unknown> = task.swap()
 ```
 
 {% endtab %}
@@ -412,7 +434,7 @@ const swapped: Task<number, unknown> = task.swap();
 {% tab title="Type Definition" %}
 
 ```typescript
-type swap = () => Task<S, E>;
+type swap = () => Task<S, E>
 ```
 
 {% endtab %}
@@ -426,7 +448,7 @@ Given a successful Task, throw away the result and continue the chain with a new
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, string> = Task.of(5).forward(() => "Hello");
+const task: Task<unknown, string> = Task.of(5).forward(() => "Hello")
 ```
 
 {% endtab %}
@@ -434,7 +456,7 @@ const task: Task<unknown, string> = Task.of(5).forward(() => "Hello");
 {% tab title="Type Definition" %}
 
 ```typescript
-type forward = <S2>(value: S2) => Task<E, S2>;
+type forward = <S2>(value: S2) => Task<E, S2>
 ```
 
 {% endtab %}
@@ -448,7 +470,7 @@ Given a successful Task, join it before an additional value. Useful for threadin
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, [number, number]> = Task.of(5).append(10);
+const task: Task<unknown, [number, number]> = Task.of(5).append(10)
 ```
 
 {% endtab %}
@@ -456,7 +478,7 @@ const task: Task<unknown, [number, number]> = Task.of(5).append(10);
 {% tab title="Type Definition" %}
 
 ```typescript
-type append = <S2>(this: Task<E, S>, value: S2) => Task<E, [S, S2]>;
+type append = <S2>(this: Task<E, S>, value: S2) => Task<E, [S, S2]>
 ```
 
 {% endtab %}
@@ -470,7 +492,7 @@ Given a successful Task, join it after an additional value. Useful for threading
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, [number, number]> = Task.of(5).prepend(10);
+const task: Task<unknown, [number, number]> = Task.of(5).prepend(10)
 ```
 
 {% endtab %}
@@ -478,7 +500,7 @@ const task: Task<unknown, [number, number]> = Task.of(5).prepend(10);
 {% tab title="Type Definition" %}
 
 ```typescript
-type prepend = <S2>(this: Task<E, S>, value: S2) => Task<E, [S2, S]>;
+type prepend = <S2>(this: Task<E, S>, value: S2) => Task<E, [S2, S]>
 ```
 
 {% endtab %}
@@ -499,7 +521,7 @@ Also allows the definition of the mapping function to be asychronous because it 
 const task: Task<unknown, number> = Task.of((a, b, c) => a + b + c)
   .ap(succeed(10)) // a
   .ap(succeed(50)) // b
-  .ap(succeed(100)); // c
+  .ap(succeed(100)) // c
 ```
 
 {% endtab %}
@@ -509,7 +531,7 @@ const task: Task<unknown, number> = Task.of((a, b, c) => a + b + c)
 ```typescript
 type ap = <E2, S2, S3 = S extends (arg: S2) => any ? ReturnType<S> : never>(
   taskOrPromise: Task<E | E2, S2> | Promise<S2>
-) => Task<E | E2, S3>;
+) => Task<E | E2, S3>
 ```
 
 {% endtab %}

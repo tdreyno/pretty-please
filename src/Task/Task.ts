@@ -570,6 +570,8 @@ export const mapError = <E, S, E2>(
     task.fork(error => reject(fn(error)), resolve)
   )
 
+export const errorUnion = <E, S, E2>(task: Task<E, S>): Task<E | E2, S> => task
+
 /**
  * Given a task, map both the failure error and the success result to a Task.
  * @param handleError A function which takes the original failure error and returns the new one.
@@ -861,6 +863,10 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public mapError<E2>(fn: (error: E) => E2): Task<E2, S> {
     return mapError(fn, this)
+  }
+
+  public errorUnion<E2>() {
+    return errorUnion<E, S, E2>(this)
   }
 
   public mapBoth<E2, S2>(
