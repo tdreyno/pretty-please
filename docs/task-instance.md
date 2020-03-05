@@ -140,7 +140,9 @@ const task: Task<unknown, number> = Task.of(5).chain(number =>
 {% tab title="Type Definition" %}
 
 ```typescript
-type chain = <S2>(fn: (result: S) => Task<E, S2> | Promise<S2>) => Task<E, S2>
+type chain = <S2>(
+  fn: (result: S) => Task<E2, S2> | Promise<S2>
+) => Task<E | E2, S2>
 ```
 
 {% endtab %}

@@ -103,10 +103,10 @@ export const fork = <E, S>(
  * @param fn Takes a successful result and returns a new task.
  * @param task The task which will chain to the next one on success.
  */
-export const chain = <E, S, S2>(
-  fn: (result: S) => Task<E, S2> | Promise<S2>,
+export const chain = <E, S, E2, S2>(
+  fn: (result: S) => Task<E2, S2> | Promise<S2>,
   task: Task<E, S>
-): Task<E, S2> =>
+): Task<E | E2, S2> =>
   new Task((reject, resolve) =>
     task.fork(reject, b => autoPromiseToTask(fn(b)).fork(reject, resolve))
   )
