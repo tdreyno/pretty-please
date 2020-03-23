@@ -8,7 +8,7 @@ describe("fold", () => {
     succeed(5)
       .fold(
         r => r ** 2,
-        r => r * 2
+        r => r * 2,
       )
       .fork(reject, resolve)
 
@@ -23,7 +23,7 @@ describe("fold", () => {
     fail(5)
       .fold(
         r => r ** 2,
-        r => r * 2
+        r => r * 2,
       )
       .fork(reject, resolve)
 

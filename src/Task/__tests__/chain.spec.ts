@@ -67,14 +67,14 @@ describe("chain", () => {
       .chain(() => succeed(SUCCESS_RESULT))
       .fork(
         () => void 0,
-        () => void 0
+        () => void 0,
       )
 
     task
       .chain(() => succeed(SUCCESS_RESULT))
       .fork(
         () => void 0,
-        () => void 0
+        () => void 0,
       )
 
     expect(onFork).toBeCalledTimes(2)
@@ -92,7 +92,7 @@ describe("chain", () => {
       .chain(() => succeed(SUCCESS_RESULT))
       .fork(
         () => void 0,
-        () => void 0
+        () => void 0,
       )
 
     expect(onFork).toBeCalledTimes(1)

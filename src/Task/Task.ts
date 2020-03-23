@@ -11,7 +11,7 @@ export type Fork<E, S> = (reject: Reject<E>, resolve: Resolve<S>) => void
 export const external = <E, S>(): ExternalTask<E, S> => new ExternalTask()
 
 export const emitter = <Args extends any[], R>(
-  fn: (...args: Args) => R
+  fn: (...args: Args) => R,
 ): [ExternalTask<any, R>, (...args: Args) => void] => {
   const task = external<any, R>()
 
@@ -23,7 +23,7 @@ export const emitter = <Args extends any[], R>(
       } catch (e) {
         task.reject(e)
       }
-    }
+    },
   ]
 }
 
@@ -95,7 +95,7 @@ export const never = (): Task<never, never> => new Task(() => void 0)
 export const fork = <E, S>(
   reject: Reject<E>,
   resolve: Resolve<S>,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): { cancel: () => void } => task.fork(reject, resolve)
 
 /**
@@ -105,10 +105,10 @@ export const fork = <E, S>(
  */
 export const chain = <E, S, E2, S2>(
   fn: (result: S) => Task<E2, S2> | Promise<S2>,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E | E2, S2> =>
   new Task((reject, resolve) =>
-    task.fork(reject, b => autoPromiseToTask(fn(b)).fork(reject, resolve))
+    task.fork(reject, b => autoPromiseToTask(fn(b)).fork(reject, resolve)),
   )
 
 /**
@@ -126,7 +126,7 @@ const autoPromiseToTask = <E, S>(promiseOrTask: Task<E, S> | Promise<S>) =>
  */
 export const succeedIf = <E, S>(
   fn: () => S | undefined,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E, S> =>
   new Task((reject, resolve) => {
     const result = fn()
@@ -211,7 +211,7 @@ export const share = onlyOnce
  * @param promise The promise we will gather the success from.
  */
 export const fromPromise = <S, E = any>(
-  maybePromise: S | Promise<S>
+  maybePromise: S | Promise<S>,
 ): Task<E, S> =>
   maybePromise instanceof Promise
     ? // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -223,7 +223,7 @@ export const fromPromise = <S, E = any>(
  * @param getPromise The getter function
  */
 export const fromLazyPromise = <S, E = any>(
-  getPromise: () => S | Promise<S>
+  getPromise: () => S | Promise<S>,
 ): Task<E, S> => succeedBy(getPromise).chain(fromPromise)
 
 /**
@@ -239,7 +239,7 @@ export const toPromise = <E, S>(task: Task<E, S>): Promise<S> =>
  * @param tasksOrPromises The tasks to run in parallel.
  */
 export const race = <E, S>(
-  tasksOrPromises: Array<Task<E, S> | Promise<S>>
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>,
 ): Task<E, S> =>
   new Task<E, S>((reject, resolve) => {
     let done = false
@@ -261,8 +261,8 @@ export const race = <E, S>(
 
           done = true
           resolve(result)
-        }
-      )
+        },
+      ),
     )
   })
 
@@ -282,7 +282,7 @@ export class LoopContinue<S> {
  */
 export const loop = <E, S, T>(
   fn: (currentValue: T) => Task<E, LoopBreak<S> | LoopContinue<T>>,
-  initialValue: T
+  initialValue: T,
 ): Task<E, S> =>
   new Task((reject, resolve) => {
     const tryLoop = (currentValue: T) => {
@@ -299,7 +299,7 @@ export const loop = <E, S, T>(
           if (result instanceof LoopContinue) {
             tryLoop(result.value)
           }
-        }
+        },
       )
     }
 
@@ -317,7 +317,7 @@ export const loop = <E, S, T>(
 export const reduce = <E, T, V>(
   fn: (acc: V, currentValue: T, index: number, original: T[]) => Task<E, V>,
   initialValue: V,
-  items: T[]
+  items: T[],
 ): Task<E, V> =>
   loop(
     ({ remainingItems, currentResult }) => {
@@ -330,11 +330,11 @@ export const reduce = <E, T, V>(
 
       return fn(currentResult, head, index, items).map(
         nextResult =>
-          new LoopContinue({ remainingItems: tail, currentResult: nextResult })
+          new LoopContinue({ remainingItems: tail, currentResult: nextResult }),
       )
     },
 
-    { remainingItems: items, currentResult: initialValue }
+    { remainingItems: items, currentResult: initialValue },
   )
 
 /**
@@ -342,7 +342,7 @@ export const reduce = <E, T, V>(
  * @param tasksOrPromises The tasks to run in parallel.
  */
 export const firstSuccess = <E, S>(
-  tasksOrPromises: Array<Task<E, S> | Promise<S>>
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>,
 ): Task<E[], S> =>
   tasksOrPromises.length === 0
     ? fail([])
@@ -375,8 +375,8 @@ export const firstSuccess = <E, S>(
               isDone = true
 
               resolve(result)
-            }
-          )
+            },
+          ),
         )
       })
 
@@ -386,7 +386,7 @@ export const firstSuccess = <E, S>(
  * @param tasksOrPromises The tasks to run in parallel.
  */
 export const all = <E, S>(
-  tasksOrPromises: Array<Task<E, S> | Promise<S>>
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>,
 ): Task<E, S[]> =>
   tasksOrPromises.length === 0
     ? of([])
@@ -419,8 +419,8 @@ export const all = <E, S>(
               if (runningTasks === 0) {
                 resolve(results)
               }
-            }
-          )
+            },
+          ),
         )
       })
 
@@ -432,7 +432,7 @@ export const all = <E, S>(
  */
 export const zip = <E, E2, S, S2>(
   taskAOrPromise: Task<E, S> | Promise<S>,
-  taskBOrPromise: Task<E2, S2> | Promise<S2>
+  taskBOrPromise: Task<E2, S2> | Promise<S2>,
 ): Task<E | E2, [S, S2]> =>
   map2(a => b => [a, b], taskAOrPromise, taskBOrPromise)
 
@@ -447,7 +447,7 @@ export const zip = <E, E2, S, S2>(
 export const zipWith = <E, E2, S, S2, V>(
   fn: (resultA: S, resultB: S2) => V,
   taskAOrPromise: Task<E, S> | Promise<S>,
-  taskBOrPromise: Task<E2, S2> | Promise<S2>
+  taskBOrPromise: Task<E2, S2> | Promise<S2>,
 ): Task<E | E2, V> => map2(a => b => fn(a, b), taskAOrPromise, taskBOrPromise)
 
 /**
@@ -455,7 +455,7 @@ export const zipWith = <E, E2, S, S2, V>(
  * @param tasks The tasks to run in sequence.
  */
 export const sequence = <E, S>(
-  tasksOrPromises: Array<Task<E, S> | Promise<S>>
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>,
 ): Task<E, S[]> =>
   tasksOrPromises.length === 0
     ? of([])
@@ -463,7 +463,7 @@ export const sequence = <E, S>(
         return chain(list => {
           return map(
             result => [...list, result],
-            autoPromiseToTask(taskOrPromise)
+            autoPromiseToTask(taskOrPromise),
           )
         }, sum)
       }, succeed([] as S[]))
@@ -473,13 +473,13 @@ export const sequence = <E, S>(
  * @param task The task to swap the results of.
  */
 export const swap = <E, S, E2 extends E, S2 extends S>(
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<S2, E2> =>
   new Task<S2, E2>((reject, resolve) =>
     task.fork(
       e => resolve(e as E2),
-      s => reject(s as S2)
-    )
+      s => reject(s as S2),
+    ),
   )
 
 /**
@@ -489,44 +489,33 @@ export const swap = <E, S, E2 extends E, S2 extends S>(
  */
 export const map = <E, S, S2>(
   fn: (result: S) => S2,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E, S2> =>
   new Task<E, S2>((reject, resolve) =>
-    task.fork(reject, result => resolve(fn(result)))
+    task.fork(reject, result => resolve(fn(result))),
   )
 
 export const map2 = <E, E2, S, S2, S3>(
   fn: (a: S) => (b: S2) => S3,
   taskA: Task<E, S> | Promise<S>,
-  taskB: Task<E2, S2> | Promise<S2>
-): Task<E | E2, S3> =>
-  Task.of(fn)
-    .ap(taskA)
-    .ap(taskB)
+  taskB: Task<E2, S2> | Promise<S2>,
+): Task<E | E2, S3> => Task.of(fn).ap(taskA).ap(taskB)
 
 export const map3 = <E, E2, E3, S, S2, S3, S4>(
   fn: (a: S) => (b: S2) => (c: S3) => S4,
   taskA: Task<E, S> | Promise<S>,
   taskB: Task<E2, S2> | Promise<S2>,
-  taskC: Task<E3, S3> | Promise<S3>
-): Task<E | E2 | E3, S4> =>
-  Task.of(fn)
-    .ap(taskA)
-    .ap(taskB)
-    .ap(taskC)
+  taskC: Task<E3, S3> | Promise<S3>,
+): Task<E | E2 | E3, S4> => Task.of(fn).ap(taskA).ap(taskB).ap(taskC)
 
 export const map4 = <E, E2, E3, E4, S, S2, S3, S4, S5>(
   fn: (a: S) => (b: S2) => (c: S3) => (d: S4) => S5,
   taskA: Task<E, S> | Promise<S>,
   taskB: Task<E2, S2> | Promise<S2>,
   taskC: Task<E3, S3> | Promise<S3>,
-  taskD: Task<E4, S4> | Promise<S4>
+  taskD: Task<E4, S4> | Promise<S4>,
 ): Task<E | E2 | E3 | E4, S5> =>
-  Task.of(fn)
-    .ap(taskA)
-    .ap(taskB)
-    .ap(taskC)
-    .ap(taskD)
+  Task.of(fn).ap(taskA).ap(taskB).ap(taskC).ap(taskD)
 
 /**
  * Run a side-effect on success. Useful for logging.
@@ -535,7 +524,7 @@ export const map4 = <E, E2, E3, E4, S, S2, S3, S4, S5>(
  */
 export const tap = <E, S>(
   fn: (result: S) => void,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E, S> =>
   map(result => {
     fn(result)
@@ -551,7 +540,7 @@ export const tap = <E, S>(
  */
 export const tapChain = <E, S, S2>(
   fn: (result: S) => Task<E, S2> | Promise<S2>,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E, S> =>
   chain(result => autoPromiseToTask(fn(result)).forward(result), task)
 
@@ -564,10 +553,10 @@ export const tapChain = <E, S, S2>(
  */
 export const mapError = <E, S, E2>(
   fn: (error: E) => E2,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E2, S> =>
   new Task<E2, S>((reject, resolve) =>
-    task.fork(error => reject(fn(error)), resolve)
+    task.fork(error => reject(fn(error)), resolve),
   )
 
 export const errorUnion = <E, S, E2>(task: Task<E, S>): Task<E | E2, S> => task
@@ -581,7 +570,7 @@ export const errorUnion = <E, S, E2>(task: Task<E, S>): Task<E | E2, S> => task
 export const mapBoth = <E, S, E2, S2>(
   handleError: (error: E) => E2,
   handleSuccess: (success: S) => S2,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E2, S2> => mapError(handleError, map(handleSuccess, task))
 
 /**
@@ -593,13 +582,13 @@ export const mapBoth = <E, S, E2, S2>(
 export const fold = <E, S, R>(
   handleError: (error: E) => R,
   handleSuccess: (success: S) => R,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<unknown, R> =>
   new Task<unknown, R>((_, resolve) =>
     task.fork(
       error => resolve(handleError(error)),
-      result => resolve(handleSuccess(result))
-    )
+      result => resolve(handleSuccess(result)),
+    ),
   )
 
 /**
@@ -609,13 +598,13 @@ export const fold = <E, S, R>(
  */
 export const orElse = <E, S>(
   fn: (error: E) => Task<E, S> | Promise<S>,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E, S> =>
   new Task<E, S>((reject, resolve) =>
     task.fork(
       error => autoPromiseToTask(fn(error)).fork(reject, resolve),
-      resolve
-    )
+      resolve,
+    ),
   )
 
 /**
@@ -626,7 +615,7 @@ export const orElse = <E, S>(
  */
 export const ap = <E, S, S2>(
   taskOrPromise: Task<E, (result: S) => S2> | Promise<(result: S) => S2>,
-  appliedTaskOrPromise: Task<E, S> | Promise<S>
+  appliedTaskOrPromise: Task<E, S> | Promise<S>,
 ): Task<E, S2> =>
   new Task((reject, resolve) => {
     let targetResult: S
@@ -661,7 +650,7 @@ export const ap = <E, S, S2>(
       handleReject,
       handleResolve((x: (result: S) => S2) => {
         applierFunction = x
-      })
+      }),
     )
 
     autoPromiseToTask(appliedTaskOrPromise).fork(
@@ -669,7 +658,7 @@ export const ap = <E, S, S2>(
       handleResolve<S>((x: S) => {
         hasResultLoaded = true
         targetResult = x
-      })
+      }),
     )
   })
 
@@ -700,7 +689,7 @@ export const retryIn = <E, S>(ms: number, task: Task<E, S>): Task<E, S> =>
 export const retryWithExponentialBackoff = <E, S>(
   ms: number,
   times: number,
-  task: Task<E, S>
+  task: Task<E, S>,
 ): Task<E, S> => range(times).reduce((sum, i) => sum.retryIn(ms * 2 ** i), task)
 
 /**
@@ -749,7 +738,7 @@ export class Task<E, S> implements PromiseLike<S> {
     let localCancel = this.isCanceled
 
     const result = {
-      cancel: () => (localCancel = true)
+      cancel: () => (localCancel = true),
     }
 
     if (localCancel) {
@@ -766,7 +755,7 @@ export class Task<E, S> implements PromiseLike<S> {
         if (!localCancel) {
           resolve(value)
         }
-      }
+      },
     )
 
     return result
@@ -788,7 +777,7 @@ export class Task<E, S> implements PromiseLike<S> {
     onrejected?:
       | ((reason: any) => TResult2 | PromiseLike<TResult2>)
       | undefined
-      | null
+      | null,
   ): PromiseLike<TResult1 | TResult2> {
     return this.toPromise().then(onfulfilled, onrejected)
   }
@@ -826,7 +815,7 @@ export class Task<E, S> implements PromiseLike<S> {
     b: B,
     c: C,
     d: D,
-    e: E
+    e: E,
   ): Task<E, [S, A, B, C, D, E]>
   public append<A, B, C, D>(a: A, b: B, c: C, d: D): Task<E, [S, A, B, C, D]>
   public append<A, B, C>(a: A, b: B, c: C): Task<E, [S, A, B, C]>
@@ -841,7 +830,7 @@ export class Task<E, S> implements PromiseLike<S> {
     b: B,
     c: C,
     d: D,
-    e: E
+    e: E,
   ): Task<E, [S, A, B, C, D, E]>
   public prepend<A, B, C, D>(a: A, b: B, c: C, d: D): Task<E, [A, B, C, D, S]>
   public prepend<A, B, C>(a: A, b: B, c: C): Task<E, [A, B, C, S]>
@@ -856,7 +845,7 @@ export class Task<E, S> implements PromiseLike<S> {
   }
 
   public tapChain<S2>(
-    fn: (result: S) => Task<E, S2> | Promise<S2>
+    fn: (result: S) => Task<E, S2> | Promise<S2>,
   ): Task<E, S> {
     return tapChain(fn, this)
   }
@@ -871,26 +860,26 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public mapBoth<E2, S2>(
     handleError: (error: E) => E2,
-    handleSuccess: (success: S) => S2
+    handleSuccess: (success: S) => S2,
   ): Task<E2, S2> {
     return mapBoth(handleError, handleSuccess, this)
   }
 
   public fold<R>(
     handleError: (error: E) => R,
-    handleSuccess: (success: S) => R
+    handleSuccess: (success: S) => R,
   ): Task<unknown, R> {
     return fold(handleError, handleSuccess, this)
   }
 
   public orElse<S2>(
-    fn: (error: E) => Task<E, S | S2> | Promise<S | S2>
+    fn: (error: E) => Task<E, S | S2> | Promise<S | S2>,
   ): Task<E, S | S2> {
     return orElse(fn, this)
   }
 
   public ap<E2, S2, S3 = S extends (arg: S2) => any ? ReturnType<S> : never>(
-    taskOrPromise: Task<E | E2, S2> | Promise<S2>
+    taskOrPromise: Task<E | E2, S2> | Promise<S2>,
   ): Task<E | E2, S3> {
     return ap((this as unknown) as Task<E, (result: S2) => S3>, taskOrPromise)
   }

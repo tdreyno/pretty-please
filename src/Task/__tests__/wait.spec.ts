@@ -6,9 +6,7 @@ describe("wait", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    succeed(SUCCESS_RESULT)
-      .wait(100)
-      .fork(reject, resolve)
+    succeed(SUCCESS_RESULT).wait(100).fork(reject, resolve)
 
     expect(reject).not.toBeCalled()
     expect(resolve).not.toBeCalled()
@@ -23,9 +21,7 @@ describe("wait", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    fail(ERROR_RESULT)
-      .wait(100)
-      .fork(reject, resolve)
+    fail(ERROR_RESULT).wait(100).fork(reject, resolve)
 
     expect(reject).not.toBeCalled()
     expect(resolve).not.toBeCalled()

@@ -10,7 +10,7 @@ const loadUserNameTask = (id: string): Task<Error, [string, string]> =>
   of([id, "name"])
 
 const editorTuplesToMap = <R extends { [userId: string]: string }>(
-  results: Array<[string, string | undefined]>
+  results: Array<[string, string | undefined]>,
 ): R =>
   results
     .filter(([, userName]) => userName)

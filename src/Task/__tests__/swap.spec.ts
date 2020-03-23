@@ -6,9 +6,7 @@ describe("swap", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    succeed(ERROR_RESULT)
-      .swap()
-      .fork(reject, resolve)
+    succeed(ERROR_RESULT).swap().fork(reject, resolve)
 
     expect(resolve).not.toBeCalled()
     expect(reject).toBeCalledWith(ERROR_RESULT)
@@ -18,9 +16,7 @@ describe("swap", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    fail(SUCCESS_RESULT)
-      .swap()
-      .fork(reject, resolve)
+    fail(SUCCESS_RESULT).swap().fork(reject, resolve)
 
     expect(reject).not.toBeCalled()
     expect(resolve).toBeCalledWith(SUCCESS_RESULT)

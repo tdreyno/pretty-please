@@ -37,13 +37,13 @@ describe("map", () => {
       .map(() => SUCCESS_RESULT)
       .fork(
         () => void 0,
-        () => void 0
+        () => void 0,
       )
     task
       .map(() => SUCCESS_RESULT)
       .fork(
         () => void 0,
-        () => void 0
+        () => void 0,
       )
 
     expect(onFork).toBeCalledTimes(2)
@@ -61,7 +61,7 @@ describe("map", () => {
       .map(() => SUCCESS_RESULT)
       .fork(
         () => void 0,
-        () => void 0
+        () => void 0,
       )
 
     expect(onFork).toBeCalledTimes(1)

@@ -57,9 +57,7 @@ describe("retryWithExponentialBackoff", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    fail(ERROR_RESULT)
-      .retryWithExponentialBackoff(10, 4)
-      .fork(reject, resolve)
+    fail(ERROR_RESULT).retryWithExponentialBackoff(10, 4).fork(reject, resolve)
 
     jest.runAllTimers()
 

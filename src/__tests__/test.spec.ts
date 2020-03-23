@@ -89,17 +89,17 @@ const Prismic = {
     Promise.resolve({
       query: () =>
         Promise.resolve({
-          results: [{ data: { body: [] } }]
-        })
+          results: [{ data: { body: [] } }],
+        }),
     } as PrismicAPI),
   Predicates: {
-    at: (_a: string, _b: string): any => void 0
-  }
+    at: (_a: string, _b: string): any => void 0,
+  },
 }
 
 const prismicAPI = (request: Request) =>
   Task.fromLazyPromise(() =>
-    Prismic.getApi(Prismic.apiEndpoint, { req: request })
+    Prismic.getApi(Prismic.apiEndpoint, { req: request }),
   )
 
 const query = (where: any, options: any) => (api: PrismicAPI) =>
@@ -112,9 +112,9 @@ const fetch = (_url: string) =>
   Promise.resolve(
     JSON.stringify({
       data: {
-        jobs: []
-      }
-    })
+        jobs: [],
+      },
+    }),
   )
 
 export const loadData = (req: Request) =>
@@ -128,16 +128,16 @@ export const loadData = (req: Request) =>
             careers_page {
               ...careers_pageFields
             }
-          }`
-        })
+          }`,
+        }),
       )
       .map(responseToPageContent),
 
     Task.fromLazyPromise(() =>
-      fetch(`https://api.greenhouse.io/v1/boards/instrument/jobs`)
+      fetch(`https://api.greenhouse.io/v1/boards/instrument/jobs`),
     )
       .map(JSON.parse)
-      .map(jsonToJobs)
+      .map(jsonToJobs),
   )
 
 const asyncData = ({ error, req }: Context) =>

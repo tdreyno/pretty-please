@@ -8,9 +8,7 @@ describe("ap", () => {
 
     const doubler = (r: number) => r * 2
 
-    succeed(doubler)
-      .ap(succeed(5))
-      .fork(reject, resolve)
+    succeed(doubler).ap(succeed(5)).fork(reject, resolve)
 
     expect(reject).not.toBeCalled()
     expect(resolve).toBeCalledWith(10)
@@ -22,9 +20,7 @@ describe("ap", () => {
 
     const doubler = (r: number) => r * 2
 
-    succeed(doubler)
-      .ap(fail(ERROR_RESULT))
-      .fork(reject, resolve)
+    succeed(doubler).ap(fail(ERROR_RESULT)).fork(reject, resolve)
 
     expect(resolve).not.toBeCalled()
     expect(reject).toBeCalledWith(ERROR_RESULT)

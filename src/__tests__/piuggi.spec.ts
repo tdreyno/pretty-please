@@ -5,7 +5,7 @@ import {
   EmulateOptions,
   LaunchOptions,
   PageCloseOptions,
-  ScreenshotOptions
+  ScreenshotOptions,
 } from "puppeteer"
 import Task from "../Task"
 
@@ -61,8 +61,8 @@ const desktopSmall = {
     deviceScaleFactor: 1,
     isMobile: false,
     hasTouch: false,
-    isLandscape: true
-  }
+    isLandscape: true,
+  },
 }
 const desktopMedium = {
   name: "Desktop Medium",
@@ -74,8 +74,8 @@ const desktopMedium = {
     deviceScaleFactor: 1,
     isMobile: false,
     hasTouch: false,
-    isLandscape: true
-  }
+    isLandscape: true,
+  },
 }
 
 const headless = false
@@ -120,7 +120,7 @@ const cleanLink = (link: any): string | null => {
 }
 
 const iterateDevices = (browser: Browser, url: string) => (
-  device: devices.Device
+  device: devices.Device,
 ) => {
   const cleanURL = url.replace(/(^\w+:|^)\/\//, "").replace(/\//g, "-")
   const cleanDeviceName = device.name.replace(/ /g, "-")
@@ -131,7 +131,7 @@ const iterateDevices = (browser: Browser, url: string) => (
       .emulate(device)
       .chain(() => page.goto(url, { waitUntil: "networkidle2", timeout: 0 }))
       .chain(() => page.screenshot({ path, fullPage, type, omitBackground }))
-      .chain(() => page.close())
+      .chain(() => page.close()),
   )
 }
 
@@ -145,7 +145,7 @@ const execute = (browser: Browser, page: Page) =>
 
     // Evaluate the script
     .chain(() =>
-      page.evaluate(() => Array.from(document.querySelectorAll("a")))
+      page.evaluate(() => Array.from(document.querySelectorAll("a"))),
     )
 
     // Convert element to data
@@ -162,15 +162,15 @@ const execute = (browser: Browser, page: Page) =>
           headless,
           ignoreHTTPSErrors,
           executablePath,
-          args
+          args,
         })
           // Take screenshots in sequence
           .chain(browser2 =>
             Task.sequence(
-              devicesToScreenshot.map(iterateDevices(browser2, url))
-            ).tapChain(() => browser2.close())
-          )
-      )
+              devicesToScreenshot.map(iterateDevices(browser2, url)),
+            ).tapChain(() => browser2.close()),
+          ),
+      ),
     )
 
     // Run screenshotting serially

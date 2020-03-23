@@ -8,9 +8,7 @@ describe("cancellation", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    succeedIn(1000, SUCCESS_RESULT)
-      .fork(reject, resolve)
-      .cancel()
+    succeedIn(1000, SUCCESS_RESULT).fork(reject, resolve).cancel()
 
     jest.runAllTimers()
 
@@ -24,9 +22,7 @@ describe("cancellation", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    failIn(1000, ERROR_RESULT)
-      .fork(reject, resolve)
-      .cancel()
+    failIn(1000, ERROR_RESULT).fork(reject, resolve).cancel()
 
     jest.runAllTimers()
 

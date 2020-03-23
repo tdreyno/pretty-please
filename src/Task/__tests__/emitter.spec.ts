@@ -98,7 +98,7 @@ describe("emitter", () => {
       result => {
         resolve(result)
         expect(result).toBe(4)
-      }
+      },
     )
 
     expect(reject).not.toHaveBeenCalled()

@@ -8,7 +8,7 @@ describe("mapBoth", () => {
     succeed(5)
       .mapBoth(
         r => r ** 2,
-        r => r * 2
+        r => r * 2,
       )
       .fork(reject, resolve)
 
@@ -23,7 +23,7 @@ describe("mapBoth", () => {
     fail(5)
       .mapBoth(
         r => r ** 2,
-        r => r * 2
+        r => r * 2,
       )
       .fork(reject, resolve)
 

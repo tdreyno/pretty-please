@@ -35,7 +35,7 @@ describe("sequence", () => {
 
     sequence([succeedIn(100, "B"), failIn(100, ERROR_RESULT)]).fork(
       reject,
-      resolve
+      resolve,
     )
 
     jest.advanceTimersByTime(100)
@@ -68,7 +68,7 @@ describe("sequence", () => {
 
     sequence([Promise.reject(ERROR_RESULT), succeed(SUCCESS_RESULT)]).fork(
       reject,
-      resolve
+      resolve,
     )
 
     // "hack" to flush the promise queue

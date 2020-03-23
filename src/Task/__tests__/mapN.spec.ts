@@ -19,7 +19,7 @@ describe("mapN", () => {
 
       map2(a => b => a * b, fail(ERROR_RESULT), succeed(2)).fork(
         reject,
-        resolve
+        resolve,
       )
 
       expect(resolve).not.toBeCalled()
@@ -32,7 +32,7 @@ describe("mapN", () => {
 
       map2(a => b => a * b, succeed(2), fail(ERROR_RESULT)).fork(
         reject,
-        resolve
+        resolve,
       )
 
       expect(resolve).not.toBeCalled()
@@ -47,7 +47,7 @@ describe("mapN", () => {
 
       map3(a => b => c => a + b + c, succeed(5), succeed(2), succeed(-1)).fork(
         reject,
-        resolve
+        resolve,
       )
 
       expect(reject).not.toBeCalled()
@@ -62,7 +62,7 @@ describe("mapN", () => {
         a => b => c => a * b * c,
         fail(ERROR_RESULT),
         succeed(2),
-        succeed(2)
+        succeed(2),
       ).fork(reject, resolve)
 
       expect(resolve).not.toBeCalled()
@@ -77,7 +77,7 @@ describe("mapN", () => {
         a => b => c => a * b * c,
         succeed(2),
         fail(ERROR_RESULT),
-        succeed(2)
+        succeed(2),
       ).fork(reject, resolve)
 
       expect(resolve).not.toBeCalled()
@@ -92,7 +92,7 @@ describe("mapN", () => {
         a => b => c => a * b * c,
         succeed(2),
         succeed(2),
-        fail(ERROR_RESULT)
+        fail(ERROR_RESULT),
       ).fork(reject, resolve)
 
       expect(resolve).not.toBeCalled()
@@ -110,7 +110,7 @@ describe("mapN", () => {
         succeed(5),
         succeed(2),
         succeed(-1),
-        succeed(7)
+        succeed(7),
       ).fork(reject, resolve)
 
       expect(reject).not.toBeCalled()
@@ -126,7 +126,7 @@ describe("mapN", () => {
         fail(ERROR_RESULT),
         succeed(2),
         succeed(2),
-        succeed(2)
+        succeed(2),
       ).fork(reject, resolve)
 
       expect(resolve).not.toBeCalled()
@@ -142,7 +142,7 @@ describe("mapN", () => {
         succeed(2),
         fail(ERROR_RESULT),
         succeed(2),
-        succeed(2)
+        succeed(2),
       ).fork(reject, resolve)
 
       expect(resolve).not.toBeCalled()
@@ -158,7 +158,7 @@ describe("mapN", () => {
         succeed(2),
         succeed(2),
         fail(ERROR_RESULT),
-        succeed(2)
+        succeed(2),
       ).fork(reject, resolve)
 
       expect(resolve).not.toBeCalled()
@@ -174,7 +174,7 @@ describe("mapN", () => {
         succeed(2),
         succeed(2),
         succeed(2),
-        fail(ERROR_RESULT)
+        fail(ERROR_RESULT),
       ).fork(reject, resolve)
 
       expect(resolve).not.toBeCalled()

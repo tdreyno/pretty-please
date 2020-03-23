@@ -20,7 +20,7 @@ export const constant = <T>(value: T): (() => T) => () => value
 export const identity = <T>(x: T): T => x
 
 export const toIndexedObject = <T, V, R extends { [key: string]: V }>(
-  fn: (item: T, index: number) => [string, V]
+  fn: (item: T, index: number) => [string, V],
 ) => (sum: R, item: T, index: number) => {
   const [key, value] = fn(item, index)
   ;(sum as { [key: string]: V })[key] = value
@@ -30,12 +30,12 @@ export const toIndexedObject = <T, V, R extends { [key: string]: V }>(
 export const mapToIndexedObject = <T, V, R extends { [key: string]: V }>(
   fn: (item: T, index: number) => [string, V],
   items: T[],
-  initial: R = {} as R
+  initial: R = {} as R,
 ): R => items.reduce(toIndexedObject<T, V, R>(fn), initial)
 
 export const pairsToIndexedObject = <V, R extends { [key: string]: V }>(
   sum: R,
-  [key, value]: [string, V]
+  [key, value]: [string, V],
 ) => {
   ;(sum as { [key: string]: V })[key] = value
   return sum

@@ -8,7 +8,7 @@ describe("firstSuccess", () => {
 
     firstSuccess([
       succeedIn(200, SUCCESS_RESULT),
-      failIn(100, ERROR_RESULT)
+      failIn(100, ERROR_RESULT),
     ]).fork(reject, resolve)
 
     jest.advanceTimersByTime(250)
@@ -23,7 +23,7 @@ describe("firstSuccess", () => {
 
     firstSuccess([Promise.resolve(SUCCESS_RESULT), fail(ERROR_RESULT)]).fork(
       reject,
-      resolve
+      resolve,
     )
 
     // "hack" to flush the promise queue
@@ -49,7 +49,7 @@ describe("firstSuccess", () => {
 
     firstSuccess([failIn(200, ERROR_RESULT), failIn(100, ERROR_RESULT)]).fork(
       reject,
-      resolve
+      resolve,
     )
 
     jest.advanceTimersByTime(250)
@@ -64,7 +64,7 @@ describe("firstSuccess", () => {
 
     firstSuccess([
       Promise.reject(ERROR_RESULT),
-      Promise.reject(ERROR_RESULT)
+      Promise.reject(ERROR_RESULT),
     ]).fork(reject, resolve)
 
     // "hack" to flush the promise queue

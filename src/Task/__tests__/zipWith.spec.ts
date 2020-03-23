@@ -8,7 +8,7 @@ describe("zip", () => {
 
     zipWith((a, b) => a + b, succeedIn(200, "A"), succeedIn(100, "B")).fork(
       reject,
-      resolve
+      resolve,
     )
 
     jest.advanceTimersByTime(250)
@@ -24,7 +24,7 @@ describe("zip", () => {
     zipWith(
       (a, b) => a + b,
       failIn(200, ERROR_RESULT),
-      succeedIn(100, "B")
+      succeedIn(100, "B"),
     ).fork(reject, resolve)
 
     jest.advanceTimersByTime(250)
@@ -39,7 +39,7 @@ describe("zip", () => {
 
     zipWith((a, b) => a + b, succeed("A"), Promise.resolve("B")).fork(
       reject,
-      resolve
+      resolve,
     )
 
     // "hack" to flush the promise queue
@@ -55,7 +55,7 @@ describe("zip", () => {
 
     zipWith((a, b) => a + b, Promise.resolve("A"), Promise.resolve("B")).fork(
       reject,
-      resolve
+      resolve,
     )
 
     // "hack" to flush the promise queue
@@ -71,7 +71,7 @@ describe("zip", () => {
 
     zipWith((a, b) => a + b, Promise.reject(ERROR_RESULT), succeed("B")).fork(
       reject,
-      resolve
+      resolve,
     )
 
     // "hack" to flush the promise queue

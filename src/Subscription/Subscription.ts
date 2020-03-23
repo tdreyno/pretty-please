@@ -18,7 +18,7 @@ export class Subscription<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public emit(value: T): Task<any, any[]> {
     return Task.all(
-      Array.from(this.eventSubscribers_).map(sub => sub(value) || Task.empty())
+      Array.from(this.eventSubscribers_).map(sub => sub(value) || Task.empty()),
     )
   }
 

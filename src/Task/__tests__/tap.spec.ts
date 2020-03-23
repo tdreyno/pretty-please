@@ -7,9 +7,7 @@ describe("tap", () => {
     const reject = jest.fn()
     const effect = jest.fn()
 
-    succeed(5)
-      .tap(effect)
-      .fork(reject, resolve)
+    succeed(5).tap(effect).fork(reject, resolve)
 
     expect(effect).toBeCalledWith(5)
     expect(resolve).toBeCalledWith(5)
@@ -20,9 +18,7 @@ describe("tap", () => {
     const reject = jest.fn()
     const effect = jest.fn()
 
-    fail(ERROR_RESULT)
-      .tap(effect)
-      .fork(reject, resolve)
+    fail(ERROR_RESULT).tap(effect).fork(reject, resolve)
 
     expect(effect).not.toBeCalled()
     expect(reject).toBeCalledWith(ERROR_RESULT)

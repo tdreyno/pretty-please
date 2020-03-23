@@ -5,9 +5,7 @@ describe("append", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    succeed(5)
-      .append(10, "15", 20)
-      .fork(reject, resolve)
+    succeed(5).append(10, "15", 20).fork(reject, resolve)
 
     expect(resolve).toBeCalledWith([5, 10, "15", 20])
     expect(reject).not.toBeCalled()

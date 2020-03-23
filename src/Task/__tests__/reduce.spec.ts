@@ -8,7 +8,7 @@ describe("reduce", () => {
 
     reduce((sum, value) => of(sum * (value + 1)), 1, range(3)).fork(
       reject,
-      resolve
+      resolve,
     )
 
     expect(reject).not.toBeCalled()

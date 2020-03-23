@@ -14,7 +14,7 @@ const ENTRY = {
 
   delete() {
     return Task.empty()
-  }
+  },
 }
 
 const ENV = {
@@ -28,7 +28,7 @@ const ENV = {
 
   getContentTypes(____options: any) {
     return Task.of({ items: [ENTRY, ENTRY, ENTRY] })
-  }
+  },
 }
 
 const createClient = (_options: any) => ({
@@ -36,9 +36,9 @@ const createClient = (_options: any) => ({
     return Task.of({
       getEnvironment(___options: any) {
         return Task.of(ENV)
-      }
+      },
     })
-  }
+  },
 })
 
 // CLI mock
@@ -49,18 +49,18 @@ type ContentTypes = "getEntries" | "getAssets" | "getContentTypes"
 const contentToQuery: ContentTypes[] = [
   "getEntries",
   "getAssets",
-  "getContentTypes"
+  "getContentTypes",
 ]
 
 const unpublishAndDelete = (entry: typeof ENTRY) =>
   entry.isPublished() ? entry.unpublish() : entry.delete()
 
 const queryContentType = (environment: typeof ENV) => (
-  contentType: ContentTypes
+  contentType: ContentTypes,
 ) =>
   environment[contentType]({
     order: "sys.createdAt",
-    limit: 1000
+    limit: 1000,
   })
     .map(response => response.items.map(unpublishAndDelete))
     .chain(Task.sequence)
@@ -68,7 +68,7 @@ const queryContentType = (environment: typeof ENV) => (
 describe("piugi script 2", () => {
   test("the test", () =>
     createClient({
-      accessToken: ACCESS_TOKEN
+      accessToken: ACCESS_TOKEN,
     })
       .getSpace(SPACE)
       .chain(space => space.getEnvironment(ENVIRONMENT))

@@ -4,7 +4,7 @@ import {
   initialize,
   pending,
   RemoteData,
-  succeed
+  succeed,
 } from "../RemoteData/RemoteData"
 import { Task } from "../Task/Task"
 
@@ -18,9 +18,7 @@ export const useRemoteData = <E, S>(task: () => Task<E, S>) => {
 
     setState(pending<E, S>())
 
-    task()
-      .mapBoth(fail, succeed)
-      .fork(setState, setState)
+    task().mapBoth(fail, succeed).fork(setState, setState)
   }, [state, setState])
 
   const caseof = useCallback(
@@ -28,17 +26,17 @@ export const useRemoteData = <E, S>(task: () => Task<E, S>) => {
       onInitialized: () => R,
       onPending: () => R,
       onFailure: (error: E) => R,
-      onSuccess: (result: S) => R
+      onSuccess: (result: S) => R,
     ): R => {
       return fold<E, S, R>(
         onInitialized,
         onPending,
         onFailure,
         onSuccess,
-        state
+        state,
       )
     },
-    [state]
+    [state],
   )
 
   return [state, caseof, request]

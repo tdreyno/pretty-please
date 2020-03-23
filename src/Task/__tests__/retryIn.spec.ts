@@ -6,9 +6,7 @@ describe("retryIn", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    succeed(SUCCESS_RESULT)
-      .retryIn(100)
-      .fork(reject, resolve)
+    succeed(SUCCESS_RESULT).retryIn(100).fork(reject, resolve)
 
     expect(reject).not.toBeCalled()
     expect(resolve).toBeCalledWith(SUCCESS_RESULT)
@@ -23,10 +21,7 @@ describe("retryIn", () => {
       .mockReturnValueOnce(fail(ERROR_RESULT))
       .mockReturnValueOnce(succeed(SUCCESS_RESULT))
 
-    succeed(true)
-      .chain(response)
-      .retryIn(100)
-      .fork(reject, resolve)
+    succeed(true).chain(response).retryIn(100).fork(reject, resolve)
 
     expect(reject).not.toBeCalled()
     expect(resolve).not.toBeCalled()

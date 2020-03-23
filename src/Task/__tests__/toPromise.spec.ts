@@ -11,7 +11,7 @@ describe("toPromise", () => {
 
     task.fork(
       () => void 0,
-      () => void 0
+      () => void 0,
     )
 
     await promise.catch(() => void 0)
@@ -29,7 +29,7 @@ describe("toPromise", () => {
 
     task.fork(
       () => void 0,
-      () => void 0
+      () => void 0,
     )
 
     await promise.catch(() => void 0)

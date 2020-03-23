@@ -8,7 +8,7 @@ describe("race", () => {
 
     race([succeedIn(100, SUCCESS_RESULT), failIn(200, ERROR_RESULT)]).fork(
       reject,
-      resolve
+      resolve,
     )
 
     jest.advanceTimersByTime(150)
@@ -23,7 +23,7 @@ describe("race", () => {
 
     race([succeedIn(200, SUCCESS_RESULT), failIn(100, ERROR_RESULT)]).fork(
       reject,
-      resolve
+      resolve,
     )
 
     jest.advanceTimersByTime(150)
@@ -38,7 +38,7 @@ describe("race", () => {
 
     race([Promise.resolve(SUCCESS_RESULT), failIn(200, ERROR_RESULT)]).fork(
       reject,
-      resolve
+      resolve,
     )
 
     // "hack" to flush the promise queue
@@ -56,7 +56,7 @@ describe("race", () => {
 
     race([succeedIn(200, SUCCESS_RESULT), Promise.reject(ERROR_RESULT)]).fork(
       reject,
-      resolve
+      resolve,
     )
 
     // "hack" to flush the promise queue

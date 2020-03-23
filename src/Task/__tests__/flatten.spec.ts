@@ -6,9 +6,7 @@ describe("flatten", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    succeed(succeed(SUCCESS_RESULT))
-      .flatten()
-      .fork(reject, resolve)
+    succeed(succeed(SUCCESS_RESULT)).flatten().fork(reject, resolve)
 
     expect(reject).not.toBeCalled()
     expect(resolve).toBeCalledWith(SUCCESS_RESULT)

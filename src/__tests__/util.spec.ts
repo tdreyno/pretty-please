@@ -40,13 +40,13 @@ describe("mapToIndexedObject", () => {
     const result = mapToIndexedObject(
       (num, i) => [i.toString(), num],
       ["a", "b", "c"],
-      {}
+      {},
     )
 
     expect(result).toEqual({
       "0": "a",
       "1": "b",
-      "2": "c"
+      "2": "c",
     })
   })
 })

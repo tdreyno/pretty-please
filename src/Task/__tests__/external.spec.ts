@@ -117,7 +117,7 @@ describe("external", () => {
       result => {
         resolve(result)
         expect(result).toBe(SUCCESS_RESULT)
-      }
+      },
     )
 
     expect(reject).not.toHaveBeenCalled()
