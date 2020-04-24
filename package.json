@@ -80,7 +80,7 @@
     "jest": "^25.4.0",
     "lint-staged": "^10.1.7",
     "prettier": "^2.0.5",
-    "puppeteer": "^2.1.1",
+    "puppeteer": "^3.0.1",
     "semantic-release": "^17.0.7",
     "terser": "^4.6.12",
     "ts-jest": "^25.4.0",
