@@ -78,7 +78,7 @@
     "gzip-size-cli": "^3.0.0",
     "husky": "^4.2.5",
     "jest": "^25.5.4",
-    "lint-staged": "^10.2.10",
+    "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
     "puppeteer": "^2.1.1",
     "semantic-release": "^17.0.8",
