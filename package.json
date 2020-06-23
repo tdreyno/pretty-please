@@ -81,7 +81,7 @@
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
     "puppeteer": "^2.1.1",
-    "semantic-release": "^17.0.8",
+    "semantic-release": "^17.1.0",
     "terser": "^4.8.0",
     "ts-jest": "^26.1.1",
     "ts-toolbelt": "^6.9.9",
