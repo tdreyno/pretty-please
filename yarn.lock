@@ -9587,10 +9587,10 @@ ts-jest@^26.1.1:
     semver "7.x"
     yargs-parser "18.x"
 
-ts-toolbelt@^6.9.9:
-  version "6.9.9"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-6.9.9.tgz#e6cfd8ec7d425d2a06bda3b4fe9577ceaf2abda8"
-  integrity sha512-5a8k6qfbrL54N4Dw+i7M6kldrbjgDWb5Vit8DnT+gwThhvqMg8KtxLE5Vmnft+geIgaSOfNJyAcnmmlflS+Vdg==
+ts-toolbelt@^6.10.0:
+  version "6.10.0"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-6.10.0.tgz#d4827d2e235cef1479f65ab9cb3e28f0fd4b983d"
+  integrity sha512-U/PYPb3FxJJlIs6MwGryi60e5acfBwcA6wFHYCl60e5ObUWxZKqdcxalDzVw8ORivJX0VRBl8C/P/sGm7iQNcA==
 
 tslib@^1.8.1, tslib@^1.9.0:
   version "1.10.0"
