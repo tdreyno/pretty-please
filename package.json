@@ -84,7 +84,7 @@
     "semantic-release": "^17.1.1",
     "terser": "^4.8.0",
     "ts-jest": "^26.1.4",
-    "ts-toolbelt": "^6.13.24",
+    "ts-toolbelt": "^6.13.34",
     "typescript": "^3.9.7"
   },
   "dependencies": {},
