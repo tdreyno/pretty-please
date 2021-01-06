@@ -6,7 +6,7 @@ const editors = ["1", "2", "3"]
 const loadUserName = (id: string): Promise<[string, string]> =>
   Promise.resolve([id, "name"])
 
-const loadUserNameTask = (id: string): Task<Error, [string, string]> =>
+const loadUserNameTask = (id: string): Task<never, [string, string]> =>
   of([id, "name"])
 
 const editorTuplesToMap = <R extends { [userId: string]: string }>(

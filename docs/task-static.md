@@ -12,7 +12,7 @@ Creates a task that will always succeed with the given value. Also aliased as `s
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.of(5);
+const task: Task<never, number> = Task.of(5)
 ```
 
 {% endtab %}
@@ -20,7 +20,7 @@ const task: Task<unknown, number> = Task.of(5);
 {% tab title="Type Definition" %}
 
 ```typescript
-type of = <S, E = any>(result: S) => Task<E, S>;
+type of = <S, E = any>(result: S) => Task<E, S>
 ```
 
 {% endtab %}
@@ -34,7 +34,7 @@ Creates a task that will always succeed a result of void (undefined). Useful for
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, void> = Task.empty();
+const task: Task<never, void> = Task.empty()
 ```
 
 {% endtab %}
@@ -42,7 +42,7 @@ const task: Task<unknown, void> = Task.empty();
 {% tab title="Type Definition" %}
 
 ```typescript
-type empty = <E = any>() => Task<E, void>;
+type empty = <E = any>() => Task<E, void>
 ```
 
 {% endtab %}
@@ -56,7 +56,7 @@ Creates a task that will always succeed with the given value, but will take some
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.succeedIn(100, 5);
+const task: Task<never, number> = Task.succeedIn(100, 5)
 ```
 
 {% endtab %}
@@ -64,7 +64,7 @@ const task: Task<unknown, number> = Task.succeedIn(100, 5);
 {% tab title="Type Definition" %}
 
 ```typescript
-type succeedIn = <S, E = any>(ms: number, result: S) => Task<E, S>;
+type succeedIn = <S, E = any>(ms: number, result: S) => Task<E, S>
 ```
 
 {% endtab %}
@@ -78,7 +78,7 @@ Creates a task that will always succeed with the result of a function. Useful fo
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.succeedBy(() => 5);
+const task: Task<never, number> = Task.succeedBy(() => 5)
 ```
 
 {% endtab %}
@@ -86,7 +86,7 @@ const task: Task<unknown, number> = Task.succeedBy(() => 5);
 {% tab title="Type Definition" %}
 
 ```typescript
-type succeedBy = <S, E = any>(result: () => S) => Task<E, S>;
+type succeedBy = <S, E = any>(result: () => S) => Task<E, S>
 ```
 
 {% endtab %}
@@ -100,7 +100,7 @@ Creates a task that will always fail with the given error. Similar in use to `Pr
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<string, unknown> = Task.fail("error");
+const task: Task<string, never> = Task.fail("error")
 ```
 
 {% endtab %}
@@ -108,7 +108,7 @@ const task: Task<string, unknown> = Task.fail("error");
 {% tab title="Type Definition" %}
 
 ```typescript
-type fail = <E, S = any>(error: E) => Task<E, S>;
+type fail = <E, S = any>(error: E) => Task<E, S>
 ```
 
 {% endtab %}
@@ -122,7 +122,7 @@ Creates a task that will always fail with the given error, but will take some nu
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<string, unknown> = Task.failIn(100, "error");
+const task: Task<string, never> = Task.failIn(100, "error")
 ```
 
 {% endtab %}
@@ -130,7 +130,7 @@ const task: Task<string, unknown> = Task.failIn(100, "error");
 {% tab title="Type Definition" %}
 
 ```typescript
-type failIn = <E, S = any>(ms: number, error: E) => Task<E, S>;
+type failIn = <E, S = any>(ms: number, error: E) => Task<E, S>
 ```
 
 {% endtab %}
@@ -148,7 +148,7 @@ Works similarly to `Promise.all`.
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number[]> = Task.all([of(5), of(10)]);
+const task: Task<never, number[]> = Task.all([of(5), of(10)])
 ```
 
 {% endtab %}
@@ -157,8 +157,8 @@ const task: Task<unknown, number[]> = Task.all([of(5), of(10)]);
 
 ```typescript
 type all<E, S> = (
-  tasksOrPromises: Array<Task<E, S> | Promise<S>>
-) => Task<E, S[]>;
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>,
+) => Task<E, S[]>
 ```
 
 {% endtab %}
@@ -174,7 +174,7 @@ All task error and value types must be the same. If you need different types for
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number[]> = Task.sequence([of(5), of(10)]);
+const task: Task<never, number[]> = Task.sequence([of(5), of(10)])
 ```
 
 {% endtab %}
@@ -183,8 +183,8 @@ const task: Task<unknown, number[]> = Task.sequence([of(5), of(10)]);
 
 ```typescript
 type sequence = <E, S>(
-  tasksOrPromises: Array<Task<E, S> | Promise<S>>
-) => Task<E, S[]>;
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>,
+) => Task<E, S[]>
 ```
 
 {% endtab %}
@@ -198,7 +198,7 @@ Creates a task that will always run an array of tasks in **parallel** and return
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<string[], number> = Task.firstSuccess([fail("error"), of(10)]);
+const task: Task<string[], number> = Task.firstSuccess([fail("error"), of(10)])
 ```
 
 {% endtab %}
@@ -222,7 +222,7 @@ Creates a task that will never succeed or fail. Uses the [TypeScript `never` typ
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<never, never> = Task.never();
+const task: Task<never, never> = Task.never()
 ```
 
 {% endtab %}
@@ -230,7 +230,7 @@ const task: Task<never, never> = Task.never();
 {% tab title="Type Definition" %}
 
 ```typescript
-type never = () => Task<never, never>;
+type never = () => Task<never, never>
 ```
 
 {% endtab %}
@@ -246,7 +246,7 @@ Promise's do not track an error type (one of the reasons Tasks are more powerful
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, Response> = Task.fromPromise(fetch(URL));
+const task: Task<unknown, Response> = Task.fromPromise(fetch(URL))
 ```
 
 {% endtab %}
@@ -254,7 +254,7 @@ const task: Task<unknown, Response> = Task.fromPromise(fetch(URL));
 {% tab title="Type Definition" %}
 
 ```typescript
-type fromPromise = <S, E = any>(maybePromise: S | Promise<S>) => Task<E, S>;
+type fromPromise = <S>(maybePromise: S | Promise<S>) => Task<unknown, S>
 ```
 
 {% endtab %}
@@ -270,7 +270,7 @@ Promise's do not track an error type (one of the reasons Tasks are more powerful
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, Response> = Task.fromLazyPromise(() => fetch(URL));
+const task: Task<never, Response> = Task.fromLazyPromise(() => fetch(URL))
 ```
 
 {% endtab %}
@@ -279,8 +279,8 @@ const task: Task<unknown, Response> = Task.fromLazyPromise(() => fetch(URL));
 
 ```typescript
 type fromLazyPromise = <S, E = any>(
-  getPromise: () => S | Promise<S>
-) => Task<E, S>;
+  getPromise: () => S | Promise<S>,
+) => Task<E, S>
 ```
 
 {% endtab %}
@@ -296,10 +296,10 @@ Works similarly to `Promise.race`.
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.race([
+const task: Task<never, number> = Task.race([
   succeedIn(100, 5),
-  succeedIn(10, -5)
-]);
+  succeedIn(10, -5),
+])
 ```
 
 {% endtab %}
@@ -308,8 +308,8 @@ const task: Task<unknown, number> = Task.race([
 
 ```typescript
 type race = <E, S>(
-  tasksOrPromises: Array<Task<E, S> | Promise<S>>
-) => Task<E, S>;
+  tasksOrPromises: Array<Task<E, S> | Promise<S>>,
+) => Task<E, S>
 ```
 
 {% endtab %}
@@ -325,13 +325,13 @@ Useful for integrating with callback based libraries and APIs.
 {% tab title="Usage" %}
 
 ```typescript
-const task = Task.external<unknown, number>();
+const task = Task.external<never, number>()
 
 try {
-  attemptSomething();
-  task.resolve(5);
+  attemptSomething()
+  task.resolve(5)
 } catch (e) {
-  task.reject(e);
+  task.reject(e)
 }
 ```
 
@@ -340,7 +340,7 @@ try {
 {% tab title="Type Definition" %}
 
 ```typescript
-type external = <E, S>() => ExternalTask<E, S>;
+type external = <E, S>() => ExternalTask<E, S>
 ```
 
 {% endtab %}
@@ -358,15 +358,15 @@ Useful for integrating with callback based libraries and APIs. Provides automati
 {% tab title="Usage" %}
 
 ```typescript
-const [task, emit] = Task.emitter<unknown, string>((e: Event) => {
-  attemptSomething();
+const [task, emit] = Task.emitter<never, string>((e: Event) => {
+  attemptSomething()
 
-  return e.type;
-});
+  return e.type
+})
 
 window.onclick = e => {
-  emit(e);
-};
+  emit(e)
+}
 ```
 
 {% endtab %}
@@ -375,8 +375,8 @@ window.onclick = e => {
 
 ```typescript
 type emitter = <Args extends any[], R>(
-  fn: (...args: Args) => R
-) => [ExternalTask<any, R>, (...args: Args) => void];
+  fn: (...args: Args) => R,
+) => [ExternalTask<any, R>, (...args: Args) => void]
 ```
 
 {% endtab %}
@@ -392,11 +392,11 @@ The function must be curried. That is, each parameter is handled one at a time. 
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, [number, string]> = Task.map2(
+const task: Task<never, [number, string]> = Task.map2(
   a => b => [a, b],
   Task.of(5),
-  Task.of("Hello")
-);
+  Task.of("Hello"),
+)
 ```
 
 {% endtab %}
@@ -407,8 +407,8 @@ const task: Task<unknown, [number, string]> = Task.map2(
 type map2 = <E, E2, S, S2, S3>(
   fn: (a: S) => (b: S2) => S3,
   taskA: Task<E, S> | Promise<S>,
-  taskB: Task<E2, S2> | Promise<S2>
-) => Task<E | E2, S3>;
+  taskB: Task<E2, S2> | Promise<S2>,
+) => Task<E | E2, S3>
 ```
 
 {% endtab %}
@@ -424,12 +424,12 @@ The function must be curried. That is, each parameter is handled one at a time.
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, [number, string, boolean]> = Task.map3(
+const task: Task<never, [number, string, boolean]> = Task.map3(
   a => b => c => [a, b, c],
   Task.of(5),
   Task.of("Hello"),
-  Task.of(true)
-);
+  Task.of(true),
+)
 ```
 
 {% endtab %}
@@ -441,8 +441,8 @@ type map3 = <E, E2, E3, S, S2, S3, S4>(
   fn: (a: S) => (b: S2) => (c: S3) => S4,
   taskA: Task<E, S> | Promise<S>,
   taskB: Task<E2, S2> | Promise<S2>,
-  taskC: Task<E3, S3> | Promise<S3>
-) => Task<E | E2 | E3, S4>;
+  taskC: Task<E3, S3> | Promise<S3>,
+) => Task<E | E2 | E3, S4>
 ```
 
 {% endtab %}
@@ -460,13 +460,13 @@ If you need to operate on more than 4 tasks, consider using `ap` which can combi
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, [number, string, boolean, Set<string>]> = Task.map4(
+const task: Task<never, [number, string, boolean, Set<string>]> = Task.map4(
   a => b => c => d => [a, b, c, d],
   Task.of(5),
   Task.of("Hello"),
   Task.of(true),
-  Task.of(new Set(["hi"]))
-);
+  Task.of(new Set(["hi"])),
+)
 ```
 
 {% endtab %}
@@ -479,8 +479,8 @@ type map4 = <E, E2, E3, E4, S, S2, S3, S4, S5>(
   taskA: Task<E, S> | Promise<S>,
   taskB: Task<E2, S2> | Promise<S2>,
   taskC: Task<E3, S3> | Promise<S3>,
-  taskD: Task<E4, S4> | Promise<S4>
-) => Task<E | E2 | E3 | E4, S5>;
+  taskD: Task<E4, S4> | Promise<S4>,
+) => Task<E | E2 | E3 | E4, S5>
 ```
 
 {% endtab %}
@@ -497,13 +497,13 @@ This is a simplified version of what some will accomplish with a `Array.prototyp
 
 ```typescript
 // Count to six but wait 100ms between each step.
-const task: Task<unknown, number> = Task.loop(num => {
+const task: Task<never, number> = Task.loop(num => {
   if (num > 5) {
-    return Task.wait(100).forward(new LoopBreak(num));
+    return Task.wait(100).forward(new LoopBreak(num))
   }
 
-  return Task.wait(100).forward(new LoopContinue(num + 1));
-}, 1);
+  return Task.wait(100).forward(new LoopContinue(num + 1))
+}, 1)
 ```
 
 {% endtab %}
@@ -513,8 +513,8 @@ const task: Task<unknown, number> = Task.loop(num => {
 ```typescript
 type loop = <E, S, T>(
   fn: (currentValue: T) => Task<E, LoopBreak<S> | LoopContinue<T>>,
-  initialValue: T
-) => Task<E, S>;
+  initialValue: T,
+) => Task<E, S>
 ```
 
 {% endtab %}
@@ -529,11 +529,11 @@ Works exactly like `Array.prototype.reduce`, but asynchronously. The return valu
 
 ```typescript
 // Count to six but wait 100ms between each step.
-const task: Task<unknown, number> = Task.reduce(
+const task: Task<never, number> = Task.reduce(
   sum => Task.succeedIn(100, sum + 1),
   0,
-  [1, 2, 3, 4, 5, 6]
-);
+  [1, 2, 3, 4, 5, 6],
+)
 ```
 
 {% endtab %}
@@ -544,8 +544,8 @@ const task: Task<unknown, number> = Task.reduce(
 type reduce = <E, T, V>(
   fn: (acc: V, currentValue: T, index: number, original: T[]) => Task<E, V>,
   initialValue: V,
-  items: T[]
-) => Task<E, V>;
+  items: T[],
+) => Task<E, V>
 ```
 
 {% endtab %}
@@ -559,10 +559,10 @@ Given two tasks, return a new Task which succeeds with a 2-tuple of their succes
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, [number, string]> = Task.zip(
+const task: Task<never, [number, string]> = Task.zip(
   Task.of(5),
-  Task.of("Hello")
-);
+  Task.of("Hello"),
+)
 ```
 
 {% endtab %}
@@ -572,8 +572,8 @@ const task: Task<unknown, [number, string]> = Task.zip(
 ```typescript
 type zip = <E, E2, S, S2>(
   taskAOrPromise: Task<E, S> | Promise<S>,
-  taskBOrPromise: Task<E2, S2> | Promise<S2>
-) => Task<E | E2, [S, S2]>;
+  taskBOrPromise: Task<E2, S2> | Promise<S2>,
+) => Task<E | E2, [S, S2]>
 ```
 
 {% endtab %}
@@ -587,10 +587,10 @@ Given two tasks, return a new Task which succeeds by running the successful resu
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, [number, string]> = Task.zip(
+const task: Task<never, [number, string]> = Task.zip(
   Task.of(5),
-  Task.of("Hello")
-);
+  Task.of("Hello"),
+)
 ```
 
 {% endtab %}
@@ -600,8 +600,8 @@ const task: Task<unknown, [number, string]> = Task.zip(
 ```typescript
 type zip = <E, E2, S, S2>(
   taskAOrPromise: Task<E, S> | Promise<S>,
-  taskBOrPromise: Task<E2, S2> | Promise<S2>
-) => Task<E | E2, [S, S2]>;
+  taskBOrPromise: Task<E2, S2> | Promise<S2>,
+) => Task<E | E2, [S, S2]>
 ```
 
 {% endtab %}
@@ -615,7 +615,7 @@ Given a task which succeeds with another task, flatten into a single task which 
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.flatten(Task.of(Task.of(5)));
+const task: Task<never, number> = Task.flatten(Task.of(Task.of(5)))
 ```
 
 {% endtab %}
@@ -623,7 +623,7 @@ const task: Task<unknown, number> = Task.flatten(Task.of(Task.of(5)));
 {% tab title="Type Definition" %}
 
 ```typescript
-type flatten = <E, S>(task: Task<E, Task<E, S>>) => Task<E, S>;
+type flatten = <E, S>(task: Task<E, Task<E, S>>) => Task<E, S>
 ```
 
 {% endtab %}
@@ -643,16 +643,16 @@ Without easy function composition in Javascript, for readability we recommend us
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<unknown, number> = Task.ap(
+const task: Task<never, number> = Task.ap(
   Task.ap(
     Task.ap(
       Task.of((a, b, c) => a + b + c),
-      succeed(10) /* a */
+      succeed(10) /* a */,
     ),
-    succeed(50) /* b */
+    succeed(50) /* b */,
   ),
-  succeed(100) /* c */
-);
+  succeed(100) /* c */,
+)
 ```
 
 {% endtab %}
@@ -662,8 +662,8 @@ const task: Task<unknown, number> = Task.ap(
 ```typescript
 type ap = <E, S, S2>(
   taskOrPromise: Task<E, (result: S) => S2> | Promise<(result: S) => S2>,
-  appliedTaskOrPromise: Task<E, S> | Promise<S>
-) => Task<E, S2>;
+  appliedTaskOrPromise: Task<E, S> | Promise<S>,
+) => Task<E, S2>
 ```
 
 {% endtab %}

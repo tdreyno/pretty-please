@@ -1,4 +1,4 @@
-import { all, of, Task } from "../Task/Task"
+import { all, of } from "../Task/Task"
 import { mapToIndexedObject, range, to } from "../util"
 
 describe("range", () => {
@@ -27,7 +27,7 @@ describe("to", () => {
     const reject = jest.fn()
     ;["A", "B"]
       .map(of)
-      .reduce<Task<unknown, string[]>>(to(all), of([]))
+      .reduce(to(all), of([] as string[]))
       .fork(reject, resolve)
 
     expect(reject).not.toBeCalled()

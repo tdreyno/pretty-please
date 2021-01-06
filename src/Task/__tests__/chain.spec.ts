@@ -14,21 +14,6 @@ describe("chain", () => {
     expect(reject).not.toBeCalled()
   })
 
-  test("should succeed when chaining on a successful promise", async () => {
-    const resolve = jest.fn()
-    const reject = jest.fn()
-
-    succeed(5)
-      .chain(r => Promise.resolve(r * 2))
-      .fork(reject, resolve)
-
-    // "hack" to flush the promise queue
-    await new Promise(r => setImmediate(r))
-
-    expect(resolve).toBeCalledWith(10)
-    expect(reject).not.toBeCalled()
-  })
-
   test("should fail when chaining on a failed task", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
@@ -36,21 +21,6 @@ describe("chain", () => {
     fail(ERROR_RESULT)
       .chain(() => succeed(true))
       .fork(reject, resolve)
-
-    expect(resolve).not.toBeCalled()
-    expect(reject).toBeCalledWith(ERROR_RESULT)
-  })
-
-  test("should fail when chaining on a failed promise", async () => {
-    const resolve = jest.fn()
-    const reject = jest.fn()
-
-    fail(ERROR_RESULT)
-      .chain(() => Promise.reject(true))
-      .fork(reject, resolve)
-
-    // "hack" to flush the promise queue
-    await new Promise(r => setImmediate(r))
 
     expect(resolve).not.toBeCalled()
     expect(reject).toBeCalledWith(ERROR_RESULT)

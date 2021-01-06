@@ -1,4 +1,4 @@
-import { failIn, succeed, succeedIn, zipWith } from "../Task"
+import { failIn, succeedIn, zipWith } from "../Task"
 import { ERROR_RESULT } from "./util"
 
 describe("zip", () => {
@@ -29,55 +29,6 @@ describe("zip", () => {
     ).fork(reject, resolve)
 
     jest.advanceTimersByTime(250)
-
-    expect(resolve).not.toBeCalled()
-    expect(reject).toBeCalledWith(ERROR_RESULT)
-  })
-
-  test("should work on an a mix of tasks and promises", async () => {
-    const resolve = jest.fn()
-    const reject = jest.fn()
-
-    zipWith((a, b) => a + b, succeed("A"), Promise.resolve("B")).fork(
-      reject,
-      resolve,
-    )
-
-    // "hack" to flush the promise queue
-    await new Promise(r => setImmediate(r))
-
-    expect(reject).not.toBeCalled()
-    expect(resolve).toBeCalledWith("AB")
-  })
-
-  test("should work on entirely promises", async () => {
-    const resolve = jest.fn()
-    const reject = jest.fn()
-
-    zipWith((a, b) => a + b, Promise.resolve("A"), Promise.resolve("B")).fork(
-      reject,
-      resolve,
-    )
-
-    // "hack" to flush the promise queue
-    await new Promise(r => setImmediate(r))
-
-    expect(reject).not.toBeCalled()
-    expect(resolve).toBeCalledWith("AB")
-  })
-
-  test("should fail on first promise error", async () => {
-    const resolve = jest.fn()
-    const reject = jest.fn()
-
-    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    zipWith((a, b) => a + b, Promise.reject(ERROR_RESULT), succeed("B")).fork(
-      reject,
-      resolve,
-    )
-
-    // "hack" to flush the promise queue
-    await new Promise(r => setImmediate(r))
 
     expect(resolve).not.toBeCalled()
     expect(reject).toBeCalledWith(ERROR_RESULT)

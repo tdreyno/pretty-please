@@ -24,19 +24,4 @@ describe("orElse", () => {
     expect(reject).not.toBeCalled()
     expect(resolve).toBeCalledWith(25)
   })
-
-  test("should succeed with else resulting promise if a failure", async () => {
-    const resolve = jest.fn()
-    const reject = jest.fn()
-
-    fail(5)
-      .orElse(r => Promise.resolve(r ** 2))
-      .fork(reject, resolve)
-
-    // "hack" to flush the promise queue
-    await new Promise(r => setImmediate(r))
-
-    expect(reject).not.toBeCalled()
-    expect(resolve).toBeCalledWith(25)
-  })
 })
