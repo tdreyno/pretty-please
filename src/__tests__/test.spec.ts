@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { Task } from "../Task/Task"
 
@@ -117,6 +122,7 @@ const fetch = (_url: string) =>
     }),
   )
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const loadData = (req: Request) =>
   Task.zipWith(
     mergeJobsIntoContent,
@@ -142,7 +148,7 @@ export const loadData = (req: Request) =>
 
 const asyncData = ({ error, req }: Context) =>
   loadData(req)
-    .mapError(e => error({ statusCode: 500, message: e.toString() }))
+    .mapError((e: any) => error({ statusCode: 500, message: e.toString() }))
     .toPromise()
 
 describe("Instrument.com", () => {

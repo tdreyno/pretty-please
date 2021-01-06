@@ -22,6 +22,7 @@ describe("zip", () => {
     const reject = jest.fn()
 
     zipWith(
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       (a, b) => a + b,
       failIn(200, ERROR_RESULT),
       succeedIn(100, "B"),
@@ -69,6 +70,7 @@ describe("zip", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     zipWith((a, b) => a + b, Promise.reject(ERROR_RESULT), succeed("B")).fork(
       reject,
       resolve,

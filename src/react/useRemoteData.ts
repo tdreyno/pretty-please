@@ -8,7 +8,18 @@ import {
 } from "../RemoteData/RemoteData"
 import { Task } from "../Task/Task"
 
-export const useRemoteData = <E, S>(task: () => Task<E, S>) => {
+export const useRemoteData = <E, S>(
+  task: () => Task<E, S>,
+): [
+  state: RemoteData<E, S>,
+  caseof: <R>(
+    onInitialized: () => R,
+    onPending: () => R,
+    onFailure: (error: E) => R,
+    onSuccess: (result: S) => R,
+  ) => R,
+  request: () => void,
+] => {
   const [state, setState] = useState<RemoteData<E, S>>(initialize<E, S>())
 
   const request = useCallback(() => {

@@ -4,12 +4,12 @@ export const range = (end: number, start = 0): number[] =>
     .map((_, i) => start + i)
 
 export const to = <A, T>(fn: (items: A[]) => T) =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
   (sum: any, _item: A, index: number, all: A[]): T => {
     const isLast = index === all.length - 1
 
     if (!isLast) {
-      return sum
+      return sum as T
     }
 
     return fn(all)
@@ -21,10 +21,9 @@ export const identity = <T>(x: T): T => x
 
 export const toIndexedObject = <T, V, R extends { [key: string]: V }>(
   fn: (item: T, index: number) => [string, V],
-) => (sum: R, item: T, index: number) => {
+) => (sum: R, item: T, index: number): R => {
   const [key, value] = fn(item, index)
-  ;(sum as { [key: string]: V })[key] = value
-  return sum
+  return ((sum as { [key: string]: V })[key] = value), sum
 }
 
 export const mapToIndexedObject = <T, V, R extends { [key: string]: V }>(
@@ -36,7 +35,4 @@ export const mapToIndexedObject = <T, V, R extends { [key: string]: V }>(
 export const pairsToIndexedObject = <V, R extends { [key: string]: V }>(
   sum: R,
   [key, value]: [string, V],
-) => {
-  ;(sum as { [key: string]: V })[key] = value
-  return sum
-}
+): R => (((sum as { [key: string]: V })[key] = value), sum)

@@ -10,7 +10,7 @@ describe("Subscription", () => {
     sub.subscribe(subscriber1)
     sub.subscribe(subscriber2)
 
-    sub.emit("test")
+    void sub.emit("test")
 
     expect(subscriber1).toBeCalledWith("test")
     expect(subscriber2).toBeCalledWith("test")
@@ -27,7 +27,7 @@ describe("Subscription", () => {
 
     sub.clear()
 
-    sub.emit("test")
+    void sub.emit("test")
 
     expect(subscriber1).not.toBeCalledWith("test")
     expect(subscriber2).not.toBeCalledWith("test")

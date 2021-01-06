@@ -6,12 +6,3 @@ updates:
       interval: daily
       time: "13:00"
     open-pull-requests-limit: 10
-    ignore:
-      # Drops node 8 support
-      - dependency-name: jest
-        versions:
-          - ">= 26.0"
-      # Drops node 8 support
-      - dependency-name: terser
-        versions:
-          - ">= 5.0"

@@ -11,9 +11,7 @@ export class Subscription<T> {
     EventSubscriber<T>
   >()
   private status_: Status = "inactive"
-  private statusSubscribers_: Set<StatusSubscriber> = new Set<
-    StatusSubscriber
-  >()
+  private statusSubscribers_: Set<StatusSubscriber> = new Set<StatusSubscriber>()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public emit(value: T): Task<any, any[]> {
@@ -33,13 +31,13 @@ export class Subscription<T> {
     }
   }
 
-  public clear() {
+  public clear(): void {
     this.eventSubscribers_.clear()
 
     this.checkStatus_()
   }
 
-  public onStatusChange(fn: StatusSubscriber) {
+  public onStatusChange(fn: StatusSubscriber): () => void {
     this.statusSubscribers_.add(fn)
 
     return () => this.statusSubscribers_.delete(fn)
