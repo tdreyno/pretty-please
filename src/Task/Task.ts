@@ -989,3 +989,13 @@ export class ExternalTask<E, S> extends Task<E, S> {
     }
   }
 }
+
+declare global {
+  interface Promise<T> {
+    toTask(): Task<unknown, T>
+  }
+}
+
+Promise.prototype.toTask = function <S>(this: Promise<S>): Task<unknown, S> {
+  return fromPromise(this)
+}

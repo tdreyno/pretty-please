@@ -57,4 +57,18 @@ describe("fromPromise", () => {
     expect(reject).toBeCalledWith(ERROR_RESULT)
     expect(resolve).not.toBeCalled()
   })
+
+  test("should succeed using prototype helper", async () => {
+    const resolve = jest.fn()
+    const reject = jest.fn()
+
+    const promise = Promise.resolve(SUCCESS_RESULT)
+
+    promise.toTask().fork(reject, resolve)
+
+    await promise.catch(() => void 0)
+
+    expect(resolve).toBeCalledWith(SUCCESS_RESULT)
+    expect(reject).not.toBeCalled()
+  })
 })
