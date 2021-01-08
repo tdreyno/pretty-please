@@ -310,6 +310,31 @@ type fromLazyPromise = <S, E = any>(
 {% endtab %}
 {% endtabs %}
 
+## wrapPromiseCreator
+
+Given a function which returns a Promise, create a new function which given the same arguments will now return a Task instead.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const taskFetch = wrapPromiseCreator(fetch)
+const task: Task<never, Response> = taskFetch(URL)
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type wrapPromiseCreator = <S, Args extends unknown[]>(
+  fn: (...args: Args) => Promise<S>,
+) => (...args: Args): Task<unknown, S>
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## race
 
 Creates a task that will always run an array of tasks in **parallel**. The first task to finish is the resulting error or value. Useful for implementing network request timeouts by racing a task which fails in x milliseconds and a task which makes the request.

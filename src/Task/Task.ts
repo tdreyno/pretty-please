@@ -228,6 +228,15 @@ export const fromLazyPromise = <S>(
 ): Task<unknown, S> => succeedBy(getPromise).chain(fromPromise)
 
 /**
+ * Given a function that returns a promise, return a new function that
+ * lazily returns a Task instead.
+ * @param fn A function which returns a promise
+ */
+export const wrapPromiseCreator = <S, Args extends unknown[]>(
+  fn: (...args: Args) => Promise<S>,
+) => (...args: Args): Task<unknown, S> => fromLazyPromise(() => fn(...args))
+
+/**
  * Given a task, create a Promise which resolves when the task does.
  * @param task The task we will convert to a promise.
  */
@@ -700,6 +709,7 @@ export class Task<E, S> implements PromiseLike<S> {
   public static fromPromise = fromPromise
   public static fromPromises = fromPromises
   public static fromLazyPromise = fromLazyPromise
+  public static wrapPromiseCreator = wrapPromiseCreator
   public static race = race
   public static external = external
   public static emitter = emitter
