@@ -754,6 +754,18 @@ export const flatten = <E, S>(task: Task<E, Task<E, S>>): Task<E, S> =>
   task.chain(identity)
 
 /**
+ * Given a predicate, if it returns true, error the task with a given value.
+ * @param pred Run this on a successful task, return true to fail the task.
+ * @param error If the predicate succeeded, run this function to get the error result.
+ */
+export const failIf = <E, S, E2>(
+  pred: (result: S) => boolean,
+  error: (result: S) => E2,
+  task: Task<E, S>,
+): Task<E | E2, S> =>
+  task.chain(result => (pred(result) ? fail(error(result)) : of(result)))
+
+/**
  * Create a new task.
  * @param computation A function which will be run when the task starts.
  */
@@ -962,6 +974,13 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public flatten<S2>(this: Task<E, Task<E, S2>>): Task<E, S2> {
     return flatten(this)
+  }
+
+  public failIf<E2>(
+    pred: (result: S) => boolean,
+    error: (result: S) => E2,
+  ): Task<E | E2, S> {
+    return failIf(pred, error, this)
   }
 }
 
