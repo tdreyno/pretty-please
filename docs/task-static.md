@@ -164,6 +164,32 @@ type all<E, S> = (
 {% endtab %}
 {% endtabs %}
 
+## allSuccesses
+
+Creates a task that will always run an array of tasks in **parallel**. The result in a new task which returns the successful results as an array, in the same order as the tasks were given. Failed tasks will be excluded.
+
+This can never fail, only return an empty array. Unliked `Task.all`, the resulting array is in order of success, not initial input order.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<never, number[]> = Task.allSuccesses([fail("Err"), of(10)])
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type allSuccesses = <E, S>(
+  tasks: Array<Task<E, S>>,
+): Task<never, S[]>
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## sequence
 
 Creates a task that will always run an array of tasks **serially**. The result in a new task which returns the successful results as an array, in the same order as the tasks were given. If any task fails, the resulting task will fail with that error.
@@ -294,7 +320,7 @@ Promise's do not track an error type (one of the reasons Tasks are more powerful
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<never, Response> = Task.fromLazyPromise(() => fetch(URL))
+const task: Task<unknown, Response> = Task.fromLazyPromise(() => fetch(URL))
 ```
 
 {% endtab %}
@@ -319,7 +345,7 @@ Given a function which returns a Promise, create a new function which given the 
 
 ```typescript
 const taskFetch = wrapPromiseCreator(fetch)
-const task: Task<never, Response> = taskFetch(URL)
+const task: Task<unknown, Response> = taskFetch(URL)
 ```
 
 {% endtab %}

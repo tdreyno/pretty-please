@@ -387,7 +387,7 @@ export const firstSuccess = <E, S>(tasks: Array<Task<E, S>>): Task<E[], S> =>
       })
 
 /**
- * Given an array of task which return a result, return a new task which results an array of results.
+ * Given an array of task which return a result, return a new task which returns an array of results.
  * @alias collect
  * @param tasks The tasks to run in parallel.
  */
@@ -419,6 +419,42 @@ export const all = <E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> =>
               runningTasks -= 1
 
               results[i] = result
+
+              if (runningTasks === 0) {
+                resolve(results)
+              }
+            },
+          ),
+        )
+      })
+
+/**
+ * Given an array of task which return a result, return a new task which returns an array of successful results.
+ * @param tasks The tasks to run in parallel.
+ */
+export const allSuccesses = <E, S>(
+  tasks: Array<Task<E, S>>,
+): Task<never, S[]> =>
+  tasks.length === 0
+    ? of([])
+    : new Task<never, S[]>((_reject, resolve) => {
+        let runningTasks = tasks.length
+
+        const results: S[] = []
+
+        return tasks.map(task =>
+          task.fork(
+            () => {
+              runningTasks -= 1
+
+              if (runningTasks === 0) {
+                resolve(results)
+              }
+            },
+            (result: S) => {
+              runningTasks -= 1
+
+              results.push(result)
 
               if (runningTasks === 0) {
                 resolve(results)
@@ -552,6 +588,18 @@ export const mapError = <E, S, E2>(
   new Task<E2, S>((reject, resolve) =>
     task.fork(error => reject(fn(error)), resolve),
   )
+
+export const validateError = <E, S, E2 extends E>(
+  fn: (err: E) => err is E2,
+  task: Task<E, S>,
+): Task<E2, S> =>
+  mapError(err => {
+    if (!fn(err)) {
+      throw new Error(`validateError failed`)
+    }
+
+    return err
+  }, task)
 
 export const errorUnion = <E, S, E2>(task: Task<E, S>): Task<E | E2, S> => task
 
@@ -703,6 +751,7 @@ export class Task<E, S> implements PromiseLike<S> {
   public static succeedIn = succeedIn
   public static of = succeed
   public static all = all
+  public static allSuccesses = allSuccesses
   public static sequence = sequence
   public static firstSuccess = firstSuccess
   public static never = never
@@ -843,6 +892,10 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public mapError<E2>(fn: (error: E) => E2): Task<E2, S> {
     return mapError(fn, this)
+  }
+
+  public validateError<E2 extends E>(fn: (err: E) => err is E2): Task<E2, S> {
+    return validateError(fn, this)
   }
 
   public errorUnion<E2>(): Task<E | E2, S> {

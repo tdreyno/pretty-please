@@ -92,6 +92,33 @@ type errorUnion = <E2>() => Task<E | E2, S>
 {% endtab %}
 {% endtabs %}
 
+## validateError
+
+Given a task with an unknown error type, use a type guard to validate the type.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<string, number> = Task.fromPromise(fetch(URL)).validateError(
+  isString,
+)
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type validateError = <E, S, E2 extends E>(
+  fn: (err: E) => err is E2,
+  task: Task<E, S>,
+): Task<E2, S>
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## mapBoth
 
 Given a task, provide mapping functions for both the success and fail states. Results in a new task which has the type of the two mapping function results.
