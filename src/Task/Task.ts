@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-use-before-define */
-import { constant, identity, range } from "../util"
+import { constant, identity, range, Validation } from "../util"
 
 export type Reject<E> = (error: E) => void
 export type Resolve<S> = (result: S) => void
@@ -575,6 +575,20 @@ export const tapChain = <E, S, S2>(
 ): Task<E, S> => chain(result => fn(result).forward(result), task)
 
 /**
+ * Run a function on a successful value which can fail the task or modify the type.
+ * @param fn A function will return a Validation on the value.
+ * @param task The task to tap on succcess.
+ */
+export const validate = <E, S, E2, S2>(
+  fn: (value: S) => Validation<E2, S2>,
+  task: Task<E, S>,
+): Task<E | E2, S2> =>
+  chain((value: S) => {
+    const result = fn(value)
+    return result.success ? of(result.value) : fail(result.error)
+  }, task)
+
+/**
  * Given a task, map the failure error to a Task.
  * @alias recoverWith
  * @alias rescue
@@ -888,6 +902,12 @@ export class Task<E, S> implements PromiseLike<S> {
 
   public tapChain<S2>(fn: (result: S) => Task<E, S2>): Task<E, S> {
     return tapChain(fn, this)
+  }
+
+  public validate<E2, S2>(
+    fn: (value: S) => Validation<E2, S2>,
+  ): Task<E | E2, S2> {
+    return validate(fn, this)
   }
 
   public mapError<E2>(fn: (error: E) => E2): Task<E2, S> {

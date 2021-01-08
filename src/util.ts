@@ -49,3 +49,17 @@ Array.prototype.chain_ = function <T, U>(
 ): U {
   return fn(this)
 }
+
+export type Validation<E, S> =
+  | { success: true; value: S }
+  | { success: false; error: E }
+
+export const successfulValidation = <S>(value: S): Validation<never, S> => ({
+  success: true,
+  value,
+})
+
+export const failedValidation = <E>(error: E): Validation<E, never> => ({
+  success: false,
+  error,
+})
