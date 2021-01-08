@@ -212,6 +212,14 @@ export const fromPromise = <S>(
     : of(maybePromise)
 
 /**
+ * Given an array of promises, create a Task which relies on it.
+ * @param promise The promises we will gather the success from.
+ */
+export const fromPromises = <S>(
+  promises: Array<Promise<S>>,
+): Task<unknown, S[]> => all(promises.map(fromPromise))
+
+/**
  * Take a function which generates a promise and lazily execute it.
  * @param getPromise The getter function
  */
@@ -690,6 +698,7 @@ export class Task<E, S> implements PromiseLike<S> {
   public static firstSuccess = firstSuccess
   public static never = never
   public static fromPromise = fromPromise
+  public static fromPromises = fromPromises
   public static fromLazyPromise = fromLazyPromise
   public static race = race
   public static external = external
@@ -756,7 +765,7 @@ export class Task<E, S> implements PromiseLike<S> {
     return this.toPromise().then(onfulfilled, onrejected)
   }
 
-  public chain<S2>(fn: (result: S) => Task<E, S2>): Task<E, S2> {
+  public chain<E2, S2>(fn: (result: S) => Task<E2, S2>): Task<E | E2, S2> {
     return chain(fn, this)
   }
 

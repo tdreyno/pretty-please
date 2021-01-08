@@ -260,6 +260,30 @@ type fromPromise = <S>(maybePromise: S | Promise<S>) => Task<unknown, S>
 {% endtab %}
 {% endtabs %}
 
+## fromPromises
+
+Converts an array of Promises into an array of Tasks and joins them with Task.all
+
+Promise's do not track an error type (one of the reasons Tasks are more powerful) so the resulting Task is unable to infer the error type as well. It is recommended to pass it in as a generic.
+
+{% tabs %}
+{% tab title="Usage" %}
+
+```typescript
+const task: Task<unknown, Response> = Task.fromPromises(fetch(URL))
+```
+
+{% endtab %}
+
+{% tab title="Type Definition" %}
+
+```typescript
+type fromPromises = <S>(promises: Array<Promise<S>>) => Task<unknown, S[]>
+```
+
+{% endtab %}
+{% endtabs %}
+
 ## fromLazyPromise
 
 Given a function which returns a Promise, turn that into a Task. This allows the Promise not to start until the Task forks (following the lazy philosophy of the rest of the library). This also means if two tasks chain from this one, the promise creating function will be called twice. See `onlyOnce` if you wish to avoid this.
