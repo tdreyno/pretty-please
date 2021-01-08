@@ -36,3 +36,16 @@ export const pairsToIndexedObject = <V, R extends { [key: string]: V }>(
   sum: R,
   [key, value]: [string, V],
 ): R => (((sum as { [key: string]: V })[key] = value), sum)
+
+declare global {
+  interface Array<T> {
+    chain_<U>(fn: (arr: Array<T>) => U): U
+  }
+}
+
+Array.prototype.chain_ = function <T, U>(
+  this: Array<T>,
+  fn: (arr: Array<T>) => U,
+): U {
+  return fn(this)
+}

@@ -50,3 +50,12 @@ describe("mapToIndexedObject", () => {
     })
   })
 })
+
+describe("Array.prototype.chain_", () => {
+  test("should allow Array chaining", () => {
+    const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0)
+    const result = [1, 2, 3].chain_(sum)
+
+    expect(result).toEqual(6)
+  })
+})
