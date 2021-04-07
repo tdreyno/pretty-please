@@ -15,7 +15,8 @@
     "version": "yarn run build",
     "coverage": "jest --runInBand --coverage --coverageDirectory '../coverage'",
     "commit": "git-cz",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "prepare": "husky install"
   },
   "engines": {
     "node": ">=10"
@@ -46,12 +47,6 @@
     "*.{css,md}": [
       "prettier --write"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged"
-    }
   },
   "volta": {
     "node": "14.11.0",
@@ -90,7 +85,7 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "react": "^16.11.0"
+    "react": ">=16.0.0"
   },
   "config": {
     "commitizen": {
