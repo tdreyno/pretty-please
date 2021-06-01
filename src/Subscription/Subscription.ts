@@ -11,7 +11,8 @@ export class Subscription<T> {
     EventSubscriber<T>
   >()
   private status_: Status = "inactive"
-  private statusSubscribers_: Set<StatusSubscriber> = new Set<StatusSubscriber>()
+  private statusSubscribers_: Set<StatusSubscriber> =
+    new Set<StatusSubscriber>()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public emit(value: T): Task<any, any[]> {

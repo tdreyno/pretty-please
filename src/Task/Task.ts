@@ -232,9 +232,10 @@ export const fromLazyPromise = <S>(
  * lazily returns a Task instead.
  * @param fn A function which returns a promise
  */
-export const wrapPromiseCreator = <S, Args extends unknown[]>(
-  fn: (...args: Args) => Promise<S>,
-) => (...args: Args): Task<unknown, S> => fromLazyPromise(() => fn(...args))
+export const wrapPromiseCreator =
+  <S, Args extends unknown[]>(fn: (...args: Args) => Promise<S>) =>
+  (...args: Args): Task<unknown, S> =>
+    fromLazyPromise(() => fn(...args))
 
 /**
  * Given a task, create a Promise which resolves when the task does.
@@ -955,9 +956,9 @@ export class Task<E, S> implements PromiseLike<S> {
   public ap<
     E2,
     S2,
-    S3 = S extends (arg: S2) => unknown ? ReturnType<S> : never
+    S3 = S extends (arg: S2) => unknown ? ReturnType<S> : never,
   >(task: Task<E | E2, S2>): Task<E | E2, S3> {
-    return ap((this as unknown) as Task<E, (result: S2) => S3>, task)
+    return ap(this as unknown as Task<E, (result: S2) => S3>, task)
   }
 
   public wait(ms: number): Task<E, S> {

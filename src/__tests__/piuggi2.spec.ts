@@ -55,15 +55,14 @@ const contentToQuery: ContentTypes[] = [
 const unpublishAndDelete = (entry: typeof ENTRY) =>
   entry.isPublished() ? entry.unpublish() : entry.delete()
 
-const queryContentType = (environment: typeof ENV) => (
-  contentType: ContentTypes,
-) =>
-  environment[contentType]({
-    order: "sys.createdAt",
-    limit: 1000,
-  })
-    .map(response => response.items.map(unpublishAndDelete))
-    .chain(Task.sequence)
+const queryContentType =
+  (environment: typeof ENV) => (contentType: ContentTypes) =>
+    environment[contentType]({
+      order: "sys.createdAt",
+      limit: 1000,
+    })
+      .map(response => response.items.map(unpublishAndDelete))
+      .chain(Task.sequence)
 
 describe("piugi script 2", () => {
   test("the test", () =>

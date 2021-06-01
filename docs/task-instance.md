@@ -76,9 +76,8 @@ Expand the error types of a task. Purely a TypeScript type system modification.
 {% tab title="Usage" %}
 
 ```typescript
-const task: Task<number | AnotherErrorPossibility, number> = Task.fail(
-  5,
-).errorUnion<AnotherErrorPossibility>()
+const task: Task<number | AnotherErrorPossibility, number> =
+  Task.fail(5).errorUnion<AnotherErrorPossibility>()
 ```
 
 {% endtab %}
