@@ -69,7 +69,7 @@ The following can be written using Promises and it is both readable and performa
 ```typescript
 function Loader(
   user: User,
-  notificationsApi: NotificationsAPI
+  notificationsApi: NotificationsAPI,
 ): Promise<Result> {
   return Promise.all([
     notificationsApi.getMessages(),
@@ -80,15 +80,17 @@ function Loader(
       user
         .getFriends()
         .then(friends =>
-          Promise.all(friends.map(friend => friend.getProjects())).then(flatten)
-        )
+          Promise.all(friends.map(friend => friend.getProjects())).then(
+            flatten,
+          ),
+        ),
     ]).then(([myProjects, friendsProjects]) =>
-      myProjects.concat(friendsProjects).map(project => project.name)
-    )
+      myProjects.concat(friendsProjects).map(project => project.name),
+    ),
   ]).then(([notifications, projectNames]) => ({
     projectNames,
-    notifications
-  }));
+    notifications,
+  }))
 }
 ```
 
@@ -99,7 +101,7 @@ It is important to remember that this is all lazy. So until the data is used to 
 ```typescript
 function Loader(
   user: User,
-  notificationsApi: NotificationsAPI
+  notificationsApi: NotificationsAPI,
 ): Task<Error, Result> {
   return Task.map3(
     notifications => myProjects => friendsProjects => ({
@@ -107,7 +109,7 @@ function Loader(
 
       projectNames: myProjects
         .concat(friendsProjects)
-        .map(project => project.name)
+        .map(project => project.name),
     }),
 
     // Get Notifications
@@ -121,8 +123,8 @@ function Loader(
       .getFriends()
       .map(friends => friends.map(friend => friend.getProjects()))
       .chain(Task.all)
-      .map(flatten)
-  );
+      .map(flatten),
+  )
 }
 ```
 

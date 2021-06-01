@@ -62,8 +62,8 @@ module.exports = {
   // A set of global variables that need to be available in all test environments
   globals: {
     "ts-jest": {
-      diagnostics: false
-    }
+      diagnostics: false,
+    },
   },
 
   // An array of directory names to be searched recursively up from the requiring module's location
@@ -164,7 +164,7 @@ module.exports = {
   // testURL: "http://localhost",
 
   // Setting this value to "fake" allows the use of fake timers for functions such as "setTimeout"
-  timers: "fake"
+  timers: "fake",
 
   // A map from regular expressions to paths to transformers
   // transform: null,
@@ -185,4 +185,4 @@ module.exports = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
-};
+}
