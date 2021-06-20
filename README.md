@@ -3,7 +3,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/bade509a61c126d7f488/test_coverage)](https://codeclimate.com/github/tdreyno/pretty-please/test_coverage)
 [![npm latest version](https://img.shields.io/npm/v/@tdreyno/pretty-please/latest.svg)](https://www.npmjs.com/package/@tdreyno/pretty-please)
 
-Pretty Please is a TypeScript library that provides Tasks as an alternative to [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Tasks are a very common solution to asynchronicity (see Prior Art below) and can be used in place of Promises. They differ from Promises in several ways.
+Pretty Please is a TypeScript library that provides Tasks as an alternative to [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Tasks are a common solution to asynchronicity (see Prior Art below) and can be used in place of Promises. They differ from Promises in several ways.
 
 ## Lazy Execution
 
