@@ -69,3 +69,9 @@ export const failedValidation = <E>(error: E): Validation<E, never> => ({
   success: false,
   error,
 })
+
+export const take = <T>(count: number, arr: Array<T>): Array<T> =>
+  !isFinite(count) ? [...arr] : arr.slice(0, count)
+
+export const drop = <T>(count: number, arr: Array<T>): Array<T> =>
+  !isFinite(count) ? [] : arr.splice(count)

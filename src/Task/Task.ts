@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-use-before-define */
-import { constant, identity, range, Validation } from "../util"
+import { constant, drop, identity, range, take, Validation } from "../util"
 
 export type Reject<E> = (error: E) => void
 export type Resolve<S> = (result: S) => void
@@ -393,41 +393,7 @@ export const firstSuccess = <E, S>(tasks: Array<Task<E, S>>): Task<E[], S> =>
  * @param tasks The tasks to run in parallel.
  */
 export const all = <E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> =>
-  tasks.length === 0
-    ? of([])
-    : new Task<E, S[]>((reject, resolve) => {
-        let isDone = false
-        let runningTasks = tasks.length
-
-        const results: S[] = []
-
-        return tasks.map((task, i) =>
-          task.fork(
-            (error: E) => {
-              if (isDone) {
-                return
-              }
-
-              isDone = true
-
-              reject(error)
-            },
-            (result: S) => {
-              if (isDone) {
-                return
-              }
-
-              runningTasks -= 1
-
-              results[i] = result
-
-              if (runningTasks === 0) {
-                resolve(results)
-              }
-            },
-          ),
-        )
-      })
+  sequence(tasks, Infinity)
 
 /**
  * Given an array of task which return a result, return a new task which returns an array of successful results.
@@ -494,11 +460,61 @@ export const zipWith = <E, E2, S, S2, V>(
  * Given an array of task which return a result, return a new task which results an array of results.
  * @param tasks The tasks to run in sequence.
  */
-export const sequence = <E, S>(tasks: Array<Task<E, S>>): Task<E, S[]> =>
-  tasks.reduce(
-    (sum, task) => chain(list => map(result => [...list, result], task), sum),
-    succeed([]) as Task<E, S[]>,
-  )
+export const sequence = <E, S>(
+  tasks: Array<Task<E, S>>,
+  maxConcurrent = 1,
+): Task<E, S[]> =>
+  new Task((reject, resolve) => {
+    let isDone = false
+
+    type TaskPosition = [Task<E, S>, number]
+
+    let queue = tasks.map<TaskPosition>((task, i) => [task, i])
+    const inflight = new Set<Task<E, S>>()
+    const results: S[] = []
+
+    const enqueue = () => {
+      if (isDone) {
+        return
+      }
+
+      if (queue.length <= 0 && inflight.size <= 0) {
+        isDone = true
+        resolve(results)
+        return
+      }
+
+      const howMany = Math.min(queue.length, maxConcurrent - inflight.size)
+
+      const readyTasks = take(howMany, queue)
+      queue = drop(howMany, queue)
+
+      readyTasks.forEach(([task, i]) => {
+        inflight.add(task)
+
+        task.fork(
+          (error: E) => {
+            if (isDone) {
+              return
+            }
+
+            isDone = true
+
+            reject(error)
+          },
+          (result: S) => {
+            results[i] = result
+
+            inflight.delete(task)
+
+            enqueue()
+          },
+        )
+      })
+    }
+
+    enqueue()
+  })
 
 /**
  * Given a task, swap the error and success values.

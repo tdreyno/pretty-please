@@ -196,6 +196,8 @@ Creates a task that will always run an array of tasks **serially**. The result i
 
 All task error and value types must be the same. If you need different types for the items of the array, consider simply chaining the tasks together in order.
 
+Additionally, a second parameter can be added to allow concurrency. The default concurreny is `1` task at a time, but may be increased. Setting this concurrency to Infinity is the same a `Task.all`.
+
 {% tabs %}
 {% tab title="Usage" %}
 
@@ -210,6 +212,7 @@ const task: Task<never, number[]> = Task.sequence([of(5), of(10)])
 ```typescript
 type sequence = <E, S>(
   tasksOrPromises: Array<Task<E, S> | Promise<S>>,
+  maxConcurrent = 1,
 ) => Task<E, S[]>
 ```
 

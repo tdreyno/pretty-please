@@ -6,7 +6,10 @@ describe("sequence", () => {
     const resolve = jest.fn()
     const reject = jest.fn()
 
-    sequence([succeedIn(100, "A"), succeedIn(100, "B")]).fork(reject, resolve)
+    sequence([succeedIn(100, "A"), succeedIn(100, "B")], 1).fork(
+      reject,
+      resolve,
+    )
 
     jest.advanceTimersByTime(100)
 
