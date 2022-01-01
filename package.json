@@ -64,7 +64,7 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^8.0.2",
     "@types/jest": "^27.0.2",
-    "@types/react": "^17.0.34",
+    "@types/react": "^17.0.38",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
     "commitizen": "^4.2.4",
