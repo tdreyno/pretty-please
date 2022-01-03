@@ -74,7 +74,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "gzip-size-cli": "^5.0.0",
     "husky": "^7.0.4",
-    "jest": "^27.4.3",
+    "jest": "^27.4.5",
     "lint-staged": "^12.1.2",
     "prettier": "^2.3.2",
     "semantic-release": "^18.0.0",
