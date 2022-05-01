@@ -75,7 +75,7 @@
     "gzip-size-cli": "^5.0.0",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
-    "lint-staged": "^12.3.7",
+    "lint-staged": "^12.4.1",
     "prettier": "^2.6.2",
     "semantic-release": "^19.0.2",
     "terser": "^5.12.1",
