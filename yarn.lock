@@ -1212,13 +1212,13 @@
     conventional-changelog-angular "^5.0.11"
     conventional-commits-parser "^3.2.2"
 
-"@commitlint/prompt@^17.1.2":
-  version "17.1.2"
-  resolved "https://registry.yarnpkg.com/@commitlint/prompt/-/prompt-17.1.2.tgz#ad3338eb54f869216692cc42e80b2eb7746b0b1d"
-  integrity sha512-KubucHY9EnHnao7zgdXsOpckLZA5PgXvaR/eI6IQY2xzuG6RPlVqIffSPpiDjX09SopoYRWbztvkg+Z2m0ib9g==
+"@commitlint/prompt@^17.2.0":
+  version "17.2.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/prompt/-/prompt-17.2.0.tgz#e687521bce9bf4fc1ee1eb7a0b89e80f5e1be8fd"
+  integrity sha512-xMWMJteq0VZ25i8IaXGBmUMEg8l5SQewvk21jp//BPkKSOxEwXFUSiwMA6iUkILCWHHffQBAgs/1O+4HqZrtaQ==
   dependencies:
     "@commitlint/ensure" "^17.0.0"
-    "@commitlint/load" "^17.1.2"
+    "@commitlint/load" "^17.2.0"
     "@commitlint/types" "^17.0.0"
     chalk "^4.1.0"
     inquirer "^6.5.2"
