@@ -69,7 +69,7 @@
     "@typescript-eslint/parser": "^5.57.0",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "3.3.0",
-    "eslint": "^8.46.0",
+    "eslint": "^8.48.0",
     "eslint-config-prettier": "^8.9.0",
     "eslint-plugin-prettier": "^4.2.1",
     "gzip-size-cli": "^5.0.0",
