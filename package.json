@@ -65,7 +65,7 @@
     "@semantic-release/github": "^9.2.6",
     "@types/jest": "^27.4.1",
     "@types/react": "^18.2.46",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^6.9.1",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "3.3.0",
