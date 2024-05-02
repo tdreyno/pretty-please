@@ -1269,17 +1269,17 @@
     "@commitlint/rules" "^18.1.0"
     "@commitlint/types" "^18.1.0"
 
-"@commitlint/load@>6.1.1", "@commitlint/load@^19.0.3":
-  version "19.0.3"
-  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-19.0.3.tgz#f05ce3830482e3908799f8e6eb202c8d9713efd8"
-  integrity sha512-18Tk/ZcDFRKIoKfEcl7kC+bYkEQ055iyKmGsYDoYWpKf6FUvBrP9bIWapuy/MB+kYiltmP9ITiUx6UXtqC9IRw==
+"@commitlint/load@>6.1.1", "@commitlint/load@^19.2.0":
+  version "19.2.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-19.2.0.tgz#3ca51fdead4f1e1e09c9c7df343306412b1ef295"
+  integrity sha512-XvxxLJTKqZojCxaBQ7u92qQLFMMZc4+p9qrIq/9kJDy8DOrEa7P1yx7Tjdc2u2JxIalqT4KOGraVgCE7eCYJyQ==
   dependencies:
     "@commitlint/config-validator" "^19.0.3"
     "@commitlint/execute-rule" "^19.0.0"
-    "@commitlint/resolve-extends" "^19.0.3"
+    "@commitlint/resolve-extends" "^19.1.0"
     "@commitlint/types" "^19.0.3"
     chalk "^5.3.0"
-    cosmiconfig "^8.3.6"
+    cosmiconfig "^9.0.0"
     cosmiconfig-typescript-loader "^5.0.0"
     lodash.isplainobject "^4.0.6"
     lodash.merge "^4.6.2"
@@ -1317,13 +1317,13 @@
     conventional-changelog-angular "^6.0.0"
     conventional-commits-parser "^5.0.0"
 
-"@commitlint/prompt@^19.0.3":
-  version "19.0.3"
-  resolved "https://registry.yarnpkg.com/@commitlint/prompt/-/prompt-19.0.3.tgz#5dc87a3f23fa1b63a90a58e3fbe54888ab2b13b2"
-  integrity sha512-uyk2N+E8dGtraRpeJn+fPxMgLhBz3A5KhXZmN3wf3P31pIuwc8oCMGmWDCeeewuidjDnnH4tJEu15PjiRYPqIg==
+"@commitlint/prompt@^19.3.0":
+  version "19.3.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/prompt/-/prompt-19.3.0.tgz#73f35c7d0f019731686eeb380707c637832aa056"
+  integrity sha512-y9VTfXEXH2G6UUj0gw8q1yefdIoqC9G7UKasa+OOCzodhEvoMg+m7V3gSmgOiEC6UZblSHyyTwijC1cKPOF1Tw==
   dependencies:
     "@commitlint/ensure" "^19.0.3"
-    "@commitlint/load" "^19.0.3"
+    "@commitlint/load" "^19.2.0"
     "@commitlint/types" "^19.0.3"
     chalk "^5.3.0"
     inquirer "^9.2.15"
@@ -1351,10 +1351,10 @@
     resolve-from "^5.0.0"
     resolve-global "^1.0.0"
 
-"@commitlint/resolve-extends@^19.0.3":
-  version "19.0.3"
-  resolved "https://registry.yarnpkg.com/@commitlint/resolve-extends/-/resolve-extends-19.0.3.tgz#04d0e95f9119983765741df603d36f4457f56c13"
-  integrity sha512-18BKmta8OC8+Ub+Q3QGM9l27VjQaXobloVXOrMvu8CpEwJYv62vC/t7Ka5kJnsW0tU9q1eMqJFZ/nN9T/cOaIA==
+"@commitlint/resolve-extends@^19.1.0":
+  version "19.1.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/resolve-extends/-/resolve-extends-19.1.0.tgz#fa5b8f921e9c8d76f53624c35bf25b9676bd73fa"
+  integrity sha512-z2riI+8G3CET5CPgXJPlzftH+RiWYLMYv4C9tSLdLXdr6pBNimSKukYP9MS27ejmscqCTVA4almdLh0ODD2KYg==
   dependencies:
     "@commitlint/config-validator" "^19.0.3"
     "@commitlint/types" "^19.0.3"
@@ -3926,15 +3926,15 @@ cosmiconfig@^8.0.0:
     parse-json "^5.0.0"
     path-type "^4.0.0"
 
-cosmiconfig@^8.3.6:
-  version "8.3.6"
-  resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-8.3.6.tgz#060a2b871d66dba6c8538ea1118ba1ac16f5fae3"
-  integrity sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==
+cosmiconfig@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-9.0.0.tgz#34c3fc58287b915f3ae905ab6dc3de258b55ad9d"
+  integrity sha512-itvL5h8RETACmOTFc4UfIyB2RfEHi71Ax6E/PivVxq9NseKbOWpeyHEOIbmAw1rs8Ak0VursQNww7lf7YtUwzg==
   dependencies:
+    env-paths "^2.2.1"
     import-fresh "^3.3.0"
     js-yaml "^4.1.0"
     parse-json "^5.2.0"
-    path-type "^4.0.0"
 
 cross-spawn@^5.0.1:
   version "5.1.0"
@@ -4285,7 +4285,7 @@ env-ci@^9.0.0:
     execa "^7.0.0"
     java-properties "^1.0.2"
 
-env-paths@^2.2.0:
+env-paths@^2.2.0, env-paths@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/env-paths/-/env-paths-2.2.1.tgz#420399d416ce1fbe9bc0a07c62fa68d67fd0f8f2"
   integrity sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==
